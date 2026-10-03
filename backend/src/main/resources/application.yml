@@ -1,11 +1,6 @@
 spring:
   application:
     name: arrima
-  config:
-    # Local development reads secrets from backend/.env (git-ignored). In production the same
-    # names come from the environment variables configured in Render.
-    import: optional:file:.env[.properties]
-
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -31,9 +26,30 @@ spring:
     virtual:
       enabled: true
 
+  servlet:
+    multipart:
+      # Photos are compressed in the browser first; ImageValidator applies the real limit.
+      max-file-size: 4MB
+      max-request-size: 5MB
+
 server:
   # Render injects PORT; 8080 is the local default.
   port: ${PORT:8080}
   # Render terminates TLS and forwards X-Forwarded-* headers from its internal proxy.
   forward-headers-strategy: native
   shutdown: graceful
+
+# Values come from environment variables (Render in production, backend/.env with the "local" profile).
+arrima:
+  security:
+    jwt-secret: ${JWT_SECRET:}
+    access-token-ttl: 15m
+    refresh-token-ttl: 60d
+    refresh-reuse-grace: 60s
+    cookie-secure: true
+  storage:
+    provider: supabase
+    local-directory: .local-files
+    supabase-url: ${SUPABASE_URL:}
+    supabase-key: ${SUPABASE_SECRET_KEY:}
+    bucket: ${SUPABASE_BUCKET:arrima}

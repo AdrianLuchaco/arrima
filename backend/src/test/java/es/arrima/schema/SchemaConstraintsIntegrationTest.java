@@ -64,18 +64,10 @@ class SchemaConstraintsIntegrationTest {
     }
 
     @Test
-    void twoMatchupsCannotShareACourtInTheSameRound() {
+    void aMatchupThatWaitedCanUseACourtAlreadyUsedInTheSameRound() {
         insertMatchup(1, team1, team2, 1);
 
-        assertThatThrownBy(() -> insertMatchup(1, team3, team4, 1))
-                .isInstanceOf(DataIntegrityViolationException.class);
-    }
-
-    @Test
-    void severalMatchupsCanWaitForACourtInTheSameRound() {
-        insertMatchup(1, team1, team2, null);
-
-        assertThatCode(() -> insertMatchup(1, team3, team4, null)).doesNotThrowAnyException();
+        assertThatCode(() -> insertMatchup(1, team3, team4, 1)).doesNotThrowAnyException();
     }
 
     @Test

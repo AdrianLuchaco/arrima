@@ -53,7 +53,7 @@ cp backend/.env.example backend/.env       # y rellénalo (en local, cualquier u
 # Terminal 1: base de datos + backend (http://localhost:8080)
 cd backend
 docker compose up -d                       # PostgreSQL 17 en el puerto 5433
-./mvnw spring-boot:run
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
 
 # Terminal 2: frontend (http://localhost:5173)
 cd frontend
@@ -62,6 +62,20 @@ npm run dev
 ```
 
 El frontend reenvía `/api/*` al backend gracias al proxy de Vite, igual que hace Vercel en producción.
+
+El perfil `local` lee `backend/.env` y guarda las imágenes en `backend/.local-files/` en vez de en Supabase.
+
+### Crear un club en local
+
+Registrar un club exige un código de invitación. Para crear uno en tu base de datos local:
+
+```sh
+cd backend
+set -a && . ./.env && set +a
+docker compose exec -T postgres psql -U "$DB_USERNAME" -d arrima -tA < ../scripts/create-invitation.sql
+```
+
+Abre http://localhost:5173/registro y usa el código que sale.
 
 ### Tests
 
@@ -79,9 +93,10 @@ Se definen en `backend/.env` en local y en el panel de Render en producción. **
 | `DB_URL` | URL JDBC de PostgreSQL | `jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require` |
 | `DB_USERNAME` | Usuario de la base de datos | `postgres.abcdefghijklmnop` |
 | `DB_PASSWORD` | Contraseña de la base de datos | (la de tu proyecto de Supabase) |
+| `JWT_SECRET` | Clave que firma las sesiones: base64 de 32 bytes aleatorios | salida de `openssl rand -base64 32` |
+| `SUPABASE_URL` | URL del proyecto de Supabase (solo producción) | `https://abcdefghijklmnop.supabase.co` |
+| `SUPABASE_SECRET_KEY` | Clave secreta de Supabase (solo producción) | `sb_secret_...` |
 | `PORT` | Puerto HTTP. Lo pone Render solo | — |
-
-Las fases siguientes añadirán más (claves JWT, Supabase Storage, correo). Cada una se documentará aquí.
 
 ## Despliegue paso a paso
 

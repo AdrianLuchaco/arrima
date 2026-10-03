@@ -1,0 +1,5 @@
+arrima:
+  # arrima.security.jwt-secret is generated at random by TestcontainersConfiguration.
+  storage:
+    provider: local
+    local-directory: ${java.io.tmpdir}/arrima-test-files

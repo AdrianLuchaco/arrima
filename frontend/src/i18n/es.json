@@ -3,6 +3,21 @@
     "name": "Arrima",
     "tagline": "Las melés de petanca de tu club, sin papel"
   },
+  "common": {
+    "increase": "Subir {{label}}",
+    "decrease": "Bajar {{label}}",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "nav": {
+    "label": "Menú principal",
+    "melees": "Melés",
+    "club": "Club"
+  },
   "loading": {
     "checking": "Cargando…",
     "waking": {
@@ -14,7 +29,95 @@
       "detail": "Lo volveremos a intentar en cuanto vuelva la cobertura."
     }
   },
-  "home": {
-    "serverReady": "Conectado al servidor"
+  "auth": {
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "showPassword": "Mostrar",
+    "hidePassword": "Ocultar",
+    "logout": "Salir",
+    "login": {
+      "title": "Entra en tu club",
+      "submit": "Entrar",
+      "forgot": "¿Has olvidado la contraseña?",
+      "noAccount": "¿Tu club aún no tiene cuenta?",
+      "registerLink": "Regístralo con tu invitación"
+    },
+    "register": {
+      "title": "Registra tu club",
+      "invitationCode": "Código de invitación",
+      "invitationHelp": "Te lo da quien gestiona Arrima. Solo sirve una vez.",
+      "clubName": "Nombre del club",
+      "password": "Contraseña (mínimo 10 caracteres)",
+      "passwordHelp": "Una frase larga es más segura y más fácil de recordar, por ejemplo «bolas de acero al sol».",
+      "submit": "Crear la cuenta del club",
+      "haveAccount": "¿Ya tienes cuenta?",
+      "loginLink": "Entra"
+    }
+  },
+  "club": {
+    "profile": {
+      "title": "Perfil del club",
+      "name": "Nombre del club",
+      "logo": "Logo del club",
+      "noLogo": "Sin logo",
+      "addLogo": "Añadir logo",
+      "changeLogo": "Cambiar logo",
+      "removeLogo": "Quitar logo",
+      "meleeDefaults": "Valores de cada melé",
+      "meleeDefaultsHelp": "Se usan al crear una melé. Ese día los puedes cambiar solo para esa melé.",
+      "courts": "Pistas",
+      "rounds": "Partidas por equipo",
+      "prizes": "Premios",
+      "scoring": "Puntos de la Internacional",
+      "scoringHelp": "Cada melé guarda una copia: si los cambias, las melés anteriores no cambian.",
+      "pointing": "Arrimar",
+      "shooting": "Tirar",
+      "points": {
+        "pointingOut": "Fuera de los dos círculos",
+        "pointingBigCircle": "En el círculo grande o tocando su línea",
+        "pointingSmallCircle": "En el círculo pequeño o tocando su línea",
+        "pointingNearJack": "A menos de 10 cm del boliche",
+        "pointingOnJack": "Tocando el boliche (chupete)",
+        "shootingMiss": "Fallo",
+        "shootingHit": "Le da y no sale del círculo pequeño",
+        "shootingHitOut": "Le da y sale del círculo pequeño",
+        "shootingCarreau": "Carro"
+      },
+      "save": "Guardar cambios",
+      "saved": "Cambios guardados."
+    }
+  },
+  "melees": {
+    "title": "Melés"
+  },
+  "notFound": {
+    "title": "Esta página no existe",
+    "back": "Volver al inicio"
+  },
+  "errors": {
+    "NETWORK": "No hay conexión. Inténtalo de nuevo en un momento.",
+    "SERVER": "El servidor ha tenido un problema. Inténtalo de nuevo.",
+    "UNKNOWN": "Algo ha fallado. Inténtalo de nuevo.",
+    "VALIDATION_FAILED": "Revisa los campos marcados.",
+    "NOT_FOUND": "No se ha encontrado.",
+    "RATE_LIMITED": "Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.",
+    "UNAUTHENTICATED": "Tu sesión ha caducado. Vuelve a entrar.",
+    "INVALID_CREDENTIALS": "El correo o la contraseña no son correctos.",
+    "INVALID_REFRESH_TOKEN": "Tu sesión ha caducado. Vuelve a entrar.",
+    "INVITATION_INVALID": "El código de invitación no es válido, ha caducado o ya se ha usado.",
+    "EMAIL_TAKEN": "Ya hay una cuenta con ese correo.",
+    "INVALID_IMAGE": "Ese archivo no es una imagen válida.",
+    "IMAGE_TOO_LARGE": "La imagen es demasiado grande."
+  },
+  "fieldErrors": {
+    "NotBlank": "Este campo es obligatorio.",
+    "NotNull": "Este campo es obligatorio.",
+    "Size": "Es demasiado largo.",
+    "Min": "El valor es demasiado bajo.",
+    "Max": "El valor es demasiado alto.",
+    "Email": "No parece un correo válido.",
+    "TooShort": "Debe tener al menos 10 caracteres.",
+    "TooLong": "Es demasiado larga.",
+    "Invalid": "No es válido."
   }
 }

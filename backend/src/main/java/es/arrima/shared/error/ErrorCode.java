@@ -1,0 +1,37 @@
+package es.arrima.shared.error;
+
+import org.springframework.http.HttpStatus;
+
+/**
+ * Machine-readable error codes sent to the client in the "code" property of every error response.
+ * The frontend translates them into Spanish; the backend never sends user-facing text.
+ */
+public enum ErrorCode {
+
+    VALIDATION_FAILED(HttpStatus.BAD_REQUEST),
+    NOT_FOUND(HttpStatus.NOT_FOUND),
+    RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS),
+    CROSS_SITE_REQUEST(HttpStatus.FORBIDDEN),
+
+    // Authentication
+    UNAUTHENTICATED(HttpStatus.UNAUTHORIZED),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED),
+    INVITATION_INVALID(HttpStatus.BAD_REQUEST),
+    EMAIL_TAKEN(HttpStatus.CONFLICT),
+
+    // Files
+    INVALID_IMAGE(HttpStatus.BAD_REQUEST),
+    IMAGE_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE),
+    INVALID_FILE_LINK(HttpStatus.FORBIDDEN);
+
+    private final HttpStatus status;
+
+    ErrorCode(HttpStatus status) {
+        this.status = status;
+    }
+
+    public HttpStatus status() {
+        return status;
+    }
+}

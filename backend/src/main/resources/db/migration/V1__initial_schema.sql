@@ -11,19 +11,19 @@ create table club (
     id                            bigint generated always as identity primary key,
     name                          varchar(100) not null,
     logo_path                     varchar(200),
-    court_count                   smallint     not null check (court_count between 1 and 200),
-    default_rounds                smallint     not null check (default_rounds between 1 and 20),
-    default_prize_count           smallint     not null check (default_prize_count between 1 and 100),
+    court_count                   integer      not null check (court_count between 1 and 200),
+    default_rounds                integer      not null check (default_rounds between 1 and 20),
+    default_prize_count           integer      not null check (default_prize_count between 1 and 100),
     -- Default points of la Internacional; every melee gets its own copy when it is created.
-    points_pointing_out           smallint     not null,
-    points_pointing_big_circle    smallint     not null,
-    points_pointing_small_circle  smallint     not null,
-    points_pointing_near_jack     smallint     not null,
-    points_pointing_on_jack       smallint     not null,
-    points_shooting_miss          smallint     not null,
-    points_shooting_hit           smallint     not null,
-    points_shooting_hit_out       smallint     not null,
-    points_shooting_carreau       smallint     not null,
+    points_pointing_out           integer      not null,
+    points_pointing_big_circle    integer      not null,
+    points_pointing_small_circle  integer      not null,
+    points_pointing_near_jack     integer      not null,
+    points_pointing_on_jack       integer      not null,
+    points_shooting_miss          integer      not null,
+    points_shooting_hit           integer      not null,
+    points_shooting_hit_out       integer      not null,
+    points_shooting_carreau       integer      not null,
     created_at                    timestamptz  not null default now(),
     updated_at                    timestamptz  not null default now(),
     constraint club_points_range check (
@@ -83,24 +83,24 @@ create table melee (
     club_id                       bigint      not null references club (id) on delete cascade,
     played_on                     date        not null,
     format                        varchar(20) not null check (format in ('CLASSIC')),
-    team_size                     smallint    not null check (team_size in (2, 3)),
+    team_size                     integer     not null check (team_size in (2, 3)),
     status                        varchar(20) not null check (status in
                                       ('REGISTRATION', 'TEAMS', 'MATCHES', 'INTERNATIONAL', 'PRIZES', 'CLOSED')),
     public_code                   varchar(8)  not null unique,
     -- Copy of the club settings taken when the melee is created, so later profile edits
     -- never change the history.
-    rounds_count                  smallint    not null check (rounds_count between 1 and 20),
-    prize_count                   smallint    not null check (prize_count between 1 and 100),
-    court_count                   smallint    not null check (court_count between 1 and 200),
-    points_pointing_out           smallint    not null,
-    points_pointing_big_circle    smallint    not null,
-    points_pointing_small_circle  smallint    not null,
-    points_pointing_near_jack     smallint    not null,
-    points_pointing_on_jack       smallint    not null,
-    points_shooting_miss          smallint    not null,
-    points_shooting_hit           smallint    not null,
-    points_shooting_hit_out       smallint    not null,
-    points_shooting_carreau       smallint    not null,
+    rounds_count                  integer     not null check (rounds_count between 1 and 20),
+    prize_count                   integer     not null check (prize_count between 1 and 100),
+    court_count                   integer     not null check (court_count between 1 and 200),
+    points_pointing_out           integer     not null,
+    points_pointing_big_circle    integer     not null,
+    points_pointing_small_circle  integer     not null,
+    points_pointing_near_jack     integer     not null,
+    points_pointing_on_jack       integer     not null,
+    points_shooting_miss          integer     not null,
+    points_shooting_hit           integer     not null,
+    points_shooting_hit_out       integer     not null,
+    points_shooting_carreau       integer     not null,
     -- Render cannot run scheduled jobs reliably: the 20-minute auto-close is evaluated on the next request.
     last_activity_at              timestamptz not null default now(),
     closed_at                     timestamptz,
@@ -116,7 +116,7 @@ create table participant (
     id            bigint generated always as identity primary key,
     melee_id      bigint      not null references melee (id) on delete cascade,
     -- Number from the WhatsApp list: it may be missing or repeated, so it is neither required nor unique.
-    list_number   smallint    check (list_number > 0),
+    list_number   integer     check (list_number > 0),
     display_name  varchar(60) not null,
     status        varchar(20) not null check (status in ('ACTIVE', 'WITHDRAWN')),
     created_at    timestamptz not null default now()
@@ -126,7 +126,7 @@ create index participant_melee_idx on participant (melee_id);
 create table team (
     id        bigint generated always as identity primary key,
     melee_id  bigint   not null references melee (id) on delete cascade,
-    number    smallint not null check (number > 0),
+    number    integer not null check (number > 0),
     constraint team_number_per_melee unique (melee_id, number)
 );
 
@@ -144,12 +144,12 @@ create table team_member (
 create table matchup (
     id              bigint generated always as identity primary key,
     melee_id        bigint      not null references melee (id) on delete cascade,
-    round_number    smallint    not null check (round_number > 0),
+    round_number    integer     not null check (round_number > 0),
     -- Teams are stored in id order so that the unique constraint below forbids rematches.
     team_a_id       bigint      not null references team (id) on delete cascade,
     team_b_id       bigint      not null references team (id) on delete cascade,
     -- Null while the matchup waits for a free court.
-    court_number    smallint    check (court_number > 0),
+    court_number    integer     check (court_number > 0),
     winner_team_id  bigint      references team (id),
     decided_at      timestamptz,
     version         bigint      not null default 0,
@@ -160,13 +160,13 @@ create table matchup (
 create index matchup_melee_round_idx on matchup (melee_id, round_number);
 create index matchup_team_b_idx on matchup (team_b_id);
 create index matchup_winner_idx on matchup (winner_team_id);
-create unique index matchup_court_per_round_uk
-    on matchup (melee_id, round_number, court_number) where court_number is not null;
+-- No unique (round, court): a matchup that waited for a court is later played on a court that
+-- another matchup of the same round has already used and freed.
 
 create table bye (
     id            bigint generated always as identity primary key,
     melee_id      bigint   not null references melee (id) on delete cascade,
-    round_number  smallint not null check (round_number > 0),
+    round_number  integer not null check (round_number > 0),
     -- A team rests at most once in the whole melee.
     team_id       bigint   not null unique references team (id) on delete cascade,
     constraint bye_one_per_round unique (melee_id, round_number)
@@ -180,10 +180,10 @@ create table international_group (
     id                    bigint generated always as identity primary key,
     melee_id              bigint      not null references melee (id) on delete cascade,
     -- 1 is the group with the fewest wins that still competes for a prize: it plays first.
-    play_order            smallint    not null check (play_order > 0),
-    wins                  smallint    not null check (wins >= 0),
-    best_prize_position   smallint    not null,
-    worst_prize_position  smallint    not null,
+    play_order            integer     not null check (play_order > 0),
+    wins                  integer     not null check (wins >= 0),
+    best_prize_position   integer     not null,
+    worst_prize_position  integer     not null,
     status                varchar(20) not null check (status in ('PENDING', 'IN_PROGRESS', 'FINISHED')),
     constraint international_group_order unique (melee_id, play_order),
     constraint international_group_prizes check (best_prize_position between 1 and worst_prize_position)
@@ -193,14 +193,14 @@ create table international_group (
 create table international_round (
     id            bigint generated always as identity primary key,
     group_id      bigint   not null references international_group (id) on delete cascade,
-    round_number  smallint not null check (round_number > 0),
+    round_number  integer not null check (round_number > 0),
     constraint international_round_number unique (group_id, round_number)
 );
 
 create table international_round_team (
     round_id    bigint   not null references international_round (id) on delete cascade,
     team_id     bigint   not null references team (id) on delete cascade,
-    play_order  smallint not null check (play_order > 0),
+    play_order  integer not null check (play_order > 0),
     primary key (round_id, team_id),
     constraint international_round_team_order unique (round_id, play_order)
 );
@@ -211,9 +211,9 @@ create table ball_throw (
     round_id      bigint      not null,
     team_id       bigint      not null,
     kind          varchar(10) not null check (kind in ('POINTING', 'SHOOTING')),
-    ball_number   smallint    not null check (ball_number between 1 and 3),
+    ball_number   integer     not null check (ball_number between 1 and 3),
     outcome       varchar(20) not null,
-    points        smallint    not null check (points >= 0),
+    points        integer     not null check (points >= 0),
     recorded_at   timestamptz not null default now(),
     corrected_at  timestamptz,
     -- The team must take part in that round.
@@ -233,13 +233,14 @@ create index ball_throw_team_idx on ball_throw (team_id);
 create table prize (
     id                    bigint generated always as identity primary key,
     melee_id              bigint      not null references melee (id) on delete cascade,
-    position              smallint    not null check (position > 0),
+    position              integer     not null check (position > 0),
     team_id               bigint      not null references team (id) on delete cascade,
     -- Null when the team did not need to play la Internacional.
-    international_points  smallint,
+    international_points  integer,
     -- Set when the prize is shown during the ceremony.
     awarded_at            timestamptz,
-    constraint prize_position_per_melee unique (melee_id, position),
+    -- Deferred to the end of the transaction, so recalculating the ranking can swap positions.
+    constraint prize_position_per_melee unique (melee_id, position) deferrable initially deferred,
     constraint prize_team_per_melee unique (melee_id, team_id)
 );
 create index prize_team_idx on prize (team_id);

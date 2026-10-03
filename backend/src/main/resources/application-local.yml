@@ -1,0 +1,10 @@
+# Local development: ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+spring:
+  config:
+    # Secrets from backend/.env (git-ignored). In production the same names are Render variables.
+    import: optional:file:.env[.properties]
+
+arrima:
+  storage:
+    # Images in backend/.local-files instead of Supabase, so no Supabase project is needed locally.
+    provider: local

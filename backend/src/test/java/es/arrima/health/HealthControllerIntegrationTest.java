@@ -30,8 +30,8 @@ class HealthControllerIntegrationTest {
 
     @Test
     void anyOtherEndpointIsDeniedByDefault() {
-        assertThat(mvc.get().uri("/api/clubs")).hasStatus(HttpStatus.FORBIDDEN);
-        assertThat(mvc.post().uri("/api/health")).hasStatus(HttpStatus.FORBIDDEN);
+        assertThat(mvc.get().uri("/api/unknown")).hasStatus(HttpStatus.UNAUTHORIZED);
+        assertThat(mvc.post().uri("/api/health")).hasStatus(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
