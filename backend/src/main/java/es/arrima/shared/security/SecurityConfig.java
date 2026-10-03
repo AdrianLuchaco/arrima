@@ -33,6 +33,7 @@ class SecurityConfig {
                         // Images: access is granted by the signature in the link (see FileLinkSigner).
                         .requestMatchers(GET, "/api/files/**").permitAll()
                         .requestMatchers("/api/club", "/api/club/**").authenticated()
+                        .requestMatchers("/api/melees", "/api/melees/**").authenticated()
                         // Deny by default: every endpoint must be listed above.
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(oauth -> oauth

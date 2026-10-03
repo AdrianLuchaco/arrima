@@ -106,7 +106,9 @@ create table melee (
     closed_at                     timestamptz,
     created_at                    timestamptz not null default now(),
     updated_at                    timestamptz not null default now(),
-    version                       bigint      not null default 0
+    -- Increased by every change to the melee or anything in it: clients compare it to know
+    -- whether their copy is up to date (SSE events, polling with ETag).
+    revision                      bigint      not null default 0
 );
 create index melee_club_played_on_idx on melee (club_id, played_on desc);
 
@@ -152,7 +154,6 @@ create table matchup (
     court_number    integer     check (court_number > 0),
     winner_team_id  bigint      references team (id),
     decided_at      timestamptz,
-    version         bigint      not null default 0,
     constraint matchup_teams_ordered check (team_a_id < team_b_id),
     constraint matchup_no_rematch unique (team_a_id, team_b_id),
     constraint matchup_winner_plays check (winner_team_id in (team_a_id, team_b_id))

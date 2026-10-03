@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import { ApiError } from './api/ApiError'
 import { AuthLayout, SignedInOnly, SignedOutOnly } from './auth/routeGuards'
 import { ClubProfilePage } from './pages/ClubProfilePage'
+import { MeleePage } from './melee/MeleePage'
 import { LoginPage } from './pages/LoginPage'
 import { MeleesPage } from './pages/MeleesPage'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -35,6 +36,7 @@ export default function App() {
                 <Route element={<AppShell />}>
                   <Route index element={<MeleesPage />} />
                   <Route path="/club" element={<ClubProfilePage />} />
+                  <Route path="/melees/:meleeId" element={<MeleePage />} />
                 </Route>
               </Route>
             </Route>

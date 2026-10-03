@@ -38,6 +38,11 @@ server:
   # Render terminates TLS and forwards X-Forwarded-* headers from its internal proxy.
   forward-headers-strategy: native
   shutdown: graceful
+  # JSON compresses ~10x: a melee view of 40 players goes from ~20 KB to ~2 KB on a weak signal.
+  compression:
+    enabled: true
+    mime-types: application/json,application/problem+json
+    min-response-size: 1KB
 
 # Values come from environment variables (Render in production, backend/.env with the "local" profile).
 arrima:

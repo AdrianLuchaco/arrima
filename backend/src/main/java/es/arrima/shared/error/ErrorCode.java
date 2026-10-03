@@ -20,6 +20,11 @@ public enum ErrorCode {
     INVITATION_INVALID(HttpStatus.BAD_REQUEST),
     EMAIL_TAKEN(HttpStatus.CONFLICT),
 
+    // Melees
+    INVALID_STATE(HttpStatus.CONFLICT),
+    CONFIRMATION_REQUIRED(HttpStatus.CONFLICT),
+    PARTICIPANT_LIMIT(HttpStatus.BAD_REQUEST),
+
     // Files
     INVALID_IMAGE(HttpStatus.BAD_REQUEST),
     IMAGE_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE),

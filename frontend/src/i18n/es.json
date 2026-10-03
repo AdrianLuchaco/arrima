@@ -88,7 +88,17 @@
     }
   },
   "melees": {
-    "title": "Melés"
+    "title": "Melés",
+    "createClassic": "Crear melé clásica",
+    "create": "Crear melé",
+    "current": "En curso",
+    "history": "Histórico",
+    "noCurrent": "No hay ninguna melé en curso.",
+    "noHistory": "Aún no hay melés cerradas.",
+    "players_one": "{{count}} jugador",
+    "players_other": "{{count}} jugadores",
+    "teamSizeQuestion": "¿Dupletas o tripletas?",
+    "settingsForToday": "Solo para hoy (si no los tocas, valen los del perfil del club):"
   },
   "notFound": {
     "title": "Esta página no existe",
@@ -107,7 +117,10 @@
     "INVITATION_INVALID": "El código de invitación no es válido, ha caducado o ya se ha usado.",
     "EMAIL_TAKEN": "Ya hay una cuenta con ese correo.",
     "INVALID_IMAGE": "Ese archivo no es una imagen válida.",
-    "IMAGE_TOO_LARGE": "La imagen es demasiado grande."
+    "IMAGE_TOO_LARGE": "La imagen es demasiado grande.",
+    "INVALID_STATE": "Eso no se puede hacer en esta fase de la melé.",
+    "CONFIRMATION_REQUIRED": "Hace falta confirmarlo.",
+    "PARTICIPANT_LIMIT": "Se ha llegado al máximo de jugadores de una melé."
   },
   "fieldErrors": {
     "NotBlank": "Este campo es obligatorio.",
@@ -118,6 +131,99 @@
     "Email": "No parece un correo válido.",
     "TooShort": "Debe tener al menos 10 caracteres.",
     "TooLong": "Es demasiado larga.",
-    "Invalid": "No es válido."
+    "Invalid": "No es válido.",
+    "Range": "El número no es válido."
+  },
+  "melee": {
+    "classic": "Melé clásica",
+    "teamSize": {
+      "2": "Dupletas",
+      "3": "Tripletas"
+    },
+    "summary": "{{roundsCount}} partidas · {{prizeCount}} premios · {{courtCount}} pistas",
+    "phases": "Fases de la melé",
+    "phaseOf": "Fase {{number}} de {{total}}: {{name}}",
+    "status": {
+      "REGISTRATION": "Inscripción",
+      "TEAMS": "Equipos",
+      "MATCHES": "Partidas",
+      "INTERNATIONAL": "La Internacional",
+      "PRIZES": "Premios",
+      "CLOSED": "Cerrada"
+    },
+    "back": {
+      "button": "Volver a {{phase}}",
+      "title": "¿Volver a la fase anterior?",
+      "explanation": "La melé vuelve a «{{phase}}». No se borra nada: al avanzar otra vez se conserva todo lo que siga cuadrando y se te avisará antes de perder algo.",
+      "confirm": "Volver"
+    },
+    "delete": {
+      "button": "Borrar esta melé",
+      "title": "¿Borrar la melé?",
+      "explanation": "Se borrarán sus jugadores, equipos, resultados, la Internacional y las fotos. No se puede deshacer.",
+      "confirm": "Borrar para siempre"
+    },
+    "tabs": {
+      "label": "Vistas de la melé",
+      "players": "Jugadores",
+      "teams": "Equipos",
+      "courts": "Pistas"
+    }
+  },
+  "players": {
+    "empty": "Aún no hay nadie apuntado. Pega la lista de WhatsApp o añade jugadores a mano.",
+    "withdrawn": "BAJA",
+    "plan": {
+      "fits": "{{count}} jugadores: {{teams}} {{size}}. Cuadra.",
+      "doesNotFit": "{{count}} jugadores: no cuadra para {{size}}.",
+      "oddTeams": "Si sorteas así saldrían {{teams}}. También puedes dar de baja o añadir a alguien.",
+      "teamsOfSize": {
+        "2_one": "{{count}} dupleta",
+        "2_other": "{{count}} dupletas",
+        "3_one": "{{count}} tripleta",
+        "3_other": "{{count}} tripletas"
+      },
+      "and": " y ",
+      "notEnough_one": "{{count}} jugador: hacen falta más para formar al menos dos equipos.",
+      "notEnough_other": "{{count}} jugadores: hacen falta más para formar al menos dos equipos."
+    },
+    "paste": {
+      "button": "Pegar lista de WhatsApp",
+      "title": "Pegar lista de WhatsApp",
+      "instructions": "Copia el último mensaje de la lista en WhatsApp y pégalo aquí:",
+      "placeholder": "MELÉ SÁBADO\n1. Manuel\n2. Paqui\n3. …",
+      "read": "Ver la lista",
+      "nothingFound": "No he encontrado ninguna línea con número. Comprueba que has pegado el mensaje de la lista.",
+      "reviewHelp": "Revisa la lista. Puedes corregir números y nombres, y desmarcar a quien no deba entrar.",
+      "include": "Incluir a {{name}}",
+      "flags": {
+        "struck": "Tachado en WhatsApp: ¿se ha borrado? ",
+        "header": "Parece parte de la cabecera. ",
+        "duplicate": "Ya está en la lista. "
+      },
+      "again": "Volver a pegar",
+      "confirm_one": "Añadir {{count}} jugador",
+      "confirm_other": "Añadir {{count}} jugadores"
+    },
+    "add": {
+      "button": "Añadir jugador",
+      "title": "Añadir jugador"
+    },
+    "edit": {
+      "title": "Jugador",
+      "name": "Nombre",
+      "number": "Número en la lista",
+      "numberHelp": "Opcional.",
+      "withdraw": "Anular (se apuntó y no ha venido)",
+      "reinstate": "Volver a darle de alta",
+      "withdrawHelp": "Un jugador anulado se queda en la lista en rojo y no entra en el sorteo.",
+      "delete": "Quitar de la lista por completo"
+    }
+  },
+  "teams": {
+    "none": "Aún no hay equipos."
+  },
+  "courts": {
+    "none": "Aún no hay cuadro de pistas."
   }
 }
