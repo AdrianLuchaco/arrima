@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/*
+ * Petanque palette: steel balls, a bright jack (boliche), gravel and clay courts.
+ * Used outdoors in full sun, often by older people: dark text on a light background,
+ * with every text/background pair at WCAG AA contrast or better.
+ */
+@theme {
+  --font-sans: "Atkinson Hyperlegible Next Variable", system-ui, sans-serif;
+
+  --color-gravel-50: #f7f3ec;
+  --color-gravel-100: #ede5d6;
+  --color-gravel-300: #cbbda3;
+  --color-gravel-600: #6f624f;
+
+  --color-steel-200: #d3d8dc;
+  --color-steel-400: #8e9aa3;
+  --color-steel-600: #56636d;
+  --color-steel-800: #2c3439;
+  --color-steel-900: #1c2226;
+
+  --color-jack-500: #e8590c;
+  --color-jack-700: #b23a0a;
+
+  --color-clay-600: #a4552a;
+}
+
+@layer base {
+  html {
+    /* 18px base: comfortable reading at arm's length without zooming. */
+    font-size: 112.5%;
+  }
+
+  body {
+    @apply bg-gravel-50 font-sans text-steel-900 antialiased;
+  }
+}
+
+/* Loading screen: steel balls rolling up to the jack ("arrimar"). */
+@keyframes arrima-roll {
+  0% {
+    transform: translateX(-140px) rotate(-540deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  55%,
+  85% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+.arrima-ball {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: arrima-roll 2.6s cubic-bezier(0.2, 0.7, 0.3, 1) infinite both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arrima-ball {
+    animation: none;
+  }
+}

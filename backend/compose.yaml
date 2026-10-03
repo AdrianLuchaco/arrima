@@ -1,0 +1,17 @@
+# Local PostgreSQL for development (same major version as Supabase).
+# The credentials come from backend/.env, the same file the backend reads.
+# Port 5433 on the host so it does not clash with other local PostgreSQL instances.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: arrima
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - arrima-pgdata:/var/lib/postgresql/data
+
+volumes:
+  arrima-pgdata:

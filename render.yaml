@@ -1,0 +1,24 @@
+# Render Blueprint: creates the backend web service (see README, "Despliegue").
+services:
+  - type: web
+    name: arrima-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    # Deploy only after the GitHub Actions checks pass on main.
+    autoDeployTrigger: checksPass
+    # Changes outside backend/ (e.g. the frontend) do not redeploy the backend.
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      # Secrets: Render asks for their values when the Blueprint is created. Never put them here.
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false

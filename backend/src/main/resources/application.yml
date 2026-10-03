@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: arrima
+  config:
+    # Local development reads secrets from backend/.env (git-ignored). In production the same
+    # names come from the environment variables configured in Render.
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      # Our tables live in their own schema so Supabase's Data API (which exposes "public") cannot reach them.
+      schema: arrima
+      # Render's free instance has 0.1 CPU and the Supabase session pooler limits clients: a small pool is enough.
+      maximum-pool-size: 5
+      minimum-idle: 1
+
+  flyway:
+    schemas: arrima
+    default-schema: arrima
+    create-schemas: true
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  # Render injects PORT; 8080 is the local default.
+  port: ${PORT:8080}
+  # Render terminates TLS and forwards X-Forwarded-* headers from its internal proxy.
+  forward-headers-strategy: native
+  shutdown: graceful

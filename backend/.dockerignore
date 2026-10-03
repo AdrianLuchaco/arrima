@@ -1,0 +1,5 @@
+# Only the sources the build needs; never local secrets.
+.env
+.env.*
+target/
+compose.yaml

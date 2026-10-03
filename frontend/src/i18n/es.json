@@ -1,0 +1,20 @@
+{
+  "app": {
+    "name": "Arrima",
+    "tagline": "Las melés de petanca de tu club, sin papel"
+  },
+  "loading": {
+    "checking": "Cargando…",
+    "waking": {
+      "title": "Despertando el servidor…",
+      "detail": "Si nadie lo ha usado en un rato, puede tardar un par de minutos. No cierres la app."
+    },
+    "offline": {
+      "title": "Sin conexión",
+      "detail": "Lo volveremos a intentar en cuanto vuelva la cobertura."
+    }
+  },
+  "home": {
+    "serverReady": "Conectado al servidor"
+  }
+}
