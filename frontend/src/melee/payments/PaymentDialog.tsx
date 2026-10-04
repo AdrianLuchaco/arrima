@@ -38,8 +38,10 @@ export function PaymentDialog({ melee, participant, onClose, onEdit }: PaymentDi
         <p className="text-lg text-steel-600">
           {t('players.payment.fee', { amount: formatEuros(melee.settings.entryFeeCents) })} · {t(`players.payment.current.${current}`)}
         </p>
-        {melee.status === 'TEAMS' && (
-          <p className="rounded-xl border-2 border-amber-600 bg-amber-50 px-3 py-2 text-lg text-amber-950">{t('players.payment.afterDraw')}</p>
+        {melee.status !== 'REGISTRATION' && (
+          <p className="rounded-xl border-2 border-amber-600 bg-amber-50 px-3 py-2 text-lg text-amber-950">
+            {melee.status === 'TEAMS' ? t('players.payment.afterDraw') : t('players.payment.lateArrival')}
+          </p>
         )}
         <div className="grid grid-cols-2 gap-3">
           <button

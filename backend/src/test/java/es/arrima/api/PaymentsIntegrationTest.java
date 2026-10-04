@@ -138,13 +138,30 @@ class PaymentsIntegrationTest {
     }
 
     @Test
-    void paymentsAreFinalOnceTheCourtScheduleExists() {
+    void thePaymentOfThosePlayingIsFinalOnceTheCourtScheduleExists() {
         payFirst(8);
         draw(false, false);
         melees.send(club, "POST", "/api/melees/%d/schedule/generate".formatted(meleeId), "{}");
 
         assertThat(pay(0, "UNPAID")).hasStatus(HttpStatus.CONFLICT)
                 .bodyJson().extractingPath("$.code").isEqualTo("INVALID_STATE");
+    }
+
+    @Test
+    void duringTheMatchesALateArrivalCanPayAndReplaceSomeone() {
+        payFirst(8);
+        draw(false, false);
+        melees.send(club, "POST", "/api/melees/%d/schedule/generate".formatted(meleeId), "{}");
+        melees.send(club, "POST", "/api/melees/%d/participants/%d/withdraw".formatted(meleeId, players.get(0)), null);
+        MvcTestResult added = melees.send(club, "POST", "/api/melees/%d/participants".formatted(meleeId), "{\"name\":\"Tardón\"}");
+        List<Number> found = json(added, "$.participants[?(@.name == 'Tardón')].id");
+        long lateArrival = found.getFirst().longValue();
+
+        assertThat(melees.send(club, "PUT", "/api/melees/%d/participants/%d/payment".formatted(meleeId, lateArrival),
+                "{\"paymentStatus\":\"PAID\"}")).hasStatusOk();
+        assertThat(melees.send(club, "POST", "/api/melees/%d/teams/substitute".formatted(meleeId),
+                "{\"leavingPlayerId\":%d,\"joiningPlayerId\":%d}".formatted(players.get(0), lateArrival)))
+                .hasStatusOk().bodyJson().extractingPath("$.teamIssues.membersNotPlaying").asArray().isEmpty();
     }
 
     @Test

@@ -277,6 +277,7 @@
         "UNMARKED": "Ahora: sin marcar."
       },
       "afterDraw": "Los equipos ya están hechos: si esto cambia, habrá que sustituirle o repetir el sorteo.",
+      "lateArrival": "Ya se está jugando: si paga, podrá sustituir a quien ya no juegue (en Equipos).",
       "edit": "Cambiar nombre, número o dar de baja",
       "paid": "PAGADO",
       "unpaid": "NO PAGADO",

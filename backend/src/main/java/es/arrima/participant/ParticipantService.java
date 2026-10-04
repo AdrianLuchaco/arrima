@@ -110,14 +110,11 @@ public class ParticipantService {
     }
 
     /**
-     * "¿Ha pagado?" at the sign-up table, or a correction (back to unmarked too). After the draw,
-     * whoever stops or starts playing shows up in the team issues and is replaced as with a
-     * withdrawal. Once the court schedule exists, payments are final.
+     * "¿Ha pagado?" at the sign-up table, or a correction (back to unmarked too). When it may be
+     * recorded depends on the teams, so MeleeWorkflow#recordPayment decides that before calling.
      */
     @Transactional
-    public void recordPayment(long meleeId, long clubId, long participantId, PaymentStatus paymentStatus) {
-        Melee melee = meleeAccess.forClub(meleeId, clubId);
-        melee.requireStatus(MeleeStatus.REGISTRATION, MeleeStatus.TEAMS);
+    public void recordPayment(Melee melee, long participantId, PaymentStatus paymentStatus) {
         if (!melee.requiresPayment()) {
             throw new ApiException(ErrorCode.INVALID_STATE, Map.of("reason", "NO_ENTRY_FEE"));
         }

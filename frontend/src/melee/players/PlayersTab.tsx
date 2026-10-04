@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { MeleeView, Participant } from '../types'
 import { Button } from '../../ui/Button'
 import { PaymentDialog } from '../payments/PaymentDialog'
-import { canRecordPayments } from '../payments/payments'
+import { canRecordPaymentOf, collectingPayments } from '../payments/payments'
 import { PaymentSummary } from '../payments/PaymentSummary'
 import { ParticipantDialog } from './ParticipantDialog'
 import { PasteListDialog } from './PasteListDialog'
@@ -16,11 +16,11 @@ export function PlayersTab({ melee, readOnly = false }: { melee: MeleeView; read
   const [askingPayment, setAskingPayment] = useState<Participant | null>(null)
   const canSignUp = !readOnly && ['REGISTRATION', 'TEAMS', 'MATCHES'].includes(melee.status)
   const canEdit = !readOnly && melee.status !== 'CLOSED'
-  const recordsPayments = !readOnly && canRecordPayments(melee)
+  const collecting = collectingPayments(melee)
 
   // At the table, tapping a name asks whether they paid; the usual edit dialog is one tap further.
   function open(participant: Participant) {
-    if (recordsPayments && participant.status === 'ACTIVE') setAskingPayment(participant)
+    if (!readOnly && canRecordPaymentOf(melee, participant)) setAskingPayment(participant)
     else setEditing(participant)
   }
 
@@ -28,7 +28,7 @@ export function PlayersTab({ melee, readOnly = false }: { melee: MeleeView; read
     <div className="flex flex-col gap-4">
       {melee.status === 'REGISTRATION' && <TeamPlanBanner melee={melee} />}
       {/* While collecting, the summary is fixed at the bottom of the screen (see MeleePage). */}
-      {melee.payments && !recordsPayments && <PaymentSummary payments={melee.payments} fixed={false} />}
+      {melee.payments && !(collecting && !readOnly) && <PaymentSummary payments={melee.payments} fixed={false} />}
 
       {canSignUp && (
         <div className="grid gap-3 sm:grid-cols-2">

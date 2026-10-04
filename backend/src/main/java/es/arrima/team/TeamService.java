@@ -123,6 +123,11 @@ public class TeamService {
         meleeAccess.recordChange(melee);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isInATeam(Melee melee, long participantId) {
+        return teamsOf(melee.getId()).stream().anyMatch(team -> team.hasMember(participantId));
+    }
+
     /**
      * Deletes through the entities (not a bulk query) so Hibernate's session stays consistent, and
      * flushes right away: Hibernate runs inserts before deletes, and new teams reuse the numbers.

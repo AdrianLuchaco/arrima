@@ -28,10 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 class ParticipantController {
 
     private final ParticipantService participantService;
+    private final MeleeWorkflow workflow;
     private final MeleeViewAssembler views;
 
-    ParticipantController(ParticipantService participantService, MeleeViewAssembler views) {
+    ParticipantController(ParticipantService participantService, MeleeWorkflow workflow, MeleeViewAssembler views) {
         this.participantService = participantService;
+        this.workflow = workflow;
         this.views = views;
     }
 
@@ -69,7 +71,7 @@ class ParticipantController {
     @PutMapping("/{participantId}/payment")
     MeleeView recordPayment(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId,
             @PathVariable long participantId, @Valid @RequestBody RecordPayment request) {
-        participantService.recordPayment(meleeId, admin.clubId(), participantId, request.paymentStatus());
+        workflow.recordPayment(meleeId, admin.clubId(), participantId, request.paymentStatus());
         return views.forAdmin(meleeId, admin.clubId());
     }
 

@@ -5,11 +5,13 @@ import es.arrima.melee.Melee;
 import es.arrima.melee.MeleeAccess;
 import es.arrima.melee.MeleeStatus;
 import es.arrima.participant.ParticipantService;
+import es.arrima.participant.PaymentStatus;
 import es.arrima.prize.PrizeService;
 import es.arrima.schedule.ScheduleService;
 import es.arrima.shared.error.ApiException;
 import es.arrima.shared.error.ErrorCode;
 import es.arrima.team.TeamService;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +57,22 @@ public class MeleeWorkflow {
         internationalService.deleteAll(melee);
         scheduleService.deleteAll(melee);
         teamService.draw(melee, acceptDifferentTeam);
+    }
+
+    /**
+     * Payments can be recorded until the court schedule exists; after the draw, whoever stops or
+     * starts playing shows up in the team issues and is replaced as with a withdrawal. During the
+     * matches only someone in no team can pay: a late arrival who will replace a player. The payment
+     * of those already playing is final.
+     */
+    @Transactional
+    public void recordPayment(long meleeId, long clubId, long participantId, PaymentStatus paymentStatus) {
+        Melee melee = meleeAccess.forClub(meleeId, clubId);
+        melee.requireStatus(MeleeStatus.REGISTRATION, MeleeStatus.TEAMS, MeleeStatus.MATCHES);
+        if (melee.getStatus() == MeleeStatus.MATCHES && teamService.isInATeam(melee, participantId)) {
+            throw new ApiException(ErrorCode.INVALID_STATE, Map.of("reason", "ALREADY_PLAYING"));
+        }
+        participantService.recordPayment(melee, participantId, paymentStatus);
     }
 
     /** A new schedule throws away the results of the previous one. */
