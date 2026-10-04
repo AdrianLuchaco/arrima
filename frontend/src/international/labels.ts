@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next'
+import { ordinalBeforeNoun } from '../lib/ordinal'
 import type { IntlGroup, PlayerPosition } from '../melee/types'
 
 /** "Arrimador" in a doublette, "Punta" in a triplette; "Medio" only exists in triplettes. */
@@ -12,7 +13,7 @@ export function positionLabel(t: TFunction, teamSize: number, position: PlayerPo
 export function groupTitle(t: TFunction, group: IntlGroup): string {
   const prizes =
     group.bestPosition === group.worstPosition
-      ? t('intl.prizeSingle', { position: group.bestPosition })
+      ? t('intl.prizeSingle', { ordinal: ordinalBeforeNoun(group.bestPosition) })
       : t('intl.prizeRange', { best: group.bestPosition, worst: group.worstPosition })
   return t('intl.groupTitle', { count: group.wins, prizes })
 }

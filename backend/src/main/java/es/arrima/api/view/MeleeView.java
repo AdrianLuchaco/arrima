@@ -21,7 +21,9 @@ import java.util.Map;
  * The exception is who has paid: {@code payments} and each participant's {@code paymentStatus} are
  * only filled in for the admin. Every change to the melee increases {@code revision}.
  *
- * @param payments null without an entry fee, and always for spectators
+ * @param payments       null without an entry fee, and always for spectators
+ * @param prizesSharedAt when the admin confirmed the prizes were sent to the WhatsApp group; only
+ *                       for the admin
  */
 public record MeleeView(
         long id,
@@ -43,7 +45,8 @@ public record MeleeView(
         List<WinTarget> counter,
         International international,
         List<PrizeView> prizes,
-        Payments payments) {
+        Payments payments,
+        Instant prizesSharedAt) {
 
     public record Settings(int courtCount, int roundsCount, int prizeCount, int entryFeeCents, int matchMinutes) {
     }
@@ -152,6 +155,7 @@ public record MeleeView(
     public record PrizeView(long id, int position, long teamId, Integer points, boolean awarded, List<Photo> photos) {
     }
 
-    public record Photo(long id, String url) {
+    /** @param main the photo sent to the WhatsApp group: the one chosen, or else the first */
+    public record Photo(long id, String url, boolean main) {
     }
 }

@@ -1,10 +1,11 @@
 import { formatMeleeDate } from '../lib/dates'
+import { ordinalBeforeNoun } from '../lib/ordinal'
 import { teamNumber, teamPlayers } from '../melee/names'
 import type { MeleeView, Prize } from '../melee/types'
 
-/** "5.º premio — Manuel y Paqui": the text that goes with the photo in the club's group. */
+/** "1.er premio — Manuel y Paqui": the text that goes with the photo in the club's group. */
 export function prizeText(melee: MeleeView, prize: Prize): string {
-  return `${prize.position}.º premio — ${teamPlayers(melee, prize.teamId)}`
+  return `${ordinalBeforeNoun(prize.position)} premio — ${teamPlayers(melee, prize.teamId)}`
 }
 
 /** The final classification, ready to paste in the WhatsApp group. */

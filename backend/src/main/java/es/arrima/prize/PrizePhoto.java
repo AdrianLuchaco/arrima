@@ -24,6 +24,9 @@ public class PrizePhoto {
 
     private int sizeBytes;
 
+    /** The one sent to the WhatsApp group (see PrizeService#chooseMainPhoto). */
+    private boolean main;
+
     private Instant createdAt;
 
     protected PrizePhoto() {
@@ -48,5 +51,9 @@ public class PrizePhoto {
 
     public String getStoragePath() {
         return storagePath;
+    }
+
+    public boolean isMain() {
+        return main;
     }
 }

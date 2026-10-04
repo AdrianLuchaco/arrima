@@ -126,7 +126,8 @@ public class MeleeViewAssembler {
                         : List.of(),
                 internationalView(melee, audience, teams),
                 prizeViews(melee, audience),
-                showsPayments ? toView(PaymentSummary.of(participants, melee.getSettings().entryFeeCents())) : null);
+                showsPayments ? toView(PaymentSummary.of(participants, melee.getSettings().entryFeeCents())) : null,
+                audience == Audience.ADMIN ? melee.getPrizesSharedAt() : null);
     }
 
     /**
@@ -145,10 +146,20 @@ public class MeleeViewAssembler {
         return prizes.stream()
                 .map(prize -> new MeleeView.PrizeView(prize.getId(), prize.getPosition(), prize.getTeamId(),
                         prize.getInternationalPoints(), prize.isAwarded(),
-                        photos.getOrDefault(prize.getId(), List.of()).stream()
-                                .map(photo -> new MeleeView.Photo(photo.getId(), fileLinkSigner.link(photo.getStoragePath())))
-                                .toList()))
+                        photoViews(photos.getOrDefault(prize.getId(), List.of()))))
                 .toList();
+    }
+
+    /** Exactly one photo per prize is "main": the one chosen, or else the first. */
+    private List<MeleeView.Photo> photoViews(List<PrizePhoto> photos) {
+        boolean chosen = photos.stream().anyMatch(PrizePhoto::isMain);
+        List<MeleeView.Photo> views = new ArrayList<>();
+        for (int i = 0; i < photos.size(); i++) {
+            PrizePhoto photo = photos.get(i);
+            boolean main = chosen ? photo.isMain() : i == 0;
+            views.add(new MeleeView.Photo(photo.getId(), fileLinkSigner.link(photo.getStoragePath()), main));
+        }
+        return views;
     }
 
     /** Shown from the moment it starts; the admin also sees it while back in an earlier phase. */

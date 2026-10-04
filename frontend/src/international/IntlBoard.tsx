@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { ordinalBeforeNoun } from '../lib/ordinal'
 import { teamNumber, teamPlayers } from '../melee/names'
 import type { IntlGroup, MeleeView, Ranked } from '../melee/types'
 import { groupTitle } from './labels'
@@ -22,7 +23,7 @@ export function IntlBoard({ melee, onTeam }: { melee: MeleeView; onTeam?: (group
           <ul className="flex flex-col gap-1 text-lg">
             {intl.assured.map((ranked) => (
               <li key={ranked.teamId}>
-                <strong>{t('intl.prize', { position: ranked.position })}</strong> · {t('teams.teamNumber', { number: teamNumber(melee, ranked.teamId) })} ({teamPlayers(melee, ranked.teamId)})
+                <strong>{t('intl.prize', { ordinal: ordinalBeforeNoun(ranked.position) })}</strong> · {t('teams.teamNumber', { number: teamNumber(melee, ranked.teamId) })} ({teamPlayers(melee, ranked.teamId)})
               </li>
             ))}
           </ul>

@@ -58,6 +58,8 @@ export interface MeleeView {
   international: International | null
   prizes: Prize[]
   payments: Payments | null
+  /** When the admin confirmed the prizes reached the WhatsApp group; only for the admin. */
+  prizesSharedAt: string | null
 }
 
 // A type alias (not an interface) so it can be passed as i18next interpolation values.
@@ -77,7 +79,8 @@ export interface Prize {
   /** La Internacional's points; null if the team did not need to play. */
   points: number | null
   awarded: boolean
-  photos: { id: number; url: string }[]
+  /** {@code main}: the photo sent to the WhatsApp group, the one chosen or else the first. */
+  photos: { id: number; url: string; main: boolean }[]
 }
 
 export type ThrowKind = 'POINTING' | 'SHOOTING'

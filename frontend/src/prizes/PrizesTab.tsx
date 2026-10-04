@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { ordinalBeforeNoun } from '../lib/ordinal'
 import { teamNumber, teamPlayers } from '../melee/names'
 import type { MeleeView } from '../melee/types'
 import { PrizePhotos } from './PrizePhotos'
@@ -11,7 +12,7 @@ export function PrizesTab({ melee }: { melee: MeleeView }) {
     <ol className="flex flex-col gap-4">
       {melee.prizes.map((prize) => (
         <li key={prize.id} className="rounded-2xl border-2 border-gravel-300 bg-white p-4">
-          <p className="text-2xl font-extrabold">{t('prizes.position', { position: prize.position })}</p>
+          <p className="text-2xl font-extrabold">{t('prizes.position', { ordinal: ordinalBeforeNoun(prize.position) })}</p>
           <p className="text-lg">
             <strong>{t('teams.teamNumber', { number: teamNumber(melee, prize.teamId) })}</strong> · {teamPlayers(melee, prize.teamId)}
             {prize.points !== null && ` · ${t('intl.points', { count: prize.points })}`}

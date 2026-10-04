@@ -140,6 +140,29 @@ public class PrizeService {
         meleeAccess.recordChange(melee);
     }
 
+    /** The photo of the prize that goes to the WhatsApp group; until one is chosen, the first. */
+    @Transactional
+    public void chooseMainPhoto(long meleeId, long clubId, long prizeId, long photoId) {
+        Melee melee = meleeAccess.forClub(meleeId, clubId);
+        melee.requireStatus(MeleeStatus.PRIZES);
+        Prize prize = findInMelee(melee, prizeId);
+        photoRepository.findByIdAndPrizeId(photoId, prize.getId()).orElseThrow(ApiException::notFound);
+        photoRepository.clearMain(prize.getId());
+        photoRepository.markMain(photoId);
+        meleeAccess.recordChange(melee);
+    }
+
+    /**
+     * The admin confirmed that the prizes reached the club's group: the app cannot know it by
+     * itself. They can be sent and confirmed again, until the melee closes.
+     */
+    @Transactional
+    public void markShared(long meleeId, long clubId) {
+        Melee melee = meleeAccess.forClub(meleeId, clubId);
+        melee.markPrizesShared(clock.instant());
+        meleeAccess.recordChange(melee);
+    }
+
     /** Used when teams, the schedule or la Internacional are redone. */
     @Transactional
     public void deleteAll(Melee melee) {

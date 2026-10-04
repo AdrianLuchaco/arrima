@@ -1,5 +1,6 @@
 import { useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ordinalBeforeNoun } from '../lib/ordinal'
 import { compressImage } from '../lib/images'
 import { meleeRequests, useMeleeAction } from '../melee/meleeApi'
 import type { MeleeView, Prize } from '../melee/types'
@@ -18,6 +19,8 @@ export function PrizePhotos({ melee, prize, editable }: { melee: MeleeView; priz
   const [shareNote, setShareNote] = useState<string | null>(null)
   const upload = useMeleeAction(melee.id, (photo: Blob) => meleeRequests.uploadPhoto(melee.id, prize.id, photo))
   const remove = useMeleeAction(melee.id, (photoId: number) => meleeRequests.deletePhoto(melee.id, prize.id, photoId))
+  const chooseMain = useMeleeAction(melee.id, (photoId: number) => meleeRequests.chooseMainPhoto(melee.id, prize.id, photoId))
+  const several = prize.photos.length > 1
 
   async function take(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
@@ -48,12 +51,19 @@ export function PrizePhotos({ melee, prize, editable }: { melee: MeleeView; priz
           </Button>
         </>
       )}
-      <ErrorMessage error={upload.error ?? remove.error} />
+      <ErrorMessage error={upload.error ?? remove.error ?? chooseMain.error} />
       {shareNote && <p role="status" className="text-lg text-steel-600">{shareNote}</p>}
       <ul className="flex flex-col gap-4">
         {prize.photos.map((photo, index) => (
           <li key={photo.id} className="flex flex-col gap-2">
-            <img src={photo.url} alt={t('prizes.photoAlt', { position: prize.position })} className="aspect-[4/3] w-full rounded-xl object-cover" />
+            <img src={photo.url} alt={t('prizes.photoAlt', { ordinal: ordinalBeforeNoun(prize.position) })} className="aspect-[4/3] w-full rounded-xl object-cover" />
+            {/* With several photos, the one that goes to the group can be chosen (by default, the first). */}
+            {several && photo.main && <p className="text-lg font-bold text-green-900">★ {t('prizes.main')}</p>}
+            {several && !photo.main && editable && (
+              <Button variant="secondary" busy={chooseMain.isPending} onClick={() => chooseMain.mutate(photo.id)}>
+                ☆ {t('prizes.makeMain')}
+              </Button>
+            )}
             <div className="flex gap-2">
               <Button variant="secondary" className="flex-1" onClick={() => void share(photo.url, index)}>
                 {t('prizes.share')}

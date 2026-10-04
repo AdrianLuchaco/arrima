@@ -12,6 +12,7 @@ import es.arrima.TestMelees.ScenarioMelee;
 import es.arrima.auth.SignupInvitationRepository;
 import es.arrima.files.TestImages;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -159,6 +160,44 @@ class PrizesIntegrationTest {
     }
 
     @Test
+    void theFirstPhotoIsTheMainOneUntilAnotherIsChosen() {
+        long prize = id(startPrizes(false), "$.prizes[0].id");
+        uploadPhoto(prize, TestImages.jpeg(16, 16));
+        MvcTestResult twoPhotos = uploadPhoto(prize, TestImages.jpeg(24, 24));
+        assertThat(twoPhotos).bodyJson().extractingPath("$.prizes[0].photos[*].main").isEqualTo(List.of(true, false));
+
+        long second = id(twoPhotos, "$.prizes[0].photos[1].id");
+        MvcTestResult chosen = melees.send(club, "PUT",
+                "/api/melees/%d/prizes/%d/photos/%d/main".formatted(scenario.meleeId(), prize, second), null);
+
+        assertThat(chosen).hasStatusOk().bodyJson().extractingPath("$.prizes[0].photos[*].main").isEqualTo(List.of(false, true));
+        // Choosing it again is harmless, and only ever one is main.
+        assertThat(melees.send(club, "PUT",
+                "/api/melees/%d/prizes/%d/photos/%d/main".formatted(scenario.meleeId(), prize, second), null))
+                .bodyJson().extractingPath("$.prizes[0].photos[*].main").isEqualTo(List.of(false, true));
+    }
+
+    @Test
+    void theAdminConfirmsThePrizesWereSentAndCanSendThemAgainUntilClosing() {
+        MvcTestResult started = startPrizes(false);
+        assertThat(started).bodyJson().extractingPath("$.prizesSharedAt").isNull();
+        String code = json(started, "$.publicCode");
+
+        MvcTestResult sent = melees.send(club, "POST", "/api/melees/%d/prizes/shared".formatted(scenario.meleeId()), null);
+        assertThat(sent).hasStatusOk().bodyJson().extractingPath("$.prizesSharedAt").isNotNull();
+        assertThat(publicView(code)).bodyJson().extractingPath("$.prizesSharedAt").isNull();
+
+        clock.advance(Duration.ofMinutes(5));
+        club = new TestClubs(mvc, invitations).login(club);
+        MvcTestResult again = melees.send(club, "POST", "/api/melees/%d/prizes/shared".formatted(scenario.meleeId()), null);
+        assertThat(Instant.parse(json(again, "$.prizesSharedAt"))).isAfter(Instant.parse(json(sent, "$.prizesSharedAt")));
+
+        melees.send(club, "POST", "/api/melees/%d/close".formatted(scenario.meleeId()), null);
+        assertThat(melees.send(club, "POST", "/api/melees/%d/prizes/shared".formatted(scenario.meleeId()), null))
+                .hasStatus(HttpStatus.CONFLICT);
+    }
+
+    @Test
     void anotherClubCannotTouchLaInternacionalNorThePrizes() {
         long prize = id(startPrizes(false), "$.prizes[0].id");
         RegisteredClub intruder = new TestClubs(mvc, invitations).register("Club Intruso");
@@ -173,6 +212,8 @@ class PrizesIntegrationTest {
         assertThat(melees.send(intruder, "POST", "/api/melees/%d/close".formatted(meleeId), null))
                 .hasStatus(HttpStatus.NOT_FOUND);
         assertThat(melees.send(intruder, "DELETE", "/api/melees/" + meleeId, null)).hasStatus(HttpStatus.NOT_FOUND);
+        assertThat(melees.send(intruder, "POST", "/api/melees/%d/prizes/shared".formatted(meleeId), null))
+                .hasStatus(HttpStatus.NOT_FOUND);
 
         MvcTestResult untouched = melees.get(club, meleeId);
         assertThat(untouched).bodyJson().extractingPath("$.status").isEqualTo("PRIZES");

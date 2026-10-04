@@ -223,7 +223,7 @@ Va antes que Render porque el backend necesita saber la dirección del frontend 
 1. Entra en el servicio `arrima-api` → **Logs**.
 2. La primera vez tarda entre 5 y 10 minutos, porque compila con Maven dentro de Docker.
 3. Busca estas líneas, en este orden:
-   - `Successfully applied 4 migrations to schema "arrima"`: ha creado las tablas.
+   - `Successfully applied 5 migrations to schema "arrima"`: ha creado las tablas.
    - `Started ArrimaApplication in … seconds`: está en marcha. Con 0,1 CPU tarda en torno a minuto y medio.
    - Al principio salen unos avisos `[warning][aot…]`: son normales (la caché de arranque de Java ajustándose a la máquina).
 4. Si en vez de eso sale un error, mira la tabla [Si algo falla](#si-algo-falla).
@@ -325,6 +325,8 @@ Hazlo con dos móviles si puedes (o un móvil y un ordenador).
 | Con la app abierta al llegar a 0 | Suena la alarma, vibra (en Android) y sale «¡Tiempo!» a pantalla completa |
 
 Al terminar, borra la melé de prueba (**Más opciones → Borrar esta melé**).
+
+Lo que depende de cada móvil (compartir en WhatsApp, avisos con el móvil bloqueado, sonido) tiene su propia lista, para Android y para iPhone: [comprobacion-en-moviles.md](comprobacion-en-moviles.md).
 
 ### Verificación técnica (opcional)
 

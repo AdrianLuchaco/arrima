@@ -60,6 +60,9 @@ public class Melee {
 
     private Instant closedAt;
 
+    /** When the admin confirmed the prizes were sent to the club's WhatsApp group; null if not. */
+    private Instant prizesSharedAt;
+
     private Instant createdAt;
 
     private Instant updatedAt;
@@ -120,6 +123,16 @@ public class Melee {
         }
         this.settings = settings;
         this.updatedAt = now;
+    }
+
+    public void markPrizesShared(Instant now) {
+        requireStatus(MeleeStatus.PRIZES);
+        this.prizesSharedAt = now;
+        this.updatedAt = now;
+    }
+
+    public Instant getPrizesSharedAt() {
+        return prizesSharedAt;
     }
 
     public boolean requiresPayment() {

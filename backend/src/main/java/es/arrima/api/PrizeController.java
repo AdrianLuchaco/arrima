@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,6 +57,21 @@ class PrizeController {
     MeleeView deletePhoto(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId,
             @PathVariable long prizeId, @PathVariable long photoId) {
         prizeService.deletePhoto(meleeId, admin.clubId(), prizeId, photoId);
+        return views.forAdmin(meleeId, admin.clubId());
+    }
+
+    /** The photo sent to the WhatsApp group. Idempotent: choosing it twice changes nothing. */
+    @PutMapping("/{prizeId}/photos/{photoId}/main")
+    MeleeView chooseMainPhoto(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId,
+            @PathVariable long prizeId, @PathVariable long photoId) {
+        prizeService.chooseMainPhoto(meleeId, admin.clubId(), prizeId, photoId);
+        return views.forAdmin(meleeId, admin.clubId());
+    }
+
+    /** «¿Se han enviado?» «Sí»: the app cannot see WhatsApp, the admin tells it. */
+    @PostMapping("/shared")
+    MeleeView markShared(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId) {
+        prizeService.markShared(meleeId, admin.clubId());
         return views.forAdmin(meleeId, admin.clubId());
     }
 }

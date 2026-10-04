@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ordinalBeforeNoun } from '../lib/ordinal'
 import { Link, useNavigate, useParams } from 'react-router'
 import { useMeleeLive } from '../live/useMeleeLive'
 import { meleeKey, meleeRequests, useMelee, useMeleeAction } from '../melee/meleeApi'
@@ -9,6 +10,7 @@ import { Button } from '../ui/Button'
 import { ConfirmDialog } from '../ui/ConfirmDialog'
 import { ErrorMessage } from '../ui/ErrorMessage'
 import { PrizePhotos } from './PrizePhotos'
+import { SendPrizesPanel } from './whatsapp/SendPrizesPanel'
 import { classificationText } from './share'
 
 /**
@@ -62,7 +64,7 @@ export function PrizesPage() {
 
       <section key={prize.id} className="arrima-reveal rounded-3xl bg-steel-800 p-6 text-center text-gravel-50">
         <p className="font-extrabold text-jack-500">
-          <span className="block text-7xl leading-none">{t('prizes.ordinal', { position: prize.position })}</span>
+          <span className="block text-7xl leading-none">{t('prizes.ordinal', { ordinal: ordinalBeforeNoun(prize.position) })}</span>
           <span className="block text-3xl">{t('prizes.prize')}</span>
         </p>
         <p className="mt-3 text-2xl font-bold">{t('teams.teamNumber', { number: teamNumber(melee, prize.teamId) })}</p>
@@ -82,6 +84,7 @@ export function PrizesPage() {
       </div>
 
       <div className="flex flex-col gap-3 border-t-2 border-gravel-300 pt-4">
+        <SendPrizesPanel melee={melee} />
         <Button variant="secondary" onClick={() => void copyClassification()}>
           {copied ? t('prizes.copied') : t('prizes.copyClassification')}
         </Button>

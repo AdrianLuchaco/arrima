@@ -17,7 +17,7 @@ const melee = {
 
 describe('texts for the WhatsApp group', () => {
   it('names the prize and the players for the photo', () => {
-    expect(prizeText(melee, melee.prizes[0])).toBe('1.º premio — Manuel y Paqui')
+    expect(prizeText(melee, melee.prizes[0])).toBe('1.er premio — Manuel y Paqui')
   })
 
   it('writes the classification ready to paste', () => {

@@ -91,6 +91,9 @@ export const meleeRequests = {
   cancelTimer: (meleeId: number, round: number) => api<MeleeView>(`${base(meleeId)}/timer/rounds/${round}`, { method: 'DELETE' }),
   /** The admin's phone reached 0: one more trigger for the server to record the end (it checks its own clock). */
   checkTimer: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/timer/check`, { method: 'POST' }),
+  chooseMainPhoto: (meleeId: number, prizeId: number, photoId: number) =>
+    api<MeleeView>(`${base(meleeId)}/prizes/${prizeId}/photos/${photoId}/main`, { method: 'PUT' }),
+  markPrizesShared: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/prizes/shared`, { method: 'POST' }),
   swapPlayers: (meleeId: number, firstPlayerId: number, secondPlayerId: number) =>
     api<MeleeView>(`${base(meleeId)}/teams/swap`, { method: 'POST', body: { firstPlayerId, secondPlayerId } }),
   substitute: (meleeId: number, leavingPlayerId: number, joiningPlayerId: number) =>

@@ -18,18 +18,32 @@ export function Dialog({ open, onClose, title, children, wide = false }: DialogP
   const { t } = useTranslation()
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
+  // The browser fires "close" also when we close it because `open` became false. Only a close by
+  // the user (Escape, the × button) must call onClose: the parent may already be showing the next step.
+  const closingFromProps = useRef(false)
 
   useEffect(() => {
     const dialog = ref.current
     if (!dialog) return
     if (open && !dialog.open) dialog.showModal()
-    if (!open && dialog.open) dialog.close()
+    if (!open && dialog.open) {
+      closingFromProps.current = true
+      dialog.close()
+    }
   }, [open])
+
+  function handleClose() {
+    if (closingFromProps.current) {
+      closingFromProps.current = false
+      return
+    }
+    onClose()
+  }
 
   return (
     <dialog
       ref={ref}
-      onClose={onClose}
+      onClose={handleClose}
       aria-labelledby={titleId}
       className={`m-0 mt-auto max-h-[92dvh] w-full max-w-none flex-col rounded-t-3xl bg-gravel-50 p-0 text-steel-900 backdrop:bg-steel-900/60 open:flex sm:m-auto sm:rounded-3xl ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'}`}
     >

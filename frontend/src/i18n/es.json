@@ -462,9 +462,9 @@
     "notStarted": "La Internacional aún no ha empezado.",
     "nobodyPlays": "No hace falta jugar la Internacional: todos los premios están decididos por victorias.",
     "assured": "Premios ya decididos (sin jugar)",
-    "prize": "{{position}}.º premio",
+    "prize": "{{ordinal}} premio",
     "prizeShort": "{{position}}.º",
-    "prizeSingle": "{{position}}.º premio",
+    "prizeSingle": "{{ordinal}} premio",
     "prizeRange": "premios {{best}}.º a {{worst}}.º",
     "groupTitle_one": "Grupo de {{count}} victoria · {{prizes}}",
     "groupTitle_other": "Grupo de {{count}} victorias · {{prizes}}",
@@ -525,14 +525,14 @@
     "title": "Entrega de premios",
     "none": "No hay premios.",
     "noneYet": "Aún no se ha entregado ningún premio.",
-    "position": "{{position}}.º premio",
-    "ordinal": "{{position}}.º",
+    "position": "{{ordinal}} premio",
+    "ordinal": "{{ordinal}}",
     "prize": "premio",
     "previous": "Anterior",
     "next": "Siguiente",
     "takePhoto": "Hacer foto",
     "takeAnother": "Hacer otra foto",
-    "photoAlt": "Foto del {{position}}.º premio",
+    "photoAlt": "Foto del {{ordinal}} premio",
     "share": "Compartir en WhatsApp",
     "shareFallback": "Este móvil no puede enviar la foto directamente: se ha descargado y se ha abierto WhatsApp con el texto. Adjunta la foto desde la galería.",
     "deletePhoto": "Borrar foto",
@@ -542,7 +542,9 @@
     "autoCloseHelp": "Si nadie toca nada en 20 minutos, la melé se cierra sola.",
     "closeTitle": "¿Cerrar la melé?",
     "closeConfirm": "Cerrar",
-    "closeExplanation": "Pasará al histórico y ya no se podrá cambiar nada (sí borrarla entera)."
+    "closeExplanation": "Pasará al histórico y ya no se podrá cambiar nada (sí borrarla entera).",
+    "main": "Esta es la que se envía al grupo",
+    "makeMain": "Enviar esta al grupo"
   },
   "install": {
     "title": "Instala Arrima en el móvil",
@@ -607,5 +609,26 @@
       "soundButton": "Que suene aquí con la app abierta",
       "soundOnly": "Sonará aquí cuando se acabe el tiempo, si tienes la app abierta y el móvil desbloqueado."
     }
+  },
+  "sendPrizes": {
+    "button": "Enviar premios al grupo de WhatsApp",
+    "oneByOneButton": "Enviar uno a uno",
+    "confirmTitle": "¿Quieres enviar los premios al grupo?",
+    "confirmText_one": "Se abrirá WhatsApp con la foto del premio. Elige el grupo del club y envía.",
+    "confirmText_other": "Se abrirá WhatsApp con las fotos de los {{count}} premios, del primero al último. Elige el grupo del club y envía.",
+    "copied": "La clasificación queda copiada, por si hace falta pegarla en el grupo.",
+    "confirm": "Sí, enviar",
+    "preparing": "Preparando las fotos…",
+    "allAtOnceFailed": "Este móvil no ha podido enviar todas las fotos a la vez. Envíalas una a una:",
+    "oneByOneHelp": "Pulsa cada premio por orden y, en WhatsApp, elige el grupo del club.",
+    "sendOne": "Enviar {{ordinal}} premio",
+    "done": "Ya están todos",
+    "manualHelp": "Este móvil no puede enviar fotos directamente. Descarga las fotos, abre el grupo de WhatsApp, adjúntalas desde la galería por orden y pega la clasificación, que ya está copiada.",
+    "download": "Descargar {{ordinal}} premio",
+    "openWhatsApp": "Abrir WhatsApp con la clasificación",
+    "askSentTitle": "¿Se han enviado?",
+    "askSentText": "La app no puede ver WhatsApp: dinos si los premios han llegado al grupo.",
+    "askSentYes": "Sí, se han enviado",
+    "alreadySent": "Premios enviados al grupo a las {{time}}. Puedes volver a enviarlos."
   }
 }
