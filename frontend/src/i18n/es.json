@@ -40,7 +40,8 @@
       "submit": "Entrar",
       "forgot": "¿Has olvidado la contraseña?",
       "noAccount": "¿Tu club aún no tiene cuenta?",
-      "registerLink": "Regístralo con tu invitación"
+      "registerLink": "Regístralo con tu invitación",
+      "passwordChanged": "Contraseña cambiada. Ya puedes entrar con la nueva."
     },
     "register": {
       "title": "Registra tu club",
@@ -52,6 +53,20 @@
       "submit": "Crear la cuenta del club",
       "haveAccount": "¿Ya tienes cuenta?",
       "loginLink": "Entra"
+    },
+    "forgot": {
+      "title": "Recupera tu contraseña",
+      "explanation": "Escribe el correo de la cuenta del club y te enviaremos un enlace para elegir una contraseña nueva.",
+      "submit": "Enviar el enlace",
+      "sent": "Si {{email}} tiene una cuenta en Arrima, acabamos de enviarle un correo con el enlace. Caduca en 30 minutos.",
+      "sentHelp": "Si no te llega en unos minutos, mira en la carpeta de spam o comprueba que el correo está bien escrito.",
+      "back": "Volver a entrar"
+    },
+    "reset": {
+      "title": "Elige una contraseña nueva",
+      "submit": "Guardar la contraseña nueva",
+      "sessionsEnd": "Al cambiarla se cerrará la sesión en todos los móviles donde estuviera abierta.",
+      "askAgain": "Pedir un enlace nuevo"
     }
   },
   "club": {
@@ -111,11 +126,13 @@
     "VALIDATION_FAILED": "Revisa los campos marcados.",
     "NOT_FOUND": "No se ha encontrado.",
     "RATE_LIMITED": "Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.",
+    "REQUEST_TOO_LARGE": "Lo que has enviado es demasiado largo.",
     "UNAUTHENTICATED": "Tu sesión ha caducado. Vuelve a entrar.",
     "INVALID_CREDENTIALS": "El correo o la contraseña no son correctos.",
     "INVALID_REFRESH_TOKEN": "Tu sesión ha caducado. Vuelve a entrar.",
     "INVITATION_INVALID": "El código de invitación no es válido, ha caducado o ya se ha usado.",
     "EMAIL_TAKEN": "Ya hay una cuenta con ese correo.",
+    "RESET_LINK_INVALID": "El enlace no es válido: ha caducado o ya se ha usado. Pide otro.",
     "INVALID_IMAGE": "Ese archivo no es una imagen válida.",
     "IMAGE_TOO_LARGE": "La imagen es demasiado grande.",
     "INVALID_STATE": "Eso no se puede hacer en esta fase de la melé.",

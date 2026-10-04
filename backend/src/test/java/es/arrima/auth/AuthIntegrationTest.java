@@ -222,6 +222,15 @@ class AuthIntegrationTest {
                 .hasStatus(HttpStatus.UNAUTHORIZED);
     }
 
+    @Test
+    void aHugeBodyIsRejectedBeforeBeingRead() {
+        String huge = "{\"email\":\"" + "a".repeat(600 * 1024) + "\",\"password\":\"x\"}";
+
+        assertThat(mvc.post().uri("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(huge))
+                .hasStatus(HttpStatus.CONTENT_TOO_LARGE)
+                .bodyJson().extractingPath("$.code").isEqualTo("REQUEST_TOO_LARGE");
+    }
+
     private MvcTestResult register(String invitationCode, String email) {
         return mvc.post().uri("/api/auth/register")
                 .header("X-Forwarded-For", TestClubs.randomIp())

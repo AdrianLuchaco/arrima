@@ -1,10 +1,10 @@
 package es.arrima.files;
 
+import es.arrima.shared.http.OutboundHttp;
 import java.nio.file.Path;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestClient;
 
 @Configuration
 @EnableConfigurationProperties(StorageProperties.class)
@@ -16,7 +16,7 @@ class StorageConfig {
             case "supabase" -> {
                 requireSet(properties.supabaseUrl(), "SUPABASE_URL");
                 requireSet(properties.supabaseKey(), "SUPABASE_SECRET_KEY");
-                yield new SupabaseFileStorage(RestClient.builder(), properties);
+                yield new SupabaseFileStorage(OutboundHttp.restClient(), properties);
             }
             case "local" -> new LocalDiskFileStorage(Path.of(properties.localDirectory()));
             default -> throw new IllegalStateException(

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { useAuth } from '../auth/AuthContext'
 import { Button } from '../ui/Button'
 import { ErrorMessage } from '../ui/ErrorMessage'
@@ -11,6 +11,7 @@ import { AuthPageFrame } from './AuthPageFrame'
 export function LoginPage() {
   const { t } = useTranslation()
   const { login } = useAuth()
+  const passwordChanged = (useLocation().state as { passwordChanged?: boolean } | null)?.passwordChanged === true
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
@@ -31,6 +32,11 @@ export function LoginPage() {
   return (
     <AuthPageFrame title={t('auth.login.title')}>
       <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+        {passwordChanged && (
+          <p role="status" className="rounded-xl bg-green-100 px-4 py-3 text-lg font-semibold text-green-900">
+            {t('auth.login.passwordChanged')}
+          </p>
+        )}
         <TextField
           label={t('auth.email')}
           type="email"

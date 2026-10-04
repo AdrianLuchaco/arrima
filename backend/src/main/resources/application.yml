@@ -53,8 +53,15 @@ arrima:
     refresh-reuse-grace: 60s
     cookie-secure: true
   storage:
-    provider: supabase
+    provider: ${STORAGE_PROVIDER:supabase}
     local-directory: .local-files
     supabase-url: ${SUPABASE_URL:}
     supabase-key: ${SUPABASE_SECRET_KEY:}
     bucket: ${SUPABASE_BUCKET:arrima}
+  mail:
+    provider: ${MAIL_PROVIDER:brevo}
+    brevo-api-key: ${BREVO_API_KEY:}
+    sender-email: ${MAIL_SENDER_EMAIL:}
+    sender-name: ${MAIL_SENDER_NAME:Arrima}
+    # Public address of the frontend (https://...), for the links inside the e-mails.
+    app-url: ${APP_URL:}

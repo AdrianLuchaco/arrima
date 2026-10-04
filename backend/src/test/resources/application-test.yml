@@ -3,3 +3,7 @@ arrima:
   storage:
     provider: local
     local-directory: ${java.io.tmpdir}/arrima-test-files
+  mail:
+    # Tests replace the sender with RecordingEmailSender.
+    provider: log
+    app-url: https://arrima.test

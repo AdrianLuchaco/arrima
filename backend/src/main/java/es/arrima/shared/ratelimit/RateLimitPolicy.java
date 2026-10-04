@@ -15,8 +15,10 @@ public enum RateLimitPolicy {
     REFRESH_PER_IP(120, Duration.ofMinutes(1)),
     /** Only failed look-ups of public codes count: it stops anyone from guessing codes. */
     PUBLIC_CODE_MISS_PER_IP(30, Duration.ofMinutes(1)),
+    /** Also limits how many recovery e-mails anyone can make us send to one address. */
     PASSWORD_RESET_PER_EMAIL(3, Duration.ofHours(1)),
-    PASSWORD_RESET_PER_IP(10, Duration.ofHours(1));
+    PASSWORD_RESET_PER_IP(10, Duration.ofHours(1)),
+    PASSWORD_RESET_CONFIRM_PER_IP(20, Duration.ofHours(1));
 
     private final int limit;
     private final Duration window;

@@ -2,9 +2,12 @@ package es.arrima.shared.ratelimit;
 
 import es.arrima.shared.error.ApiException;
 import es.arrima.shared.error.ErrorCode;
+import es.arrima.shared.security.SecureTokens;
 import java.time.Clock;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RateLimiter {
+
+    private static final Logger log = LoggerFactory.getLogger(RateLimiter.class);
 
     /** Bounds memory if someone floods us with distinct keys (e.g. many forged IPs). */
     private static final int MAX_TRACKED_KEYS = 50_000;
@@ -31,8 +36,21 @@ public class RateLimiter {
                 (key, current) -> current == null || current.hasEnded(now) ? Window.start(policy, now) : current.increment());
         evictEndedWindowsIfTooMany(now);
         if (window.count() > policy.limit()) {
+            if (window.count() == policy.limit() + 1) {
+                logLimitReached(policy, subject);
+            }
             reject(window, now);
         }
+    }
+
+    /**
+     * Once per subject and window, so an attack shows up in the logs without flooding them. The
+     * subject (an e-mail or an IP address) is logged as a short hash: repeated attacks can be told
+     * apart without writing personal data to the logs.
+     */
+    private static void logLimitReached(RateLimitPolicy policy, String subject) {
+        log.warn("Rate limit {} reached by subject {}; further requests in this window are rejected",
+                policy, SecureTokens.sha256Hex(subject).substring(0, 12));
     }
 
     /**

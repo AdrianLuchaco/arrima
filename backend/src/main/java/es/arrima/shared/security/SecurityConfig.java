@@ -25,11 +25,13 @@ class SecurityConfig {
                 // No CSRF tokens: the API authenticates with a bearer token in the Authorization header,
                 // which browsers never attach on their own. The refresh cookie has its own protection.
                 .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(new RequestBodyLimitFilter(), BearerTokenAuthenticationFilter.class)
                 .addFilterBefore(new CrossSiteRequestFilter(), BearerTokenAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(GET, "/api/health", "/api/health/db").permitAll()
                         .requestMatchers(POST, "/api/auth/register", "/api/auth/login",
-                                "/api/auth/refresh", "/api/auth/logout").permitAll()
+                                "/api/auth/refresh", "/api/auth/logout",
+                                "/api/auth/password-reset/request", "/api/auth/password-reset/confirm").permitAll()
                         // Images: access is granted by the signature in the link (see FileLinkSigner).
                         .requestMatchers(GET, "/api/files/**").permitAll()
                         // Public melee view: read-only by construction (only GET is allowed).

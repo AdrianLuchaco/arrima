@@ -12,6 +12,8 @@ import { NotFoundPage } from './pages/NotFoundPage'
 import { PrizesPage } from './prizes/PrizesPage'
 import { PublicMeleePage } from './public/PublicMeleePage'
 import { RegisterPage } from './pages/RegisterPage'
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { ServerGate } from './server/ServerGate'
 import { AppShell } from './ui/AppShell'
 
@@ -35,10 +37,13 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/m/:code" element={<PublicMeleePage />} />
+            {/* Outside the session guards: the link from the e-mail works even with a session open. */}
+            <Route path="/restablecer" element={<ResetPasswordPage />} />
             <Route element={<AuthLayout />}>
               <Route element={<SignedOutOnly />}>
                 <Route path="/entrar" element={<LoginPage />} />
                 <Route path="/registro" element={<RegisterPage />} />
+                <Route path="/recuperar" element={<ForgotPasswordPage />} />
               </Route>
               <Route element={<SignedInOnly />}>
                 <Route element={<AppShell />}>

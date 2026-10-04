@@ -12,6 +12,7 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND),
     RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS),
     CROSS_SITE_REQUEST(HttpStatus.FORBIDDEN),
+    REQUEST_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE),
 
     // Authentication
     UNAUTHENTICATED(HttpStatus.UNAUTHORIZED),
@@ -19,6 +20,8 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED),
     INVITATION_INVALID(HttpStatus.BAD_REQUEST),
     EMAIL_TAKEN(HttpStatus.CONFLICT),
+    /** The password-recovery link does not exist, has expired or was already used. */
+    RESET_LINK_INVALID(HttpStatus.BAD_REQUEST),
 
     // Melees
     INVALID_STATE(HttpStatus.CONFLICT),

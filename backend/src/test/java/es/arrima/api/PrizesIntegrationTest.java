@@ -158,14 +158,40 @@ class PrizesIntegrationTest {
         assertThat(confirmed).bodyJson().extractingPath("$.prizes[2].photos").asArray().isEmpty();
     }
 
+    @Test
+    void anotherClubCannotTouchLaInternacionalNorThePrizes() {
+        long prize = id(startPrizes(false), "$.prizes[0].id");
+        RegisteredClub intruder = new TestClubs(mvc, invitations).register("Club Intruso");
+        long meleeId = scenario.meleeId();
+
+        assertThat(melees.send(intruder, "PUT", "/api/melees/%d/international/rounds/%d/teams/%d/throws/POINTING/1"
+                .formatted(meleeId, tieBreakRound, scenario.team(3)), "{\"outcome\":\"OUT\"}"))
+                .hasStatus(HttpStatus.NOT_FOUND);
+        assertThat(melees.send(intruder, "POST", "/api/melees/%d/prizes/%d/awarded".formatted(meleeId, prize), null))
+                .hasStatus(HttpStatus.NOT_FOUND);
+        assertThat(uploadPhoto(intruder, prize, TestImages.jpeg(8, 8))).hasStatus(HttpStatus.NOT_FOUND);
+        assertThat(melees.send(intruder, "POST", "/api/melees/%d/close".formatted(meleeId), null))
+                .hasStatus(HttpStatus.NOT_FOUND);
+        assertThat(melees.send(intruder, "DELETE", "/api/melees/" + meleeId, null)).hasStatus(HttpStatus.NOT_FOUND);
+
+        MvcTestResult untouched = melees.get(club, meleeId);
+        assertThat(untouched).bodyJson().extractingPath("$.status").isEqualTo("PRIZES");
+        assertThat(untouched).bodyJson().extractingPath("$.prizes[0].awarded").isEqualTo(false);
+        assertThat(untouched).bodyJson().extractingPath("$.prizes[0].photos").asArray().isEmpty();
+    }
+
     private MvcTestResult startPrizes(boolean confirmLosses) {
         return melees.send(club, "POST", "/api/melees/%d/prizes/start".formatted(scenario.meleeId()),
                 "{\"confirmLosses\":%s}".formatted(confirmLosses));
     }
 
     private MvcTestResult uploadPhoto(long prizeId, byte[] content) {
+        return uploadPhoto(club, prizeId, content);
+    }
+
+    private MvcTestResult uploadPhoto(RegisteredClub as, long prizeId, byte[] content) {
         return mvc.post().uri("/api/melees/%d/prizes/%d/photos".formatted(scenario.meleeId(), prizeId))
-                .header(HttpHeaders.AUTHORIZATION, club.bearer())
+                .header(HttpHeaders.AUTHORIZATION, as.bearer())
                 .multipart()
                 .file(new MockMultipartFile("file", "foto.jpg", "image/jpeg", content))
                 .exchange();

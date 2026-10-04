@@ -15,10 +15,28 @@ services:
       paths:
         - backend/**
     envVars:
-      # Secrets: Render asks for their values when the Blueprint is created. Never put them here.
+      # sync: false -> Render asks for the value when the Blueprint is created. Never put secrets here.
       - key: DB_URL
         sync: false
       - key: DB_USERNAME
         sync: false
       - key: DB_PASSWORD
+        sync: false
+      # Render generates a random 256-bit value itself: nobody ever needs to see or copy it.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: arrima
+      - key: BREVO_API_KEY
+        sync: false
+      - key: MAIL_SENDER_EMAIL
+        sync: false
+      - key: MAIL_SENDER_NAME
+        value: Arrima
+      # The frontend's address (https://...vercel.app), for the links in the e-mails.
+      - key: APP_URL
         sync: false

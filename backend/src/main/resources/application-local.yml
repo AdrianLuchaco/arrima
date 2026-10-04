@@ -8,3 +8,7 @@ arrima:
   storage:
     # Images in backend/.local-files instead of Supabase, so no Supabase project is needed locally.
     provider: local
+  mail:
+    # E-mails are written to the log instead of being sent (see LoggingEmailSender).
+    provider: log
+    app-url: http://localhost:5173

@@ -35,6 +35,12 @@ describe('api client', () => {
     expect((error as ApiError).fields).toEqual({ name: 'NotBlank' })
   })
 
+  it('accepts answers without a body', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(new Response(null, { status: 202 }))))
+
+    await expect(api('/api/auth/password-reset/request', { method: 'POST', authenticated: false })).resolves.toBeUndefined()
+  })
+
   it('reports a network failure as such', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new TypeError('Failed to fetch'))))
 

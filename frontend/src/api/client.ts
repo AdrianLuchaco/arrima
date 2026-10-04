@@ -26,10 +26,9 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
   if (!response.ok) {
     throw await ApiError.from(response)
   }
-  if (response.status === 204) {
-    return undefined as T
-  }
-  return (await response.json()) as T
+  // 204, or a 202 that only says "accepted": no body to read.
+  const text = await response.text()
+  return (text === '' ? undefined : JSON.parse(text)) as T
 }
 
 async function send(path: string, options: RequestOptions, token: string | null): Promise<Response> {

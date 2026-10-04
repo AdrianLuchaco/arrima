@@ -28,6 +28,13 @@ public class TestcontainersConfiguration {
         return registry -> registry.add("arrima.security.jwt-secret", () -> secret);
     }
 
+    /** E-mails are kept for the tests to read instead of being sent. */
+    @Bean
+    @Primary
+    RecordingEmailSender recordingEmailSender() {
+        return new RecordingEmailSender();
+    }
+
     /** Replaces the system clock everywhere; tests that move it must call reset() afterwards. */
     @Bean
     @Primary

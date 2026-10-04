@@ -39,7 +39,13 @@ public class SigningKeys {
         if (base64Secret == null || base64Secret.isBlank()) {
             throw new IllegalStateException("JWT_SECRET is not set (see backend/.env.example)");
         }
-        byte[] secret = Base64.getDecoder().decode(base64Secret.strip());
+        byte[] secret;
+        try {
+            // Both base64 alphabets: `openssl rand -base64 32` writes + and /, other generators - and _.
+            secret = Base64.getDecoder().decode(base64Secret.strip().replace('-', '+').replace('_', '/'));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("JWT_SECRET is not valid base64");
+        }
         if (secret.length < MIN_SECRET_BYTES) {
             throw new IllegalStateException("JWT_SECRET must be base64 of at least 32 random bytes");
         }
