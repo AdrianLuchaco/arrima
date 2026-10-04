@@ -9,6 +9,7 @@ export interface Tokens {
   expiresAt: string
 }
 
+/** 'offline': no answer from the server right now (no coverage, or it is restarting). */
 export type RefreshResult = 'refreshed' | 'signedOut' | 'offline'
 
 let accessToken: string | null = null
@@ -62,9 +63,13 @@ async function doRefresh(): Promise<RefreshResult> {
     // No connection: keep the session, the request can be retried later.
     return 'offline'
   }
-  if (!response.ok) {
+  if (response.status === 401 || response.status === 403) {
     clearSession()
     return 'signedOut'
+  }
+  if (!response.ok) {
+    // 429, or a 502/503 while the server restarts: the cookie is still good, try again later.
+    return 'offline'
   }
   setSession((await response.json()) as Tokens)
   return 'refreshed'

@@ -2,9 +2,10 @@
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { serviceWorkerPlugin } from './pwa/serviceWorkerPlugin.ts'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), serviceWorkerPlugin()],
   server: {
     // Same origin as in production, where Vercel rewrites /api/* to the backend on Render.
     proxy: { '/api': 'http://localhost:8080' },

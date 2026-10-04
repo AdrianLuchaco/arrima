@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Source of the app icons (public/icons/*.png). Full-bleed square: the launcher rounds or masks
+       it. Ball and jack stay inside the central circle that maskable icons keep (radius 40%). -->
+  <defs>
+    <radialGradient id="steel" cx="35%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#f4f6f7"/>
+      <stop offset="0.45" stop-color="#9aa5ad"/>
+      <stop offset="1" stop-color="#1c2226"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="#2c3439"/>
+  <ellipse cx="250" cy="372" rx="150" ry="16" fill="#1c2226" opacity=".6"/>
+  <circle cx="226" cy="246" r="118" fill="url(#steel)"/>
+  <path d="M115 207c55 30 167 30 222 0M115 285c55-30 167-30 222 0" fill="none" stroke="#1c2226" stroke-width="9" opacity=".45"/>
+  <circle cx="366" cy="338" r="38" fill="#e8590c"/>
+</svg>

@@ -84,6 +84,23 @@ cd backend && ./mvnw verify               # unitarios + integración (Testcontai
 cd frontend && npm run lint && npm test && npm run build
 ```
 
+### Probar la PWA en local
+
+El *service worker* solo existe en el build de producción (en desarrollo estorbaría a la recarga de Vite):
+
+```sh
+cd frontend
+npm run build && npx vite preview         # http://localhost:4173, con el mismo proxy a /api
+```
+
+Qué hace la PWA:
+
+- `public/manifest.webmanifest` e iconos en `public/icons/` (generados desde `pwa/app-icon.svg`; si cambias el SVG, vuelve a exportar los PNG a 180, 192 y 512 px).
+- `pwa/sw.js` guarda en el móvil la página, el código, los estilos y los iconos, para que la app abra al momento aunque no haya cobertura. **Nunca toca `/api`**: resultados, tiempo real y sesión van siempre a la red. Cada build lo regenera con una versión nueva (`pwa/serviceWorkerPlugin.ts`) y los móviles se actualizan solos la siguiente vez que abren la app.
+- En la pantalla de melés aparece «Instala Arrima en el móvil»: en Android abre el diálogo de instalación de Chrome; en iPhone explica los pasos de Safari (Compartir → «Añadir a pantalla de inicio»).
+
+Nota para pruebas automáticas con el WebKit de Playwright: no guarda cookies `Secure` en `http://localhost`, así que al recargar la página se pierde la sesión. En Safari real con HTTPS no pasa.
+
 ## Variables de entorno
 
 Se definen en `backend/.env` en local y en el panel de Render en producción. **Nunca van al repositorio.** En `backend/.env.example` están los nombres y el formato de cada una.

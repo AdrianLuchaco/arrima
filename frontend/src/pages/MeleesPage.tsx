@@ -4,11 +4,12 @@ import { Link, useNavigate } from 'react-router'
 import { useClubProfile } from '../club/clubApi'
 import { formatMeleeDate } from '../lib/dates'
 import { useCreateMelee, useMelees } from '../melee/meleeApi'
-import type { MeleeSummary } from '../melee/types'
+import type { MeleeStatus, MeleeSummary } from '../melee/types'
 import { Button } from '../ui/Button'
 import { Dialog } from '../ui/Dialog'
 import { ErrorMessage } from '../ui/ErrorMessage'
 import { NumberStepper } from '../ui/NumberStepper'
+import { InstallCard } from '../pwa/InstallCard'
 
 export function MeleesPage() {
   const { t } = useTranslation()
@@ -27,6 +28,7 @@ export function MeleesPage() {
 
       <MeleeList title={t('melees.current')} melees={current} empty={t('melees.noCurrent')} />
       <MeleeList title={t('melees.history')} melees={history} empty={t('melees.noHistory')} />
+      <InstallCard />
 
       <Dialog open={creating} onClose={() => setCreating(false)} title={t('melees.createClassic')}>
         <CreateMeleeForm />
@@ -51,9 +53,9 @@ function MeleeList({ title, melees, empty }: { title: string; melees: MeleeSumma
                 className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border-2 border-gravel-300 bg-white px-4 py-4 text-lg hover:border-steel-600"
               >
                 <span className="font-bold first-letter:uppercase">{formatMeleeDate(melee.playedOn)}</span>
-                <span className="text-steel-600">
-                  {t(`melee.teamSize.${melee.teamSize}`)} · {t('melees.players', { count: melee.activePlayers })} ·{' '}
-                  <strong className="text-steel-900">{t(`melee.status.${melee.status}`)}</strong>
+                <StatusPill status={melee.status} />
+                <span className="w-full text-steel-600">
+                  {t(`melee.teamSize.${melee.teamSize}`)} · {t('melees.players', { count: melee.activePlayers })}
                 </span>
               </Link>
             </li>
@@ -62,6 +64,18 @@ function MeleeList({ title, melees, empty }: { title: string; melees: MeleeSumma
       )}
     </section>
   )
+}
+
+/** Setting up, being played (the ones to find quickly on the day) or closed. */
+function StatusPill({ status }: { status: MeleeStatus }) {
+  const { t } = useTranslation()
+  const colours =
+    status === 'CLOSED'
+      ? 'bg-steel-200 text-steel-900'
+      : status === 'REGISTRATION' || status === 'TEAMS'
+        ? 'bg-gravel-100 text-steel-900'
+        : 'bg-jack-700 text-white'
+  return <span className={`rounded-full px-3 py-0.5 text-base font-bold ${colours}`}>{t(`melee.status.${status}`)}</span>
 }
 
 function CreateMeleeForm() {

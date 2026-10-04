@@ -50,6 +50,30 @@ describe('waitForServer', () => {
     expect(statuses).toEqual(['checking', 'offline', 'ready'])
   })
 
+  it('keeps saying there is no connection after the waking notice time has passed', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetchFn = vi.fn<typeof fetch>(networkError)
+      const controller = new AbortController()
+      const statuses: ServerStatus[] = []
+      void waitForServer({
+        onStatus: (status) => statuses.push(status),
+        signal: controller.signal,
+        fetchFn,
+        isOnline: () => false,
+        wakingNoticeMs: 1000,
+        retryDelayMs: 5000,
+      })
+
+      await vi.advanceTimersByTimeAsync(2000)
+      controller.abort()
+
+      expect(statuses).toEqual(['checking', 'offline'])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('stops retrying once aborted', async () => {
     const controller = new AbortController()
     const fetchFn = vi.fn<typeof fetch>(() => {

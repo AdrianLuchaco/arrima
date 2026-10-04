@@ -27,16 +27,22 @@ export async function waitForServer({
   retryDelayMs = 3000,
   attemptTimeoutMs = 30000,
 }: WaitForServerOptions): Promise<void> {
-  onStatus('checking')
-  const wakingNotice = setTimeout(() => onStatus('waking'), wakingNoticeMs)
+  let current: ServerStatus = 'checking'
+  const report = (status: ServerStatus) => {
+    current = status
+    onStatus(status)
+  }
+  report('checking')
+  // Only for a first attempt that hangs: a failed one has already said what is going on.
+  const wakingNotice = setTimeout(() => current === 'checking' && report('waking'), wakingNoticeMs)
   try {
     while (!signal.aborted) {
       if (await isServerUp(fetchFn, signal, attemptTimeoutMs)) {
-        if (!signal.aborted) onStatus('ready')
+        if (!signal.aborted) report('ready')
         return
       }
       if (signal.aborted) return
-      onStatus(isOnline() ? 'waking' : 'offline')
+      report(isOnline() ? 'waking' : 'offline')
       await delay(retryDelayMs, signal)
     }
   } finally {

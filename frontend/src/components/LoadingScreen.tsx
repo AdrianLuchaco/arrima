@@ -6,10 +6,12 @@ interface LoadingScreenProps {
 }
 
 const BALL_POSITIONS = [96, 134, 166]
+const BALL_CLASSES = ['arrima-ball', 'arrima-ball arrima-ball-2', 'arrima-ball arrima-ball-3']
 
 /**
  * Steel balls rolling up to the jack. Pure SVG + CSS: no animation library, so it loads instantly
- * on a slow connection. It is also the "waking up the server" screen.
+ * on a slow connection. It is also the "waking up the server" screen. index.html has a copy of the
+ * drawing, shown before this code arrives.
  */
 export function LoadingScreen({ title, detail, quiet = false }: LoadingScreenProps) {
   return (
@@ -36,7 +38,7 @@ function PetanqueAnimation() {
       <line x1="4" y1="80" x2="236" y2="80" stroke="#cbbda3" strokeWidth="4" strokeLinecap="round" />
       <circle cx="206" cy="71" r="7" fill="#e8590c" />
       {BALL_POSITIONS.map((x, index) => (
-        <g key={x} className="arrima-ball" style={{ animationDelay: `${index * 0.35}s` }}>
+        <g key={x} className={BALL_CLASSES[index]}>
           <circle cx={x} cy="62" r="16" fill="url(#arrima-steel)" />
           <path
             d={`M${x - 15} 56c9 5 21 5 30 0M${x - 15} 68c9-5 21-5 30 0`}

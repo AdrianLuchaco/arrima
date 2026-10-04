@@ -2,14 +2,52 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#2c3439" />
-    <meta name="description" content="Arrima: organiza las melés de petanca de tu club desde el móvil." />
     <title>Arrima</title>
+    <meta name="description" content="Arrima: organiza las melés de petanca de tu club desde el móvil." />
+    <meta name="theme-color" content="#2c3439" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- iPhone and iPad: home screen icon, name and full-screen mode. -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Arrima" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!--
+        Shown while the code downloads on a slow connection; React replaces it with the same loading
+        screen (components/LoadingScreen.tsx), so the change can't be seen. Classes only: the CSP
+        does not allow inline styles.
+      -->
+      <main class="flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
+        <svg viewBox="0 0 240 90" class="w-64 max-w-full" aria-hidden="true">
+          <defs>
+            <radialGradient id="arrima-boot-steel" cx="35%" cy="30%" r="75%">
+              <stop offset="0" stop-color="#f4f6f7" />
+              <stop offset="0.45" stop-color="#9aa5ad" />
+              <stop offset="1" stop-color="#2c3439" />
+            </radialGradient>
+          </defs>
+          <line x1="4" y1="80" x2="236" y2="80" stroke="#cbbda3" stroke-width="4" stroke-linecap="round" />
+          <circle cx="206" cy="71" r="7" fill="#e8590c" />
+          <g class="arrima-ball">
+            <circle cx="96" cy="62" r="16" fill="url(#arrima-boot-steel)" />
+            <path d="M81 56c9 5 21 5 30 0M81 68c9-5 21-5 30 0" fill="none" stroke="#2c3439" stroke-width="1.5" opacity="0.5" />
+          </g>
+          <g class="arrima-ball arrima-ball-2">
+            <circle cx="134" cy="62" r="16" fill="url(#arrima-boot-steel)" />
+            <path d="M119 56c9 5 21 5 30 0M119 68c9-5 21-5 30 0" fill="none" stroke="#2c3439" stroke-width="1.5" opacity="0.5" />
+          </g>
+          <g class="arrima-ball arrima-ball-3">
+            <circle cx="166" cy="62" r="16" fill="url(#arrima-boot-steel)" />
+            <path d="M151 56c9 5 21 5 30 0M151 68c9-5 21-5 30 0" fill="none" stroke="#2c3439" stroke-width="1.5" opacity="0.5" />
+          </g>
+        </svg>
+        <p class="sr-only" role="status">Cargando Arrima…</p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

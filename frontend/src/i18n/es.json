@@ -481,5 +481,20 @@
     "closeTitle": "¿Cerrar la melé?",
     "closeConfirm": "Cerrar",
     "closeExplanation": "Pasará al histórico y ya no se podrá cambiar nada (sí borrarla entera)."
+  },
+  "install": {
+    "title": "Instala Arrima en el móvil",
+    "why": "Tendrás su icono en la pantalla de inicio y se abrirá al momento, aunque haya poca cobertura.",
+    "button": "Instalar",
+    "later": "Ahora no",
+    "ios": {
+      "share": "En Safari, pulsa el botón Compartir",
+      "add": "Elige «Añadir a pantalla de inicio» (si no lo ves, desliza hacia abajo).",
+      "confirm": "Pulsa «Añadir»."
+    },
+    "android": {
+      "menu": "Abre el menú del navegador (los tres puntos ⋮).",
+      "add": "Elige «Instalar aplicación» o «Añadir a pantalla de inicio»."
+    }
   }
 }

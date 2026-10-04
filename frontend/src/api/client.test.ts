@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { clearSession, refreshSession, setSession } from '../auth/session'
+import { clearSession, refreshSession, setSession, validAccessToken } from '../auth/session'
 import { ApiError } from './ApiError'
 import { api } from './client'
 
@@ -45,7 +45,10 @@ describe('api client', () => {
 })
 
 describe('refreshSession', () => {
-  afterEach(() => vi.unstubAllGlobals())
+  afterEach(() => {
+    clearSession()
+    vi.unstubAllGlobals()
+  })
 
   it('shares one request between simultaneous callers, so the token is rotated only once', async () => {
     const fetchMock = vi.fn(() => json(200, tokens('t')))
@@ -61,5 +64,21 @@ describe('refreshSession', () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new TypeError('Failed to fetch'))))
 
     await expect(refreshSession()).resolves.toBe('offline')
+  })
+
+  it('keeps the session while the server restarts', async () => {
+    setSession(tokens('t'))
+    vi.stubGlobal('fetch', vi.fn(() => json(502, {})))
+
+    await expect(refreshSession()).resolves.toBe('offline')
+    expect(await validAccessToken()).toBe('t')
+  })
+
+  it('signs out when the server rejects the refresh cookie', async () => {
+    setSession(tokens('t'))
+    vi.stubGlobal('fetch', vi.fn(() => json(401, { code: 'INVALID_REFRESH_TOKEN' })))
+
+    await expect(refreshSession()).resolves.toBe('signedOut')
+    expect(await validAccessToken()).toBeNull()
   })
 })

@@ -63,6 +63,15 @@
   animation: arrima-roll 2.6s cubic-bezier(0.2, 0.7, 0.3, 1) infinite both;
 }
 
+/* Classes rather than inline styles, which the CSP blocks in index.html. */
+.arrima-ball-2 {
+  animation-delay: 0.35s;
+}
+
+.arrima-ball-3 {
+  animation-delay: 0.7s;
+}
+
 /* Draw: the drum spins, then the teams appear one after another. */
 @keyframes arrima-spin {
   to {
