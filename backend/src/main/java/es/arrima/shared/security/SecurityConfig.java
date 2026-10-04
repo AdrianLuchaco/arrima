@@ -32,6 +32,8 @@ class SecurityConfig {
                                 "/api/auth/refresh", "/api/auth/logout").permitAll()
                         // Images: access is granted by the signature in the link (see FileLinkSigner).
                         .requestMatchers(GET, "/api/files/**").permitAll()
+                        // Public melee view: read-only by construction (only GET is allowed).
+                        .requestMatchers(GET, "/api/public/**").permitAll()
                         .requestMatchers("/api/club", "/api/club/**").authenticated()
                         .requestMatchers("/api/melees", "/api/melees/**").authenticated()
                         // Deny by default: every endpoint must be listed above.

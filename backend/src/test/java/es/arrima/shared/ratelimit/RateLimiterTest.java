@@ -56,6 +56,17 @@ class RateLimiterTest {
     }
 
     @Test
+    void onceTheLimitIsUsedUpEnsureNotExceededRejects() {
+        RateLimitPolicy policy = RateLimitPolicy.PUBLIC_CODE_MISS_PER_IP;
+        for (int i = 0; i < policy.limit(); i++) {
+            rateLimiter.consume(policy, "1.2.3.4");
+        }
+
+        assertThatThrownBy(() -> rateLimiter.ensureNotExceeded(policy, "1.2.3.4")).isInstanceOf(ApiException.class);
+        assertThatCode(() -> rateLimiter.ensureNotExceeded(policy, "5.6.7.8")).doesNotThrowAnyException();
+    }
+
+    @Test
     void ensureNotExceededDoesNotCount() {
         RateLimitPolicy policy = RateLimitPolicy.PUBLIC_CODE_MISS_PER_IP;
         for (int i = 0; i < policy.limit() * 3; i++) {

@@ -128,7 +128,8 @@
     "NO_TEAMS": "Aún no hay equipos.",
     "NO_SCHEDULE": "Aún no hay cuadro de pistas.",
     "COURT_OCCUPIED": "Esa pista está ocupada en esta partida.",
-    "RESULTS_MISSING": "Faltan resultados."
+    "RESULTS_MISSING": "Faltan resultados.",
+    "TOO_MANY_VIEWERS": "Hay demasiada gente conectada. Lo volveremos a intentar."
   },
   "fieldErrors": {
     "NotBlank": "Este campo es obligatorio.",
@@ -342,5 +343,43 @@
     "pending_one": "{{count}} cambio guardado en el móvil, se enviará solo",
     "pending_other": "{{count}} cambios guardados en el móvil, se enviarán solos",
     "rejected": "Un cambio no se ha podido guardar: {{reason}}"
+  },
+  "share": {
+    "button": "Compartir con los jugadores (QR)",
+    "title": "Seguir la melé en directo",
+    "text": "Sigue la melé de {{club}} en directo:",
+    "qrAlt": "Código QR con el enlace de la melé",
+    "codeLabel": "Código de la melé:",
+    "share": "Compartir enlace",
+    "copy": "Copiar enlace",
+    "copied": "¡Copiado!"
+  },
+  "myTeam": {
+    "question": "¿Cuál es tu equipo?",
+    "choose": "Elige tu equipo…",
+    "wins_one": "{{count}} victoria",
+    "wins_other": "{{count}} victorias",
+    "nextOnCourt": "Tu próxima partida ({{round}}.ª): Pista {{court}} contra el Equipo {{rival}}",
+    "nextWaiting": "Tu próxima partida ({{round}}.ª): en espera de pista, contra el Equipo {{rival}}",
+    "resting": "Descansas en la partida {{round}}",
+    "finished": "Has terminado tus partidas.",
+    "notScheduled": "Aún no hay cuadro de pistas.",
+    "change": "Cambiar de equipo"
+  },
+  "public": {
+    "notFound": "No hay ninguna melé con el código {{code}}. Revisa el enlace o el QR.",
+    "status": {
+      "REGISTRATION": "Apuntándose",
+      "TEAMS": "Equipos sorteados",
+      "MATCHES": "Partidas en juego",
+      "INTERNATIONAL": "La Internacional",
+      "PRIZES": "Entrega de premios",
+      "CLOSED": "Melé terminada"
+    },
+    "live": {
+      "live": "En directo",
+      "connecting": "Conectando…",
+      "polling": "Reconectando…"
+    }
   }
 }

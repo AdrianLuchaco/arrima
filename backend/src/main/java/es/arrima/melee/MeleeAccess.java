@@ -2,6 +2,7 @@ package es.arrima.melee;
 
 import es.arrima.shared.error.ApiException;
 import java.time.Clock;
+import java.util.Optional;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,11 @@ public class MeleeAccess {
 
     public Melee forClub(long meleeId, long clubId) {
         return meleeRepository.findByIdAndClubId(meleeId, clubId).orElseThrow(ApiException::notFound);
+    }
+
+    /** Spectators find a melee by its public code only; there is no club involved. */
+    public Optional<Melee> byPublicCode(String publicCode) {
+        return meleeRepository.findByPublicCode(publicCode);
     }
 
     /** Every service calls this after changing anything in a melee: new revision, activity time, live update. */

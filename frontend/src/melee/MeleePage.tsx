@@ -1,15 +1,20 @@
+import { useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useSearchParams } from 'react-router'
 import { ErrorMessage } from '../ui/ErrorMessage'
 import { SwipeTabs } from '../ui/SwipeTabs'
+import { useMeleeLive } from '../live/useMeleeLive'
 import { useOutbox } from '../offline/useOutbox'
+import { Button } from '../ui/Button'
 import { withPending } from '../offline/withPending'
 import { CounterBar } from './Counter'
 import { CourtsTab } from './courts/CourtsTab'
 import { MeleeHeader, MeleeOptions } from './MeleeHeader'
-import { useMelee } from './meleeApi'
+import { meleeKey, useMelee } from './meleeApi'
 import { NextStepCard } from './NextStepCard'
 import { PlayersTab } from './players/PlayersTab'
+import { ShareDialog } from './ShareDialog'
 import { TeamsTab } from './teams/TeamsTab'
 import type { MeleeStatus } from './types'
 
@@ -29,6 +34,10 @@ export function MeleePage() {
   const { data, error } = useMelee(meleeId)
   const { pending } = useOutbox()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [sharing, setSharing] = useState(false)
+  const queryClient = useQueryClient()
+  // Another phone of the club may change the melee too: refresh when the server says so.
+  useMeleeLive(data?.publicCode, () => void queryClient.invalidateQueries({ queryKey: meleeKey(meleeId) }))
 
   if (error) return <ErrorMessage error={error} />
   if (!data) return null
@@ -44,6 +53,10 @@ export function MeleePage() {
   return (
     <div className={showCounter ? 'pb-28' : ''}>
       <MeleeHeader melee={melee} />
+      <Button variant="secondary" className="mb-4 w-full" onClick={() => setSharing(true)}>
+        {t('share.button')}
+      </Button>
+      {sharing && <ShareDialog melee={melee} onClose={() => setSharing(false)} />}
       <NextStepCard melee={melee} onShowTab={(tab) => setSearchParams({ tab }, { replace: true })} />
       <SwipeTabs
         label={t('melee.tabs.label')}

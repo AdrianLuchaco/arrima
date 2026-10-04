@@ -30,23 +30,26 @@ public class RateLimiter {
         Window window = windows.compute(key(policy, subject),
                 (key, current) -> current == null || current.hasEnded(now) ? Window.start(policy, now) : current.increment());
         evictEndedWindowsIfTooMany(now);
-        rejectIfOverLimit(policy, window, now);
+        if (window.count() > policy.limit()) {
+            reject(window, now);
+        }
     }
 
-    /** Rejects the request if the subject is already over the limit, without counting it. */
+    /**
+     * Rejects the request if the subject has already used up its limit in this window, without
+     * counting the request itself (for limits that only count failures).
+     */
     public void ensureNotExceeded(RateLimitPolicy policy, String subject) {
         long now = clock.millis();
         Window window = windows.get(key(policy, subject));
-        if (window != null && !window.hasEnded(now)) {
-            rejectIfOverLimit(policy, window, now);
+        if (window != null && !window.hasEnded(now) && window.count() >= policy.limit()) {
+            reject(window, now);
         }
     }
 
-    private static void rejectIfOverLimit(RateLimitPolicy policy, Window window, long now) {
-        if (window.count() > policy.limit()) {
-            long retryAfterSeconds = Math.max(1, (window.endMillis() - now + 999) / 1000);
-            throw new ApiException(ErrorCode.RATE_LIMITED, Map.of("retryAfterSeconds", retryAfterSeconds));
-        }
+    private static void reject(Window window, long now) {
+        long retryAfterSeconds = Math.max(1, (window.endMillis() - now + 999) / 1000);
+        throw new ApiException(ErrorCode.RATE_LIMITED, Map.of("retryAfterSeconds", retryAfterSeconds));
     }
 
     private void evictEndedWindowsIfTooMany(long now) {

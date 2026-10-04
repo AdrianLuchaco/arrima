@@ -7,6 +7,7 @@ import es.arrima.files.FileLinkSigner;
 import es.arrima.melee.Melee;
 import es.arrima.melee.MeleeAccess;
 import es.arrima.melee.MeleeRepository;
+import es.arrima.melee.MeleeStatus;
 import es.arrima.participant.Participant;
 import es.arrima.participant.ParticipantRepository;
 import es.arrima.participant.ParticipantService;
@@ -58,17 +59,19 @@ public class MeleeViewAssembler {
 
     @Transactional(readOnly = true)
     public MeleeView forAdmin(long meleeId, long clubId) {
-        return assemble(meleeAccess.forClub(meleeId, clubId));
+        return assemble(meleeAccess.forClub(meleeId, clubId), Audience.ADMIN);
     }
 
     @Transactional(readOnly = true)
-    public MeleeView assemble(Melee melee) {
+    public MeleeView assemble(Melee melee, Audience audience) {
         Club club = clubService.getClub(melee.getClubId());
         List<Participant> participants = participantService.listForMelee(melee.getId());
         int activePlayers = (int) participants.stream().filter(Participant::isActive).count();
-        List<Team> teams = teamService.teamsOf(melee.getId());
+        List<Team> teams = shows(audience, melee, MeleeStatus.TEAMS) ? teamService.teamsOf(melee.getId()) : List.of();
         List<Long> teamIds = teams.stream().map(Team::getId).toList();
-        Schedule schedule = scheduleService.scheduleOf(melee.getId());
+        Schedule schedule = shows(audience, melee, MeleeStatus.MATCHES)
+                ? scheduleService.scheduleOf(melee.getId())
+                : new Schedule(List.of(), List.of());
         int rounds = melee.getSettings().roundsCount();
 
         return new MeleeView(
@@ -94,6 +97,11 @@ public class MeleeViewAssembler {
                                 .map(target -> new MeleeView.WinTarget(target.wins(), target.reached(), target.canReach()))
                                 .toList()
                         : List.of());
+    }
+
+    /** Spectators only see the data of phases the melee has reached (see Audience). */
+    private static boolean shows(Audience audience, Melee melee, MeleeStatus phase) {
+        return audience == Audience.ADMIN || melee.getStatus().isAtLeast(phase);
     }
 
     private static List<MeleeView.Team> teamViews(List<Team> teams, List<TeamRecord> records) {

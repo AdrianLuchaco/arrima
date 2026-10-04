@@ -32,6 +32,7 @@ public enum ErrorCode {
     NO_SCHEDULE(HttpStatus.CONFLICT),
     COURT_OCCUPIED(HttpStatus.CONFLICT),
     RESULTS_MISSING(HttpStatus.CONFLICT),
+    TOO_MANY_VIEWERS(HttpStatus.SERVICE_UNAVAILABLE),
 
     // Files
     INVALID_IMAGE(HttpStatus.BAD_REQUEST),

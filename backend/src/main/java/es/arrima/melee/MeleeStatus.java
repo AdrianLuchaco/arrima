@@ -10,6 +10,10 @@ public enum MeleeStatus {
     PRIZES,
     CLOSED;
 
+    public boolean isAtLeast(MeleeStatus other) {
+        return ordinal() >= other.ordinal();
+    }
+
     MeleeStatus previous() {
         return values()[ordinal() - 1];
     }
