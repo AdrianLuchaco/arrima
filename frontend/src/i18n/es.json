@@ -129,7 +129,8 @@
     "NO_SCHEDULE": "Aún no hay cuadro de pistas.",
     "COURT_OCCUPIED": "Esa pista está ocupada en esta partida.",
     "RESULTS_MISSING": "Faltan resultados.",
-    "TOO_MANY_VIEWERS": "Hay demasiada gente conectada. Lo volveremos a intentar."
+    "TOO_MANY_VIEWERS": "Hay demasiada gente conectada. Lo volveremos a intentar.",
+    "INTERNATIONAL_INCOMPLETE": "La Internacional aún no ha terminado."
   },
   "fieldErrors": {
     "NotBlank": "Este campo es obligatorio.",
@@ -144,7 +145,8 @@
     "Range": "El número no es válido.",
     "NotInMatch": "Ese equipo no juega este enfrentamiento.",
     "SameTeam": "Los dos jugadores son del mismo equipo.",
-    "NotAvailable": "Ese jugador no está libre."
+    "NotAvailable": "Ese jugador no está libre.",
+    "WrongKind": "Ese resultado no corresponde a este tipo de bola."
   },
   "melee": {
     "classic": "Melé clásica",
@@ -179,7 +181,8 @@
       "label": "Vistas de la melé",
       "players": "Jugadores",
       "teams": "Equipos",
-      "courts": "Pistas"
+      "courts": "Pistas",
+      "international": "Internacional"
     },
     "moreOptions": "Más opciones"
   },
@@ -319,6 +322,11 @@
     },
     "matches": {
       "allDone": "¡Están todos los resultados!"
+    },
+    "international": {
+      "start": "Iniciar la Internacional",
+      "inProgress": "La Internacional está en juego.",
+      "open": "Abrir la pantalla de la Internacional"
     }
   },
   "settings": {
@@ -381,5 +389,68 @@
       "connecting": "Conectando…",
       "polling": "Reconectando…"
     }
+  },
+  "intl": {
+    "notStarted": "La Internacional aún no ha empezado.",
+    "nobodyPlays": "No hace falta jugar la Internacional: todos los premios están decididos por victorias.",
+    "assured": "Premios ya decididos (sin jugar)",
+    "prize": "{{position}}.º premio",
+    "prizeShort": "{{position}}.º",
+    "prizeSingle": "{{position}}.º premio",
+    "prizeRange": "premios {{best}}.º a {{worst}}.º",
+    "groupTitle_one": "Grupo de {{count}} victoria · {{prizes}}",
+    "groupTitle_other": "Grupo de {{count}} victorias · {{prizes}}",
+    "groupStatus": {
+      "PENDING": "Sin empezar",
+      "IN_PROGRESS": "En juego",
+      "FINISHED": "Terminado"
+    },
+    "obsoleteWarning": "Una corrección ha cambiado el empate de este grupo: un desempate que ya se jugó ya no cuenta. Revisa la clasificación.",
+    "tieBreakPoints": "desempate: {{points}}",
+    "finalTitle": "Clasificación final",
+    "direct": "sin jugar",
+    "afterTieBreak": "tras desempate",
+    "backToMelee": "Volver a la melé",
+    "awaitingServer": "Bolas guardadas en el móvil. En cuanto haya conexión se sabrá si hay desempate.",
+    "done": "La Internacional ha terminado.",
+    "tieBreak": "DESEMPATE",
+    "points_action": "Arrima",
+    "shoots_action": "Tira",
+    "ballOf": "bola {{ball}} de 3",
+    "roundPoints_one": "lleva {{count}} punto",
+    "roundPoints_other": "lleva {{count}} puntos",
+    "points_one": "{{count}} punto",
+    "points_other": "{{count}} puntos",
+    "confirmTitle": "¿{{outcome}}?",
+    "position": {
+      "pointer": "Arrimador",
+      "lead": "Punta",
+      "middle": "Medio",
+      "shooter": "Tirador"
+    },
+    "outcome": {
+      "OUT": "Fuera",
+      "BIG_CIRCLE": "Círculo grande",
+      "SMALL_CIRCLE": "Círculo pequeño",
+      "NEAR_JACK": "A menos de 10 cm",
+      "ON_JACK": "Chupete",
+      "MISS": "Fallo",
+      "HIT": "De 1",
+      "HIT_OUT": "De 2",
+      "CARREAU": "Carro"
+    },
+    "field": {
+      "pointing": "Campo de arrimar: toca dónde ha quedado la bola",
+      "shooting": "Campo de tirar: toca la bola si le ha dado",
+      "tapBall": "Toca la bola si le ha dado",
+      "hitTheBall": "Le ha dado"
+    },
+    "teamBalls": "Bolas del equipo {{number}}",
+    "mainRound": "Ronda",
+    "tieBreakRound": "Desempate {{number}}",
+    "obsolete": "ya no cuenta",
+    "corrected": "corregida",
+    "correctTo": "Corregir esta bola:",
+    "nowPlaying": "Ahora juega"
   }
 }

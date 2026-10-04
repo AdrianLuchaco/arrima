@@ -92,6 +92,8 @@ export const meleeRequests = {
     api<MeleeView>(`${base(meleeId)}/schedule/matchups/${matchId}/winner`, { method: 'PUT', body: { winnerTeamId } }),
   assignCourt: (meleeId: number, matchId: number, courtNumber: number) =>
     api<MeleeView>(`${base(meleeId)}/schedule/matchups/${matchId}/court`, { method: 'PUT', body: { courtNumber } }),
+  startInternational: (meleeId: number, confirmLosses: boolean) =>
+    api<MeleeView>(`${base(meleeId)}/international/start`, { method: 'POST', body: { confirmLosses } }),
   goBack: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/back`, { method: 'POST' }),
   close: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/close`, { method: 'POST' }),
 }

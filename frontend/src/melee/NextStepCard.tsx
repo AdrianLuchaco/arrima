@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { Button } from '../ui/Button'
 import { Dialog } from '../ui/Dialog'
 import { ErrorMessage } from '../ui/ErrorMessage'
@@ -24,6 +25,7 @@ export function NextStepCard({ melee, onShowTab }: NextStepCardProps) {
       {melee.status === 'REGISTRATION' && <DrawStep melee={melee} onShowTab={onShowTab} onDrawn={() => setShowDrum(true)} />}
       {melee.status === 'TEAMS' && <ScheduleStep melee={melee} onGenerated={() => onShowTab('pistas')} />}
       {melee.status === 'MATCHES' && <MatchesStep melee={melee} />}
+      {melee.status === 'INTERNATIONAL' && <InternationalStep melee={melee} />}
       {showDrum && <BomboOverlay melee={melee} onDone={() => { setShowDrum(false); onShowTab('equipos') }} />}
     </>
   )
@@ -150,11 +152,33 @@ function ScheduleStep({ melee, onGenerated }: { melee: MeleeView; onGenerated: (
 
 function MatchesStep({ melee }: { melee: MeleeView }) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  const start = useConfirmableAction(melee.id, (_: void, confirm) => meleeRequests.startInternational(melee.id, confirm),
+    () => navigate(`/melees/${melee.id}/internacional`))
   const pending = melee.rounds.flatMap((round) => round.matches).filter((match) => match.winnerTeamId === null).length
   if (pending > 0) return null
   return (
     <StepCard>
       <p className="text-xl font-bold">{t('steps.matches.allDone')}</p>
+      <Button variant="accent" className="min-h-20 text-2xl" busy={start.isPending} onClick={() => start.run(undefined)}>
+        {t('steps.international.start')}
+      </Button>
+      <ErrorMessage error={start.error} />
+      {start.dialog}
+    </StepCard>
+  )
+}
+
+function InternationalStep({ melee }: { melee: MeleeView }) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const complete = melee.international?.complete ?? false
+  return (
+    <StepCard>
+      <p className="text-xl font-bold">{complete ? t('intl.done') : t('steps.international.inProgress')}</p>
+      <Button variant={complete ? 'secondary' : 'accent'} className="min-h-16 text-xl" onClick={() => navigate(`/melees/${melee.id}/internacional`)}>
+        {t('steps.international.open')}
+      </Button>
     </StepCard>
   )
 }

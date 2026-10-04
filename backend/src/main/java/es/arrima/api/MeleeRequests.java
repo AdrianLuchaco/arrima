@@ -1,6 +1,7 @@
 package es.arrima.api;
 
 import es.arrima.club.MeleeSettings;
+import es.arrima.international.domain.ThrowOutcome;
 import es.arrima.participant.NewParticipant;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -76,5 +77,15 @@ final class MeleeRequests {
     }
 
     record AssignCourt(@NotNull @Min(1) @Max(MeleeSettings.MAX_COURTS) Integer courtNumber) {
+    }
+
+    record StartInternational(Boolean confirmLosses) {
+
+        boolean confirmsLosses() {
+            return Boolean.TRUE.equals(confirmLosses);
+        }
+    }
+
+    record RecordThrow(@NotNull ThrowOutcome outcome) {
     }
 }

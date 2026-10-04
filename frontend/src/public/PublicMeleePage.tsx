@@ -14,6 +14,7 @@ import type { MeleeView } from '../melee/types'
 import { ErrorMessage } from '../ui/ErrorMessage'
 import { SwipeTabs } from '../ui/SwipeTabs'
 import { MyTeamCard } from './MyTeamCard'
+import { PublicInternational } from './PublicInternational'
 
 /** What players see with the code or the QR: everything, live, read-only, no account. */
 export function PublicMeleePage() {
@@ -44,7 +45,8 @@ export function PublicMeleePage() {
   }
   if (!melee) return null
 
-  const active = tab ?? (melee.status === 'REGISTRATION' ? 'jugadores' : melee.status === 'TEAMS' ? 'equipos' : 'pistas')
+  const active = tab ?? (melee.status === 'REGISTRATION' ? 'jugadores' : melee.status === 'TEAMS' ? 'equipos'
+    : melee.status === 'MATCHES' || !melee.international ? 'pistas' : 'internacional')
   const showCounter = melee.counter.length > 0 && melee.status !== 'CLOSED'
 
   return (
@@ -74,6 +76,9 @@ export function PublicMeleePage() {
             { id: 'jugadores', label: t('melee.tabs.players'), content: <PlayersTab melee={melee} readOnly /> },
             { id: 'equipos', label: t('melee.tabs.teams'), content: <TeamsTab melee={melee} readOnly /> },
             { id: 'pistas', label: t('melee.tabs.courts'), content: <CourtsTab melee={melee} readOnly /> },
+            ...(melee.international
+              ? [{ id: 'internacional', label: t('melee.tabs.international'), content: <PublicInternational melee={melee} /> }]
+              : []),
           ]}
         />
       </main>

@@ -4,6 +4,7 @@ import { ApiError } from './api/ApiError'
 import { startOutbox } from './offline/outbox'
 import { AuthLayout, SignedInOnly, SignedOutOnly } from './auth/routeGuards'
 import { ClubProfilePage } from './pages/ClubProfilePage'
+import { InternationalPage } from './international/InternationalPage'
 import { MeleePage } from './melee/MeleePage'
 import { LoginPage } from './pages/LoginPage'
 import { MeleesPage } from './pages/MeleesPage'
@@ -43,6 +44,7 @@ export default function App() {
                   <Route index element={<MeleesPage />} />
                   <Route path="/club" element={<ClubProfilePage />} />
                   <Route path="/melees/:meleeId" element={<MeleePage />} />
+                  <Route path="/melees/:meleeId/internacional" element={<InternationalPage />} />
                 </Route>
               </Route>
             </Route>

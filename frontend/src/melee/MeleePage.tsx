@@ -10,6 +10,7 @@ import { Button } from '../ui/Button'
 import { withPending } from '../offline/withPending'
 import { CounterBar } from './Counter'
 import { CourtsTab } from './courts/CourtsTab'
+import { IntlBoard } from '../international/IntlBoard'
 import { MeleeHeader, MeleeOptions } from './MeleeHeader'
 import { meleeKey, useMelee } from './meleeApi'
 import { NextStepCard } from './NextStepCard'
@@ -18,14 +19,15 @@ import { ShareDialog } from './ShareDialog'
 import { TeamsTab } from './teams/TeamsTab'
 import type { MeleeStatus } from './types'
 
-const TABS = ['jugadores', 'equipos', 'pistas'] as const
+const TABS = ['jugadores', 'equipos', 'pistas', 'internacional'] as const
 type TabId = (typeof TABS)[number]
 
 /** The most useful tab for each phase, shown when nothing else was chosen. */
 function defaultTab(status: MeleeStatus): TabId {
   if (status === 'REGISTRATION') return 'jugadores'
   if (status === 'TEAMS') return 'equipos'
-  return 'pistas'
+  if (status === 'MATCHES') return 'pistas'
+  return 'internacional'
 }
 
 export function MeleePage() {
@@ -46,7 +48,9 @@ export function MeleePage() {
   const melee = withPending(data, pending)
 
   const requested = searchParams.get('tab') as TabId | null
-  const active = requested && TABS.includes(requested) ? requested : defaultTab(melee.status)
+  const hasInternational = melee.international !== null
+  const fallback = defaultTab(melee.status)
+  const active = requested && TABS.includes(requested) ? requested : fallback === 'internacional' && !hasInternational ? 'pistas' : fallback
 
   const showCounter = melee.counter.length > 0 && melee.status !== 'CLOSED'
 
@@ -66,6 +70,9 @@ export function MeleePage() {
           { id: 'jugadores', label: t('melee.tabs.players'), content: <PlayersTab melee={melee} /> },
           { id: 'equipos', label: t('melee.tabs.teams'), content: <TeamsTab melee={melee} /> },
           { id: 'pistas', label: t('melee.tabs.courts'), content: <CourtsTab melee={melee} /> },
+          ...(hasInternational
+            ? [{ id: 'internacional', label: t('melee.tabs.international'), content: <IntlBoard melee={melee} /> }]
+            : []),
         ]}
       />
       <MeleeOptions melee={melee} />

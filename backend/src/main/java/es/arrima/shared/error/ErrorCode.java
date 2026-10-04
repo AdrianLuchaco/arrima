@@ -33,6 +33,7 @@ public enum ErrorCode {
     COURT_OCCUPIED(HttpStatus.CONFLICT),
     RESULTS_MISSING(HttpStatus.CONFLICT),
     TOO_MANY_VIEWERS(HttpStatus.SERVICE_UNAVAILABLE),
+    INTERNATIONAL_INCOMPLETE(HttpStatus.CONFLICT),
 
     // Files
     INVALID_IMAGE(HttpStatus.BAD_REQUEST),

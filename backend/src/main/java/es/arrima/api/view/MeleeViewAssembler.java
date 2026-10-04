@@ -4,6 +4,7 @@ import es.arrima.club.Club;
 import es.arrima.club.ClubService;
 import es.arrima.club.ScoringTableDto;
 import es.arrima.files.FileLinkSigner;
+import es.arrima.international.InternationalService;
 import es.arrima.melee.Melee;
 import es.arrima.melee.MeleeAccess;
 import es.arrima.melee.MeleeRepository;
@@ -42,11 +43,13 @@ public class MeleeViewAssembler {
     private final ParticipantRepository participantRepository;
     private final TeamService teamService;
     private final ScheduleService scheduleService;
+    private final InternationalService internationalService;
     private final FileLinkSigner fileLinkSigner;
 
     public MeleeViewAssembler(MeleeAccess meleeAccess, MeleeRepository meleeRepository, ClubService clubService,
             ParticipantService participantService, ParticipantRepository participantRepository,
-            TeamService teamService, ScheduleService scheduleService, FileLinkSigner fileLinkSigner) {
+            TeamService teamService, ScheduleService scheduleService, InternationalService internationalService,
+            FileLinkSigner fileLinkSigner) {
         this.meleeAccess = meleeAccess;
         this.meleeRepository = meleeRepository;
         this.clubService = clubService;
@@ -54,6 +57,7 @@ public class MeleeViewAssembler {
         this.participantRepository = participantRepository;
         this.teamService = teamService;
         this.scheduleService = scheduleService;
+        this.internationalService = internationalService;
         this.fileLinkSigner = fileLinkSigner;
     }
 
@@ -96,7 +100,18 @@ public class MeleeViewAssembler {
                         ? schedule.counter(teamIds, rounds).stream()
                                 .map(target -> new MeleeView.WinTarget(target.wins(), target.reached(), target.canReach()))
                                 .toList()
-                        : List.of());
+                        : List.of(),
+                internationalView(melee, audience, teams));
+    }
+
+    /** Shown from the moment it starts; the admin also sees it while back in an earlier phase. */
+    private MeleeView.International internationalView(Melee melee, Audience audience, List<Team> teams) {
+        boolean reached = melee.getStatus().isAtLeast(MeleeStatus.INTERNATIONAL);
+        if (!reached && (audience == Audience.PUBLIC || internationalService.ballThrowCount(melee.getId()) == 0)) {
+            return null;
+        }
+        Map<Long, Integer> teamSizes = teams.stream().collect(Collectors.toMap(Team::getId, team -> team.getMemberIds().size()));
+        return InternationalViews.of(internationalService.stateOf(melee), teamSizes);
     }
 
     /** Spectators only see the data of phases the melee has reached (see Audience). */

@@ -38,6 +38,75 @@ export interface MeleeView {
   maxRounds: number
   rounds: Round[]
   counter: WinTarget[]
+  /** null until la Internacional starts. */
+  international: International | null
+}
+
+export type ThrowKind = 'POINTING' | 'SHOOTING'
+export type PlayerPosition = 'POINTER' | 'MIDDLE' | 'SHOOTER'
+export type PointingOutcome = 'OUT' | 'BIG_CIRCLE' | 'SMALL_CIRCLE' | 'NEAR_JACK' | 'ON_JACK'
+export type ShootingOutcome = 'MISS' | 'HIT' | 'HIT_OUT' | 'CARREAU'
+export type ThrowOutcome = PointingOutcome | ShootingOutcome
+
+export interface Ball {
+  kind: ThrowKind
+  ballNumber: number
+  position: PlayerPosition
+  outcome: ThrowOutcome
+  points: number
+  corrected: boolean
+}
+
+export interface IntlTeam {
+  teamId: number
+  playOrder: number
+  points: number
+  balls: Ball[]
+}
+
+export interface IntlRound {
+  id: number
+  /** 1 is the regular round; 2+ are tie-breaks among tied teams. */
+  number: number
+  obsolete: boolean
+  complete: boolean
+  teams: IntlTeam[]
+}
+
+export interface IntlGroup {
+  id: number
+  playOrder: number
+  wins: number
+  bestPosition: number
+  worstPosition: number
+  status: 'PENDING' | 'IN_PROGRESS' | 'FINISHED'
+  order: number[]
+  obsoletePlayed: boolean
+  rounds: IntlRound[]
+}
+
+export interface Turn {
+  groupId: number
+  roundId: number
+  teamId: number
+  kind: ThrowKind
+  ballNumber: number
+  position: PlayerPosition
+}
+
+export interface Ranked {
+  position: number
+  teamId: number
+  points: number | null
+  tieBreak: boolean
+}
+
+export interface International {
+  groups: IntlGroup[]
+  assured: Ranked[]
+  turn: Turn | null
+  finalRanking: Ranked[]
+  complete: boolean
 }
 
 export interface Team {

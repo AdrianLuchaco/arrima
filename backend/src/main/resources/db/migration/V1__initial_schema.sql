@@ -188,7 +188,8 @@ create table international_group (
     best_prize_position   integer     not null,
     worst_prize_position  integer     not null,
     status                varchar(20) not null check (status in ('PENDING', 'IN_PROGRESS', 'FINISHED')),
-    constraint international_group_order unique (melee_id, play_order),
+    -- Deferred: reconciling groups after going back can reorder them within one transaction.
+    constraint international_group_order unique (melee_id, play_order) deferrable initially deferred,
     constraint international_group_prizes check (best_prize_position between 1 and worst_prize_position)
 );
 
