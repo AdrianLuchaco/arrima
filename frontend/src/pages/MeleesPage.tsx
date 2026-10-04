@@ -4,11 +4,13 @@ import { Link, useNavigate } from 'react-router'
 import { useClubProfile } from '../club/clubApi'
 import { formatMeleeDate } from '../lib/dates'
 import { useCreateMelee, useMelees } from '../melee/meleeApi'
-import type { MeleeStatus, MeleeSummary } from '../melee/types'
+import type { MeleeSettings, MeleeStatus, MeleeSummary } from '../melee/types'
 import { Button } from '../ui/Button'
 import { Dialog } from '../ui/Dialog'
 import { ErrorMessage } from '../ui/ErrorMessage'
+import { MoneyStepper } from '../ui/MoneyStepper'
 import { NumberStepper } from '../ui/NumberStepper'
+import { MAX_ENTRY_FEE_CENTS } from '../lib/money'
 import { InstallCard } from '../pwa/InstallCard'
 
 export function MeleesPage() {
@@ -84,10 +86,15 @@ function CreateMeleeForm() {
   const { data: club } = useClubProfile()
   const create = useCreateMelee()
   const [teamSize, setTeamSize] = useState<2 | 3>(2)
-  const [settings, setSettings] = useState<{ courtCount: number; roundsCount: number; prizeCount: number } | null>(null)
+  const [settings, setSettings] = useState<MeleeSettings | null>(null)
 
   if (!club) return null
-  const values = settings ?? { courtCount: club.courtCount, roundsCount: club.roundsCount, prizeCount: club.prizeCount }
+  const values = settings ?? {
+    courtCount: club.courtCount,
+    roundsCount: club.roundsCount,
+    prizeCount: club.prizeCount,
+    entryFeeCents: club.entryFeeCents,
+  }
   const set = (field: keyof typeof values) => (value: number) => setSettings({ ...values, [field]: value })
 
   function submit() {
@@ -116,6 +123,7 @@ function CreateMeleeForm() {
       <NumberStepper label={t('club.profile.rounds')} value={values.roundsCount} min={1} max={20} onChange={set('roundsCount')} />
       <NumberStepper label={t('club.profile.prizes')} value={values.prizeCount} min={1} max={100} onChange={set('prizeCount')} />
       <NumberStepper label={t('club.profile.courts')} value={values.courtCount} min={1} max={200} onChange={set('courtCount')} />
+      <MoneyStepper label={t('club.profile.fee')} value={values.entryFeeCents} max={MAX_ENTRY_FEE_CENTS} onChange={set('entryFeeCents')} help={t('club.profile.feeHelp')} />
       <ErrorMessage error={create.error} />
       <Button variant="accent" busy={create.isPending} onClick={submit}>
         {t('melees.create')}

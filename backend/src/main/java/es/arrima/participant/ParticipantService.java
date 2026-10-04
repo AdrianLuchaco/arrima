@@ -109,6 +109,48 @@ public class ParticipantService {
         meleeAccess.recordChange(melee);
     }
 
+    /**
+     * "¿Ha pagado?" at the sign-up table, or a correction (back to unmarked too). After the draw,
+     * whoever stops or starts playing shows up in the team issues and is replaced as with a
+     * withdrawal. Once the court schedule exists, payments are final.
+     */
+    @Transactional
+    public void recordPayment(long meleeId, long clubId, long participantId, PaymentStatus paymentStatus) {
+        Melee melee = meleeAccess.forClub(meleeId, clubId);
+        melee.requireStatus(MeleeStatus.REGISTRATION, MeleeStatus.TEAMS);
+        if (!melee.requiresPayment()) {
+            throw new ApiException(ErrorCode.INVALID_STATE, Map.of("reason", "NO_ENTRY_FEE"));
+        }
+        Participant participant = findInMelee(melee, participantId);
+        if (!participant.isActive()) {
+            throw ApiException.validation("participantId", "Withdrawn");
+        }
+        participant.recordPayment(paymentStatus);
+        meleeAccess.recordChange(melee);
+    }
+
+    /**
+     * Nobody may still be unmarked when the teams are drawn. The first attempt is refused with
+     * their ids, so the admin sees the names; once confirmed, they are recorded as not paid.
+     */
+    @Transactional
+    public void settleUnmarkedPayments(Melee melee, boolean confirmedAsNotPaid) {
+        if (!melee.requiresPayment()) {
+            return;
+        }
+        List<Participant> unmarked = listForMelee(melee.getId()).stream()
+                .filter(participant -> participant.isActive() && participant.getPaymentStatus() == PaymentStatus.UNMARKED)
+                .toList();
+        if (unmarked.isEmpty()) {
+            return;
+        }
+        if (!confirmedAsNotPaid) {
+            throw new ApiException(ErrorCode.UNMARKED_PAYMENTS,
+                    Map.of("unmarkedPlayers", unmarked.stream().map(Participant::getId).toList()));
+        }
+        unmarked.forEach(participant -> participant.recordPayment(PaymentStatus.UNPAID));
+    }
+
     /** Removing someone completely (typed by mistake) is only possible before the draw. */
     @Transactional
     public void delete(long meleeId, long clubId, long participantId) {

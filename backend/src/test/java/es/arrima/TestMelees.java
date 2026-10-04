@@ -23,8 +23,14 @@ public class TestMelees {
         this.mvc = mvc;
     }
 
+    /** Without an entry fee, so tests about teams and matches don't need to record payments. */
     public long create(RegisteredClub club, int teamSize) {
-        MvcTestResult result = send(club, "POST", "/api/melees", "{\"teamSize\":%d}".formatted(teamSize));
+        return create(club, teamSize, 0);
+    }
+
+    public long create(RegisteredClub club, int teamSize, int entryFeeCents) {
+        MvcTestResult result = send(club, "POST", "/api/melees",
+                "{\"teamSize\":%d,\"entryFeeCents\":%d}".formatted(teamSize, entryFeeCents));
         assertThat(result).hasStatus(HttpStatus.CREATED);
         return ((Number) TestClubs.json(result, "$.id")).longValue();
     }
@@ -45,7 +51,8 @@ public class TestMelees {
      * end with 2 wins and teams 3 and 4 with 1: both pairs must play la Internacional.
      */
     public ScenarioMelee fourTeamsWithTies(RegisteredClub club, int prizeCount) {
-        MvcTestResult created = send(club, "POST", "/api/melees", "{\"teamSize\":2,\"prizeCount\":%d}".formatted(prizeCount));
+        MvcTestResult created = send(club, "POST", "/api/melees",
+                "{\"teamSize\":2,\"prizeCount\":%d,\"entryFeeCents\":0}".formatted(prizeCount));
         long meleeId = ((Number) TestClubs.json(created, "$.id")).longValue();
         signUp(club, meleeId, 8);
         send(club, "POST", "/api/melees/%d/teams/draw".formatted(meleeId), "{}");

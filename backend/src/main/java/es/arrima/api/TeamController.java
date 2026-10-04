@@ -33,7 +33,8 @@ class TeamController {
     @PostMapping("/draw")
     MeleeView draw(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId,
             @RequestBody DrawTeams request) {
-        workflow.drawTeams(meleeId, admin.clubId(), request.acceptsDifferentTeam(), request.confirmsLosses());
+        workflow.drawTeams(meleeId, admin.clubId(), request.acceptsDifferentTeam(), request.confirmsLosses(),
+                request.confirmsUnmarkedDidNotPay());
         return views.forAdmin(meleeId, admin.clubId());
     }
 

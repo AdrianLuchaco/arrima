@@ -19,7 +19,7 @@ export function TeamEditor({ melee }: { melee: MeleeView }) {
   const [second, setSecond] = useState<number | null>(null)
   const [replacing, setReplacing] = useState<number | null>(null)
   const swap = useMeleeAction(melee.id, () => meleeRequests.swapPlayers(melee.id, first!, second!))
-  const withdrawn = new Set(melee.teamIssues.withdrawnMembers)
+  const withdrawn = new Set(melee.teamIssues.membersNotPlaying)
   const teamOf = (playerId: number) => melee.teams.find((team) => team.memberIds.includes(playerId))?.number
 
   function pick(playerId: number) {
@@ -99,18 +99,18 @@ export function TeamEditor({ melee }: { melee: MeleeView }) {
 
 export function TeamIssuesNotice({ melee }: { melee: MeleeView }) {
   const { t } = useTranslation()
-  const { unassignedPlayers, withdrawnMembers, teamsWithoutActivePlayers } = melee.teamIssues
-  if (unassignedPlayers.length + withdrawnMembers.length + teamsWithoutActivePlayers.length === 0) return null
+  const { unassignedPlayers, membersNotPlaying, teamsWithoutPlayers } = melee.teamIssues
+  if (unassignedPlayers.length + membersNotPlaying.length + teamsWithoutPlayers.length === 0) return null
   return (
     <div role="status" className="rounded-2xl border-2 border-amber-600 bg-amber-50 px-4 py-3 text-lg text-amber-950">
       {unassignedPlayers.length > 0 && (
         <p>{t('teams.issues.unassigned', { names: unassignedPlayers.map((id) => participantName(melee, id)).join(', ') })}</p>
       )}
-      {withdrawnMembers.length > 0 && (
-        <p>{t('teams.issues.withdrawn', { names: withdrawnMembers.map((id) => participantName(melee, id)).join(', ') })}</p>
+      {membersNotPlaying.length > 0 && (
+        <p>{t('teams.issues.notPlaying', { names: membersNotPlaying.map((id) => participantName(melee, id)).join(', ') })}</p>
       )}
-      {teamsWithoutActivePlayers.length > 0 && (
-        <p className="font-bold">{t('teams.issues.empty', { teams: teamsWithoutActivePlayers.join(', ') })}</p>
+      {teamsWithoutPlayers.length > 0 && (
+        <p className="font-bold">{t('teams.issues.empty', { teams: teamsWithoutPlayers.join(', ') })}</p>
       )}
     </div>
   )
@@ -138,15 +138,15 @@ export function SubstituteDialog({ melee, leaving, onClose }: { melee: MeleeView
   )
 }
 
-/** During the matches: withdrawn players who are still in a team can be replaced. */
+/** During the matches: people who no longer play but are still in a team can be replaced. */
 export function SubstitutionsPanel({ melee }: { melee: MeleeView }) {
   const { t } = useTranslation()
   const [replacing, setReplacing] = useState<number | null>(null)
-  if (melee.teamIssues.withdrawnMembers.length === 0) return null
+  if (melee.teamIssues.membersNotPlaying.length === 0) return null
   return (
     <div className="flex flex-col gap-2">
       <TeamIssuesNotice melee={melee} />
-      {melee.teamIssues.withdrawnMembers.map((playerId) => (
+      {melee.teamIssues.membersNotPlaying.map((playerId) => (
         <Button key={playerId} variant="secondary" onClick={() => setReplacing(playerId)}>
           {t('teams.substitute.forPlayer', { name: participantName(melee, playerId) })}
         </Button>

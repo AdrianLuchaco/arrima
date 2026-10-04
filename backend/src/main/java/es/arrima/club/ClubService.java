@@ -56,7 +56,8 @@ public class ClubService {
     public ClubProfileResponse updateProfile(long clubId, UpdateClubProfileRequest request) {
         Club club = getClub(clubId);
         String name = TextInput.require(request.name(), "name", MAX_NAME_LENGTH);
-        MeleeSettings defaults = new MeleeSettings(request.courtCount(), request.roundsCount(), request.prizeCount());
+        MeleeSettings defaults = new MeleeSettings(request.courtCount(), request.roundsCount(), request.prizeCount(),
+                request.entryFeeCents());
         club.updateProfile(name, defaults, request.scoring().toScoringTable(), clock.instant());
         return toResponse(club);
     }
@@ -97,7 +98,7 @@ public class ClubService {
     private ClubProfileResponse toResponse(Club club) {
         MeleeSettings defaults = club.getMeleeDefaults();
         return new ClubProfileResponse(club.getName(), fileLinkSigner.link(club.getLogoPath()),
-                defaults.courtCount(), defaults.roundsCount(), defaults.prizeCount(),
+                defaults.courtCount(), defaults.roundsCount(), defaults.prizeCount(), defaults.entryFeeCents(),
                 ScoringTableDto.from(club.getScoring()));
     }
 }

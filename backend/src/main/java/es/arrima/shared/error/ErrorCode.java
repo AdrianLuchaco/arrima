@@ -26,6 +26,8 @@ public enum ErrorCode {
     // Melees
     INVALID_STATE(HttpStatus.CONFLICT),
     CONFIRMATION_REQUIRED(HttpStatus.CONFLICT),
+    /** Someone's payment is still unmarked: the draw asks before recording them as not paid. */
+    UNMARKED_PAYMENTS(HttpStatus.CONFLICT),
     PARTICIPANT_LIMIT(HttpStatus.BAD_REQUEST),
     NOT_ENOUGH_PLAYERS(HttpStatus.CONFLICT),
     TEAMS_DO_NOT_FIT(HttpStatus.CONFLICT),

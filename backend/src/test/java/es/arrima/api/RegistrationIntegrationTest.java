@@ -42,11 +42,11 @@ class RegistrationIntegrationTest {
 
     @Test
     void aNewMeleeIsNamedAfterTodayAndCopiesTheClubSettings() {
-        long meleeId = melees.create(club, 2);
+        MvcTestResult created = melees.send(club, "POST", "/api/melees", "{\"teamSize\":2}");
 
-        assertThat(melees.get(club, meleeId)).hasStatusOk().bodyJson().isLenientlyEqualTo("""
+        assertThat(created).hasStatus(HttpStatus.CREATED).bodyJson().isLenientlyEqualTo("""
                 {"playedOn":"%s","format":"CLASSIC","teamSize":2,"status":"REGISTRATION",
-                 "settings":{"courtCount":8,"roundsCount":3,"prizeCount":5},
+                 "settings":{"courtCount":8,"roundsCount":3,"prizeCount":5,"entryFeeCents":500},
                  "scoring":{"pointingOnJack":5,"shootingCarreau":5},
                  "club":{"name":"Club Petanca"},"participants":[]}"""
                 .formatted(LocalDate.now(ZoneId.of("Europe/Madrid"))));
@@ -112,7 +112,7 @@ class RegistrationIntegrationTest {
         MvcTestResult result = melees.signUp(club, meleeId, 25);
 
         assertThat(result).bodyJson().extractingPath("$.teamPlan").isEqualTo(Map.of(
-                "activePlayers", 25, "fits", false, "playable", true, "teamCount", 12,
+                "players", 25, "fits", false, "playable", true, "teamCount", 12,
                 "teamsBySize", Map.of("2", 11, "3", 1)));
     }
 
@@ -127,7 +127,7 @@ class RegistrationIntegrationTest {
         assertThat(result).hasStatusOk().bodyJson().extractingPath("$.participants[0].status").isEqualTo("WITHDRAWN");
         assertThat(result).bodyJson().extractingPath("$.participants.length()").isEqualTo(25);
         assertThat(result).bodyJson().extractingPath("$.teamPlan").isEqualTo(Map.of(
-                "activePlayers", 24, "fits", true, "playable", true, "teamCount", 12, "teamsBySize", Map.of("2", 12)));
+                "players", 24, "fits", true, "playable", true, "teamCount", 12, "teamsBySize", Map.of("2", 12)));
     }
 
     @Test

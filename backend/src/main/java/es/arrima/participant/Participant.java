@@ -27,6 +27,9 @@ public class Participant {
     @Enumerated(EnumType.STRING)
     private ParticipantStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+
     private Instant createdAt;
 
     protected Participant() {
@@ -38,6 +41,7 @@ public class Participant {
         this.listNumber = listNumber;
         this.displayName = displayName;
         this.status = ParticipantStatus.ACTIVE;
+        this.paymentStatus = PaymentStatus.UNMARKED;
         this.createdAt = now;
     }
 
@@ -54,8 +58,20 @@ public class Participant {
         this.status = ParticipantStatus.ACTIVE;
     }
 
+    void recordPayment(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
     public boolean isActive() {
         return status == ParticipantStatus.ACTIVE;
+    }
+
+    /**
+     * Whether this person is one of the players of the melee: they came and, if the melee has an
+     * entry fee, they paid. Everything from the draw to the prizes only counts players.
+     */
+    public boolean plays(boolean paymentRequired) {
+        return isActive() && (!paymentRequired || paymentStatus == PaymentStatus.PAID);
     }
 
     public Long getId() {
@@ -76,5 +92,9 @@ public class Participant {
 
     public ParticipantStatus getStatus() {
         return status;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
     }
 }

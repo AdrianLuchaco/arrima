@@ -7,14 +7,18 @@ import es.arrima.international.domain.ThrowOutcome;
 import es.arrima.melee.MeleeFormat;
 import es.arrima.melee.MeleeStatus;
 import es.arrima.participant.ParticipantStatus;
+import es.arrima.participant.PaymentStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Everything a screen needs to show a melee, in one response. The admin and the public view get
- * the same structure: none of it is private (it is what used to be on the paper sheet).
- * Every change to the melee increases {@code revision}.
+ * the same structure, and almost none of it is private (it is what used to be on the paper sheet).
+ * The exception is who has paid: {@code payments} and each participant's {@code paymentStatus} are
+ * only filled in for the admin. Every change to the melee increases {@code revision}.
+ *
+ * @param payments null without an entry fee, and always for spectators
  */
 public record MeleeView(
         long id,
@@ -35,30 +39,41 @@ public record MeleeView(
         List<Round> rounds,
         List<WinTarget> counter,
         International international,
-        List<PrizeView> prizes) {
+        List<PrizeView> prizes,
+        Payments payments) {
 
-    public record Settings(int courtCount, int roundsCount, int prizeCount) {
+    public record Settings(int courtCount, int roundsCount, int prizeCount, int entryFeeCents) {
     }
 
     public record Club(String name, String logoUrl) {
     }
 
-    public record Participant(long id, Integer listNumber, String name, ParticipantStatus status) {
+    /**
+     * @param paymentStatus only for the admin, and only if the melee has an entry fee; otherwise null
+     * @param notPlaying    after the draw: signed up and here, but not a player (did not pay). Shown
+     *                      to everyone as "No juega", without saying why
+     */
+    public record Participant(long id, Integer listNumber, String name, ParticipantStatus status,
+            PaymentStatus paymentStatus, boolean notPlaying) {
     }
 
     /**
-     * How the active players split into teams.
+     * How the players (see Participant#plays) split into teams.
      *
      * @param teamsBySize e.g. {2: 11, 3: 1} for 25 players in doublettes
      */
-    public record TeamPlan(int activePlayers, boolean fits, boolean playable, int teamCount, Map<Integer, Long> teamsBySize) {
+    public record TeamPlan(int players, boolean fits, boolean playable, int teamCount, Map<Integer, Long> teamsBySize) {
+    }
+
+    /** "34 de 35 han pagado · 170 €" (see PaymentSummary). */
+    public record Payments(int expected, int paid, int unpaid, int unmarked, int entryFeeCents, long collectedCents) {
     }
 
     /** @param wins includes the bye, which counts as a win */
     public record Team(long id, int number, List<Long> memberIds, int wins, int losses, int pending) {
     }
 
-    public record TeamIssues(List<Long> unassignedPlayers, List<Long> withdrawnMembers, List<Integer> teamsWithoutActivePlayers) {
+    public record TeamIssues(List<Long> unassignedPlayers, List<Long> membersNotPlaying, List<Integer> teamsWithoutPlayers) {
     }
 
     /** @param byeTeamId the team that rests this round, or null */

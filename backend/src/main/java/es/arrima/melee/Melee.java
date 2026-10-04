@@ -110,9 +110,20 @@ public class Melee {
         this.closedAt = now;
     }
 
+    /**
+     * The entry fee decides who plays (with a fee, only those who paid), so it can only change
+     * before the draw: afterwards it would silently change who should be in the teams.
+     */
     public void changeSettings(MeleeSettings settings, Instant now) {
+        if (settings.entryFeeCents() != this.settings.entryFeeCents()) {
+            requireStatus(MeleeStatus.REGISTRATION);
+        }
         this.settings = settings;
         this.updatedAt = now;
+    }
+
+    public boolean requiresPayment() {
+        return settings.requiresPayment();
     }
 
     public Long getId() {

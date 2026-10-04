@@ -26,7 +26,8 @@ public class Club {
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "roundsCount", column = @Column(name = "default_rounds")),
-            @AttributeOverride(name = "prizeCount", column = @Column(name = "default_prize_count"))
+            @AttributeOverride(name = "prizeCount", column = @Column(name = "default_prize_count")),
+            @AttributeOverride(name = "entryFeeCents", column = @Column(name = "default_entry_fee_cents"))
     })
     private MeleeSettings meleeDefaults;
 

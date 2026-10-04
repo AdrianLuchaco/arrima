@@ -4,6 +4,7 @@ import es.arrima.international.InternationalService;
 import es.arrima.melee.Melee;
 import es.arrima.melee.MeleeAccess;
 import es.arrima.melee.MeleeStatus;
+import es.arrima.participant.ParticipantService;
 import es.arrima.prize.PrizeService;
 import es.arrima.schedule.ScheduleService;
 import es.arrima.shared.error.ApiException;
@@ -21,25 +22,34 @@ import org.springframework.transaction.annotation.Transactional;
 public class MeleeWorkflow {
 
     private final MeleeAccess meleeAccess;
+    private final ParticipantService participantService;
     private final TeamService teamService;
     private final ScheduleService scheduleService;
     private final InternationalService internationalService;
     private final PrizeService prizeService;
 
-    public MeleeWorkflow(MeleeAccess meleeAccess, TeamService teamService, ScheduleService scheduleService,
-            InternationalService internationalService, PrizeService prizeService) {
+    public MeleeWorkflow(MeleeAccess meleeAccess, ParticipantService participantService, TeamService teamService,
+            ScheduleService scheduleService, InternationalService internationalService, PrizeService prizeService) {
         this.meleeAccess = meleeAccess;
+        this.participantService = participantService;
         this.teamService = teamService;
         this.scheduleService = scheduleService;
         this.internationalService = internationalService;
         this.prizeService = prizeService;
     }
 
-    /** New teams invalidate the schedule built on the old ones and everything after it. */
+    /**
+     * New teams invalidate the schedule built on the old ones and everything after it. With an entry
+     * fee, whoever is still unmarked is recorded as not paid first, once the admin has confirmed it.
+     * If the draw then fails (e.g. the players do not fit), the whole transaction rolls back and
+     * they are unmarked again.
+     */
     @Transactional
-    public void drawTeams(long meleeId, long clubId, boolean acceptDifferentTeam, boolean confirmLosses) {
+    public void drawTeams(long meleeId, long clubId, boolean acceptDifferentTeam, boolean confirmLosses,
+            boolean unmarkedDidNotPay) {
         Melee melee = meleeAccess.forClub(meleeId, clubId);
         melee.requireStatus(MeleeStatus.REGISTRATION, MeleeStatus.TEAMS);
+        participantService.settleUnmarkedPayments(melee, unmarkedDidNotPay);
         requireConfirmationIfLosing(lossesFromScheduleOn(melee), confirmLosses);
         prizeService.deleteAll(melee);
         internationalService.deleteAll(melee);

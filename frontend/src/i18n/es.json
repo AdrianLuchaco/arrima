@@ -83,6 +83,8 @@
       "courts": "Pistas",
       "rounds": "Partidas por equipo",
       "prizes": "Premios",
+      "fee": "Cuota de inscripción",
+      "feeHelp": "Lo que paga cada jugador. Con 0 € no se controla quién ha pagado.",
       "scoring": "Puntos de la Internacional",
       "scoringHelp": "Cada melé guarda una copia: si los cambias, las melés anteriores no cambian.",
       "pointing": "Arrimar",
@@ -137,6 +139,7 @@
     "IMAGE_TOO_LARGE": "La imagen es demasiado grande.",
     "INVALID_STATE": "Eso no se puede hacer en esta fase de la melé.",
     "CONFIRMATION_REQUIRED": "Hace falta confirmarlo.",
+    "UNMARKED_PAYMENTS": "Hay gente sin marcar si ha pagado o no.",
     "PARTICIPANT_LIMIT": "Se ha llegado al máximo de jugadores de una melé.",
     "NOT_ENOUGH_PLAYERS": "Hacen falta más jugadores activos para formar al menos dos equipos.",
     "TEAMS_DO_NOT_FIT": "Los jugadores no cuadran: elige qué hacer.",
@@ -203,11 +206,12 @@
       "international": "Internacional",
       "prizes": "Premios"
     },
-    "moreOptions": "Más opciones"
+    "moreOptions": "Más opciones",
+    "fee": "cuota de {{amount}}"
   },
   "players": {
     "empty": "Aún no hay nadie apuntado. Pega la lista de WhatsApp o añade jugadores a mano.",
-    "withdrawn": "BAJA",
+    "withdrawn": "NO VINO",
     "plan": {
       "fits": "{{count}} jugadores: {{teams}} {{size}}. Cuadra.",
       "doesNotFit": "{{count}} jugadores: no cuadra para {{size}}.",
@@ -220,7 +224,13 @@
       },
       "and": " y ",
       "notEnough_one": "{{count}} jugador: hacen falta más para formar al menos dos equipos.",
-      "notEnough_other": "{{count}} jugadores: hacen falta más para formar al menos dos equipos."
+      "notEnough_other": "{{count}} jugadores: hacen falta más para formar al menos dos equipos.",
+      "paid": {
+        "fits": "Han pagado {{count}}: {{teams}} {{size}}. Cuadra.",
+        "doesNotFit": "Han pagado {{count}}: no cuadra para {{size}}.",
+        "notEnough_one": "Ha pagado {{count}}: hacen falta más para formar al menos dos equipos.",
+        "notEnough_other": "Han pagado {{count}}: hacen falta más para formar al menos dos equipos."
+      }
     },
     "paste": {
       "button": "Pegar lista de WhatsApp",
@@ -249,10 +259,33 @@
       "name": "Nombre",
       "number": "Número en la lista",
       "numberHelp": "Opcional.",
-      "withdraw": "Anular (se apuntó y no ha venido)",
+      "withdraw": "Dar de baja (se apuntó y no ha venido)",
       "reinstate": "Volver a darle de alta",
-      "withdrawHelp": "Un jugador anulado se queda en la lista en rojo y no entra en el sorteo.",
+      "withdrawHelp": "Quien está de baja se queda en la lista, tachado, y no entra en el sorteo ni tiene que pagar.",
       "delete": "Quitar de la lista por completo"
+    },
+    "notPlaying": "NO JUEGA",
+    "payment": {
+      "title": "¿Ha pagado {{name}}?",
+      "fee": "Cuota: {{amount}}",
+      "yes": "Sí, ha pagado",
+      "no": "No ha pagado",
+      "clear": "Quitar la marca",
+      "current": {
+        "PAID": "Ahora: ha pagado.",
+        "UNPAID": "Ahora: no ha pagado.",
+        "UNMARKED": "Ahora: sin marcar."
+      },
+      "afterDraw": "Los equipos ya están hechos: si esto cambia, habrá que sustituirle o repetir el sorteo.",
+      "edit": "Cambiar nombre, número o dar de baja",
+      "paid": "PAGADO",
+      "unpaid": "NO PAGADO",
+      "summary": "{{paid}} de {{expected}} han pagado · {{amount}}",
+      "unmarked_one": "Falta {{count}} por marcar",
+      "unmarked_other": "Faltan {{count}} por marcar",
+      "unpaid_one": "{{count}} no ha pagado",
+      "unpaid_other": "{{count}} no han pagado",
+      "allMarked": "Todos marcados"
     }
   },
   "teams": {
@@ -283,7 +316,7 @@
     },
     "issues": {
       "unassigned": "Sin equipo: {{names}}. Haz una sustitución o repite el sorteo.",
-      "withdrawn": "Dados de baja que siguen en un equipo: {{names}}.",
+      "notPlaying": "Siguen en un equipo pero ya no juegan (baja o sin pagar): {{names}}.",
       "empty": "Equipos sin nadie para jugar: {{teams}}. Sustituye a sus jugadores o repite el sorteo."
     }
   },
@@ -331,7 +364,15 @@
       "doesNotFitTitle": "Los jugadores no cuadran",
       "differentTeam": "Hacer un equipo distinto: {{teams}}",
       "withdrawSomeone": "Dar de baja a un jugador",
-      "addSomeone": "Añadir jugadores"
+      "addSomeone": "Añadir jugadores",
+      "notEnoughPaid": "Hacen falta más jugadores que hayan pagado para formar al menos dos equipos.",
+      "unmarked": {
+        "title": "Hay gente sin marcar",
+        "text_one": "Hay {{count}} persona sin marcar: {{names}}. Se marcará como que no ha pagado. ¿Continuar?",
+        "text_other": "Hay {{count}} personas sin marcar: {{names}}. Se marcarán como que no han pagado. ¿Continuar?",
+        "confirm": "Sí, continuar",
+        "cancel": "No, espera"
+      }
     },
     "schedule": {
       "button": "Generar cuadro de pistas",
@@ -353,9 +394,10 @@
     }
   },
   "settings": {
-    "title": "Partidas, premios y pistas",
-    "button": "Ajustar: {{roundsCount}} partidas · {{prizeCount}} premios · {{courtCount}} pistas",
-    "tooManyRounds": "Con {{teams}} equipos caben como mucho {{max}} partidas sin repetir rival. Baja el número de partidas."
+    "title": "Partidas, premios, pistas y cuota",
+    "button": "Ajustar: {{summary}}",
+    "tooManyRounds": "Con {{teams}} equipos caben como mucho {{max}} partidas sin repetir rival. Baja el número de partidas.",
+    "feeLocked": "La cuota ya no se puede cambiar: los equipos están hechos."
   },
   "losses": {
     "title": "Se va a perder trabajo",

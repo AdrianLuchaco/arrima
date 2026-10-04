@@ -2,10 +2,13 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { Button } from '../ui/Button'
+import { ConfirmDialog } from '../ui/ConfirmDialog'
 import { Dialog } from '../ui/Dialog'
 import { ErrorMessage } from '../ui/ErrorMessage'
 import { meleeRequests, useMeleeAction } from './meleeApi'
+import { unmarkedPeople } from './payments/payments'
 import { SettingsDialog } from './SettingsDialog'
+import { settingsSummary } from './settingsSummary'
 import { BomboOverlay } from './teams/BomboOverlay'
 import type { MeleeView } from './types'
 import { useConfirmableAction } from './useConfirmableAction'
@@ -36,22 +39,45 @@ function StepCard({ children }: { children: React.ReactNode }) {
   return <section className="mb-5 flex flex-col gap-3 rounded-2xl border-2 border-steel-600 bg-white p-4">{children}</section>
 }
 
+interface DrawChoice {
+  differentTeam: boolean
+  unmarkedDidNotPay: boolean
+}
+
 function DrawStep({ melee, onShowTab, onDrawn }: NextStepCardProps & { onDrawn: () => void }) {
   const { t } = useTranslation()
+  const [askingUnmarked, setAskingUnmarked] = useState(false)
   const [doesNotFit, setDoesNotFit] = useState(false)
+  // Already confirmed that whoever is unmarked did not pay, for the draw that follows.
+  const [unmarkedDidNotPay, setUnmarkedDidNotPay] = useState(false)
   const [editingSettings, setEditingSettings] = useState(false)
   const draw = useConfirmableAction(
     melee.id,
-    (differentTeam: boolean, confirm) => meleeRequests.drawTeams(melee.id, differentTeam, confirm),
+    (choice: DrawChoice, confirm) => meleeRequests.drawTeams(melee.id, choice.differentTeam, choice.unmarkedDidNotPay, confirm),
     onDrawn,
   )
   const resume = useMeleeAction(melee.id, () => meleeRequests.resumeTeams(melee.id))
   const plan = melee.teamPlan
   const hasPreviousTeams = melee.teams.length > 0
+  const unmarked = unmarkedPeople(melee)
 
-  function startDraw(differentTeam: boolean) {
+  // One question at a time: first who is still unmarked, then whether those who play fit in teams
+  // (the plan already counts only those who paid).
+  function askFirst() {
+    if (unmarked.length > 0) setAskingUnmarked(true)
+    else checkFit(false)
+  }
+
+  function checkFit(didNotPay: boolean) {
+    setAskingUnmarked(false)
+    setUnmarkedDidNotPay(didNotPay)
+    if (plan.fits) startDraw(false, didNotPay)
+    else setDoesNotFit(true)
+  }
+
+  function startDraw(differentTeam: boolean, didNotPay: boolean) {
     setDoesNotFit(false)
-    draw.run(differentTeam)
+    draw.run({ differentTeam, unmarkedDidNotPay: didNotPay })
   }
 
   return (
@@ -65,30 +91,46 @@ function DrawStep({ melee, onShowTab, onDrawn }: NextStepCardProps & { onDrawn: 
         </>
       )}
       {!plan.playable ? (
-        <p className="text-lg font-semibold text-red-800">{t('steps.draw.notEnough')}</p>
+        <p className="text-lg font-semibold text-red-800">
+          {melee.payments ? t('steps.draw.notEnoughPaid') : t('steps.draw.notEnough')}
+        </p>
       ) : (
         <Button
           variant={hasPreviousTeams ? 'secondary' : 'accent'}
           className={hasPreviousTeams ? '' : 'min-h-20 text-2xl'}
           busy={draw.isPending}
-          onClick={() => (plan.fits ? startDraw(false) : setDoesNotFit(true))}
+          onClick={askFirst}
         >
           {hasPreviousTeams ? t('steps.draw.redraw') : t('steps.draw.button')}
         </Button>
       )}
       <Button variant="ghost" onClick={() => setEditingSettings(true)}>
-        {t('settings.button', melee.settings)}
+        {t('settings.button', { summary: settingsSummary(t, melee.settings) })}
       </Button>
       <ErrorMessage error={draw.error ?? resume.error} />
       {draw.dialog}
       {editingSettings && <SettingsDialog melee={melee} onClose={() => setEditingSettings(false)} />}
 
+      <ConfirmDialog
+        open={askingUnmarked}
+        title={t('steps.draw.unmarked.title')}
+        confirmLabel={t('steps.draw.unmarked.confirm')}
+        cancelLabel={t('steps.draw.unmarked.cancel')}
+        onCancel={() => setAskingUnmarked(false)}
+        onConfirm={() => checkFit(true)}
+      >
+        <p>{t('steps.draw.unmarked.text', { count: unmarked.length, names: unmarked.map((person) => person.name).join(', ') })}</p>
+      </ConfirmDialog>
+
       <Dialog open={doesNotFit} onClose={() => setDoesNotFit(false)} title={t('steps.draw.doesNotFitTitle')}>
         <div className="flex flex-col gap-3">
           <p className="text-lg">
-            {t('players.plan.doesNotFit', { count: plan.activePlayers, size: t(`melee.teamSize.${melee.teamSize}`).toLowerCase() })}
+            {t(melee.payments ? 'players.plan.paid.doesNotFit' : 'players.plan.doesNotFit', {
+              count: plan.players,
+              size: t(`melee.teamSize.${melee.teamSize}`).toLowerCase(),
+            })}
           </p>
-          <Button variant="accent" onClick={() => startDraw(true)}>
+          <Button variant="accent" onClick={() => startDraw(true, unmarkedDidNotPay)}>
             {t('steps.draw.differentTeam', {
               teams: Object.entries(plan.teamsBySize)
                 .map(([size, count]) => t(`players.plan.teamsOfSize.${size as '2' | '3'}`, { count }))
@@ -115,7 +157,7 @@ function ScheduleStep({ melee, onGenerated }: { melee: MeleeView; onGenerated: (
   const resume = useMeleeAction(melee.id, () => meleeRequests.resumeSchedule(melee.id), onGenerated)
   const tooManyRounds = melee.settings.roundsCount > melee.maxRounds
   const hasPreviousSchedule = melee.rounds.length > 0
-  const blocked = melee.teamIssues.teamsWithoutActivePlayers.length > 0
+  const blocked = melee.teamIssues.teamsWithoutPlayers.length > 0
 
   return (
     <StepCard>
@@ -142,7 +184,7 @@ function ScheduleStep({ melee, onGenerated }: { melee: MeleeView; onGenerated: (
         {hasPreviousSchedule ? t('steps.schedule.regenerate') : t('steps.schedule.button')}
       </Button>
       <Button variant="ghost" onClick={() => setEditingSettings(true)}>
-        {t('settings.button', melee.settings)}
+        {t('settings.button', { summary: settingsSummary(t, melee.settings) })}
       </Button>
       <ErrorMessage error={generate.error ?? resume.error} />
       {generate.dialog}

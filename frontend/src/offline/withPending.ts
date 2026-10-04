@@ -1,6 +1,6 @@
 import { pointsFor, positionOf } from '../international/intl'
 import { recomputeStandings } from '../melee/standings'
-import type { International, MeleeView, ThrowKind, ThrowOutcome } from '../melee/types'
+import type { International, MeleeView, Payments, PaymentStatus, ThrowKind, ThrowOutcome } from '../melee/types'
 import type { PendingAction } from './outbox'
 
 /**
@@ -11,7 +11,33 @@ import type { PendingAction } from './outbox'
 export function withPending(view: MeleeView, pending: PendingAction[]): MeleeView {
   const mine = pending.filter((action) => action.meleeId === view.id)
   if (mine.length === 0) return view
-  return applyThrows(applyWinners(view, mine), mine)
+  return applyPayments(applyThrows(applyWinners(view, mine), mine), mine)
+}
+
+function applyPayments(view: MeleeView, actions: PendingAction[]): MeleeView {
+  const statusOf = new Map<number, PaymentStatus>()
+  for (const { overlay } of actions) {
+    if (overlay.kind === 'payment') statusOf.set(overlay.participantId, overlay.paymentStatus)
+  }
+  if (statusOf.size === 0 || !view.payments) return view
+  const participants = view.participants.map((participant) =>
+    statusOf.has(participant.id) ? { ...participant, paymentStatus: statusOf.get(participant.id)! } : participant)
+  return { ...view, participants, payments: paymentsOf(participants, view.payments.entryFeeCents) }
+}
+
+/** Same counts as the backend's PaymentSummary: people who did not come are not expected to pay. */
+export function paymentsOf(participants: MeleeView['participants'], entryFeeCents: number): Payments {
+  const active = participants.filter((participant) => participant.status === 'ACTIVE')
+  const count = (status: PaymentStatus) => active.filter((participant) => participant.paymentStatus === status).length
+  const paid = count('PAID')
+  return {
+    expected: active.length,
+    paid,
+    unpaid: count('UNPAID'),
+    unmarked: count('UNMARKED'),
+    entryFeeCents,
+    collectedCents: paid * entryFeeCents,
+  }
 }
 
 function applyWinners(view: MeleeView, actions: PendingAction[]): MeleeView {

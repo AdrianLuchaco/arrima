@@ -1,12 +1,12 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { ApiError } from '../api/ApiError'
 import { api } from '../api/client'
-import type { MeleeView } from '../melee/types'
+import type { MeleeView, PaymentStatus } from '../melee/types'
 
 /**
  * "Never lose a result already tapped": on the courts the signal comes and goes.
  *
- * Every result (and, later, every Internacional ball) is first written to this queue in the phone's
+ * Every result, Internacional ball and payment is first written to this queue in the phone's
  * storage, shown on screen at once, and sent in order when there is connection. It survives reloads
  * and closing the app. Each action is an idempotent PUT, so sending it twice is harmless; a newer
  * action for the same thing (correcting a result) replaces the older one.
@@ -25,6 +25,7 @@ export interface PendingAction {
 export type Overlay =
   | { kind: 'winner'; matchId: number; winnerTeamId: number | null }
   | { kind: 'throw'; roundId: number; teamId: number; ballKind: string; ballNumber: number; outcome: string }
+  | { kind: 'payment'; participantId: number; paymentStatus: PaymentStatus }
 
 export interface OutboxState {
   pending: PendingAction[]

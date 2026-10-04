@@ -62,9 +62,9 @@ public class ScheduleService {
         if (teams.size() < 2) {
             throw new ApiException(ErrorCode.NO_TEAMS);
         }
-        TeamIssues issues = teamService.issues(teams, participantService.listForMelee(melee.getId()));
-        if (!issues.teamsWithoutActivePlayers().isEmpty()) {
-            throw new ApiException(ErrorCode.TEAMS_INCOMPLETE, Map.of("teams", issues.teamsWithoutActivePlayers()));
+        TeamIssues issues = teamService.issues(melee, teams, participantService.listForMelee(melee.getId()));
+        if (!issues.teamsWithoutPlayers().isEmpty()) {
+            throw new ApiException(ErrorCode.TEAMS_INCOMPLETE, Map.of("teams", issues.teamsWithoutPlayers()));
         }
         int rounds = melee.getSettings().roundsCount();
         int maxRounds = ScheduleLimits.maxRounds(teams.size());

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import type { ImportPreviewEntry, MeleeSummary, MeleeView, ParticipantData } from './types'
+import type { ImportPreviewEntry, MeleeSettings, MeleeSummary, MeleeView, ParticipantData } from './types'
 
 export const meleeKey = (id: number) => ['melee', id] as const
 const MELEES_KEY = ['melees'] as const
@@ -16,7 +16,7 @@ export function useMelee(id: number) {
 export function useCreateMelee() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: { teamSize: 2 | 3; courtCount: number; roundsCount: number; prizeCount: number }) =>
+    mutationFn: (body: { teamSize: 2 | 3 } & MeleeSettings) =>
       api<MeleeView>('/api/melees', { method: 'POST', body }),
     onSuccess: (view) => {
       queryClient.setQueryData(meleeKey(view.id), view)
@@ -78,8 +78,11 @@ export const meleeRequests = {
     api<MeleeView>(`${base(meleeId)}/participants/${id}`, { method: 'DELETE' }),
   changeSettings: (meleeId: number, settings: MeleeView['settings']) =>
     api<MeleeView>(`${base(meleeId)}/settings`, { method: 'PUT', body: settings }),
-  drawTeams: (meleeId: number, acceptDifferentTeam: boolean, confirmLosses: boolean) =>
-    api<MeleeView>(`${base(meleeId)}/teams/draw`, { method: 'POST', body: { acceptDifferentTeam, confirmLosses } }),
+  drawTeams: (meleeId: number, acceptDifferentTeam: boolean, unmarkedDidNotPay: boolean, confirmLosses: boolean) =>
+    api<MeleeView>(`${base(meleeId)}/teams/draw`, {
+      method: 'POST',
+      body: { acceptDifferentTeam, unmarkedDidNotPay, confirmLosses },
+    }),
   resumeTeams: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/teams/resume`, { method: 'POST' }),
   swapPlayers: (meleeId: number, firstPlayerId: number, secondPlayerId: number) =>
     api<MeleeView>(`${base(meleeId)}/teams/swap`, { method: 'POST', body: { firstPlayerId, secondPlayerId } }),

@@ -44,7 +44,8 @@ public class MeleeService {
         MeleeSettings settings = new MeleeSettings(
                 Objects.requireNonNullElse(request.courtCount(), defaults.courtCount()),
                 Objects.requireNonNullElse(request.roundsCount(), defaults.roundsCount()),
-                Objects.requireNonNullElse(request.prizeCount(), defaults.prizeCount()));
+                Objects.requireNonNullElse(request.prizeCount(), defaults.prizeCount()),
+                Objects.requireNonNullElse(request.entryFeeCents(), defaults.entryFeeCents()));
         Melee melee = new Melee(clubId, ArrimaTime.today(clock), request.teamSize(), settings, club.getScoring(),
                 publicCodes.newCode(), clock.instant());
         return meleeRepository.save(melee);
@@ -55,7 +56,10 @@ public class MeleeService {
         return meleeRepository.findByClubIdOrderByPlayedOnDescIdDesc(clubId);
     }
 
-    /** Settings can change until the court schedule exists (it depends on rounds and courts). */
+    /**
+     * Settings can change until the court schedule exists (it depends on rounds and courts); the
+     * entry fee only before the draw (see Melee#changeSettings).
+     */
     @Transactional
     public void changeSettings(long meleeId, long clubId, MeleeSettings settings) {
         Melee melee = meleeAccess.forClub(meleeId, clubId);

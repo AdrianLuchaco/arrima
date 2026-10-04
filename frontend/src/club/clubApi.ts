@@ -19,6 +19,7 @@ export interface ClubProfile {
   courtCount: number
   roundsCount: number
   prizeCount: number
+  entryFeeCents: number
   scoring: ScoringTable
 }
 

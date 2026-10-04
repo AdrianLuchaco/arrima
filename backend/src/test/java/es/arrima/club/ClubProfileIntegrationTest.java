@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.assertj.MvcTestResult;
 class ClubProfileIntegrationTest {
 
     private static final String VALID_PROFILE = """
-            {"name":"%s","courtCount":12,"roundsCount":4,"prizeCount":6,
+            {"name":"%s","courtCount":12,"roundsCount":4,"prizeCount":6,"entryFeeCents":350,
              "scoring":{"pointingOut":0,"pointingBigCircle":1,"pointingSmallCircle":2,"pointingNearJack":4,
                         "pointingOnJack":6,"shootingMiss":0,"shootingHit":1,"shootingHitOut":3,"shootingCarreau":6}}""";
 
@@ -48,6 +48,7 @@ class ClubProfileIntegrationTest {
                 .bodyJson()
                 .isLenientlyEqualTo("""
                         {"name":"Club Nuevo","logoUrl":null,"courtCount":8,"roundsCount":3,"prizeCount":5,
+                         "entryFeeCents":500,
                          "scoring":{"pointingOut":0,"pointingBigCircle":1,"pointingSmallCircle":2,"pointingNearJack":3,
                                     "pointingOnJack":5,"shootingMiss":0,"shootingHit":1,"shootingHitOut":2,
                                     "shootingCarreau":5}}""");
@@ -61,6 +62,7 @@ class ClubProfileIntegrationTest {
                 .hasStatusOk()
                 .bodyJson().isLenientlyEqualTo("""
                         {"name":"Club de Petanca Arrima","courtCount":12,"roundsCount":4,"prizeCount":6,
+                         "entryFeeCents":350,
                          "scoring":{"pointingNearJack":4,"pointingOnJack":6,"shootingCarreau":6}}""");
     }
 
@@ -76,6 +78,10 @@ class ClubProfileIntegrationTest {
         assertThat(updateProfile(club, invisibleName))
                 .hasStatus(HttpStatus.BAD_REQUEST)
                 .bodyJson().extractingPath("$.fields.name").isEqualTo("NotBlank");
+        assertThat(updateProfile(club, VALID_PROFILE.formatted("Club").replace("\"entryFeeCents\":350", "\"entryFeeCents\":-1")))
+                .bodyJson().extractingPath("$.fields.entryFeeCents").isEqualTo("Min");
+        assertThat(updateProfile(club, VALID_PROFILE.formatted("Club").replace("\"entryFeeCents\":350", "\"entryFeeCents\":10001")))
+                .bodyJson().extractingPath("$.fields.entryFeeCents").isEqualTo("Max");
     }
 
     @Test

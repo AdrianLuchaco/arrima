@@ -13,6 +13,8 @@ import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { ErrorMessage } from '../ui/ErrorMessage'
 import { useErrorText } from '../ui/useErrorText'
+import { MAX_ENTRY_FEE_CENTS } from '../lib/money'
+import { MoneyStepper } from '../ui/MoneyStepper'
 import { NumberStepper } from '../ui/NumberStepper'
 import { TextField } from '../ui/TextField'
 
@@ -68,6 +70,15 @@ function ProfileForm({ initial }: { initial: ClubProfileUpdate }) {
           <NumberStepper label={t('club.profile.courts')} value={form.courtCount} min={1} max={200} onChange={(value) => set('courtCount', value)} />
           <NumberStepper label={t('club.profile.rounds')} value={form.roundsCount} min={1} max={20} onChange={(value) => set('roundsCount', value)} />
           <NumberStepper label={t('club.profile.prizes')} value={form.prizeCount} min={1} max={100} onChange={(value) => set('prizeCount', value)} />
+        </div>
+        <div className="mt-4">
+          <MoneyStepper
+            label={t('club.profile.fee')}
+            value={form.entryFeeCents}
+            max={MAX_ENTRY_FEE_CENTS}
+            onChange={(value) => set('entryFeeCents', value)}
+            help={t('club.profile.feeHelp')}
+          />
         </div>
       </Card>
 

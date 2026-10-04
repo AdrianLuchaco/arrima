@@ -2,6 +2,7 @@ import type { ScoringTable } from '../club/clubApi'
 
 export type MeleeStatus = 'REGISTRATION' | 'TEAMS' | 'MATCHES' | 'INTERNATIONAL' | 'PRIZES' | 'CLOSED'
 export type ParticipantStatus = 'ACTIVE' | 'WITHDRAWN'
+export type PaymentStatus = 'UNMARKED' | 'PAID' | 'UNPAID'
 
 export const STATUS_ORDER: MeleeStatus[] = ['REGISTRATION', 'TEAMS', 'MATCHES', 'INTERNATIONAL', 'PRIZES', 'CLOSED']
 
@@ -10,10 +11,25 @@ export interface Participant {
   listNumber: number | null
   name: string
   status: ParticipantStatus
+  /** Only for the admin, and only if the melee has an entry fee. */
+  paymentStatus: PaymentStatus | null
+  /** After the draw: here but not playing (did not pay). Shown to everyone as "No juega". */
+  notPlaying: boolean
+}
+
+/** "34 de 35 han pagado · 170 €": only for the admin, and only with an entry fee. */
+export interface Payments {
+  expected: number
+  paid: number
+  unpaid: number
+  unmarked: number
+  entryFeeCents: number
+  collectedCents: number
 }
 
 export interface TeamPlan {
-  activePlayers: number
+  /** Who will play: present and, with an entry fee, paid. */
+  players: number
   fits: boolean
   playable: boolean
   teamCount: number
@@ -28,7 +44,7 @@ export interface MeleeView {
   teamSize: 2 | 3
   status: MeleeStatus
   revision: number
-  settings: { courtCount: number; roundsCount: number; prizeCount: number }
+  settings: MeleeSettings
   scoring: ScoringTable
   club: { name: string; logoUrl: string | null }
   participants: Participant[]
@@ -41,6 +57,16 @@ export interface MeleeView {
   /** null until la Internacional starts. */
   international: International | null
   prizes: Prize[]
+  payments: Payments | null
+}
+
+// A type alias (not an interface) so it can be passed as i18next interpolation values.
+export type MeleeSettings = {
+  courtCount: number
+  roundsCount: number
+  prizeCount: number
+  /** 0: no entry fee, so no payment control. */
+  entryFeeCents: number
 }
 
 export interface Prize {
@@ -132,8 +158,9 @@ export interface Team {
 
 export interface TeamIssues {
   unassignedPlayers: number[]
-  withdrawnMembers: number[]
-  teamsWithoutActivePlayers: number[]
+  /** In a team but no longer playing (withdrawn or did not pay): they need a substitute. */
+  membersNotPlaying: number[]
+  teamsWithoutPlayers: number[]
 }
 
 export interface Match {

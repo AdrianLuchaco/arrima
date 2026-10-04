@@ -9,6 +9,8 @@ interface ConfirmDialogProps {
   title: string
   children?: ReactNode
   confirmLabel: string
+  /** "Cancelar" unless the question needs its own words ("No, espera"). */
+  cancelLabel?: string
   danger?: boolean
   busy?: boolean
   error?: unknown
@@ -17,7 +19,7 @@ interface ConfirmDialogProps {
 }
 
 /** "Are you sure?" with two big buttons: actions that change the melee are never one accidental tap away. */
-export function ConfirmDialog({ open, title, children, confirmLabel, danger, busy, error, onConfirm, onCancel }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, title, children, confirmLabel, cancelLabel, danger, busy, error, onConfirm, onCancel }: ConfirmDialogProps) {
   const { t } = useTranslation()
   return (
     <Dialog open={open} onClose={onCancel} title={title}>
@@ -26,7 +28,7 @@ export function ConfirmDialog({ open, title, children, confirmLabel, danger, bus
         <ErrorMessage error={error} />
         <div className="grid grid-cols-2 gap-3">
           <Button variant="secondary" onClick={onCancel}>
-            {t('common.cancel')}
+            {cancelLabel ?? t('common.cancel')}
           </Button>
           <Button variant={danger ? 'danger' : 'primary'} busy={busy} onClick={onConfirm}>
             {confirmLabel}

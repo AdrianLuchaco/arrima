@@ -3,6 +3,7 @@ package es.arrima.api;
 import es.arrima.club.MeleeSettings;
 import es.arrima.international.domain.ThrowOutcome;
 import es.arrima.participant.NewParticipant;
+import es.arrima.participant.PaymentStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -21,17 +22,22 @@ final class MeleeRequests {
             @NotNull @Min(2) @Max(3) Integer teamSize,
             @Min(1) @Max(MeleeSettings.MAX_COURTS) Integer courtCount,
             @Min(1) @Max(MeleeSettings.MAX_ROUNDS) Integer roundsCount,
-            @Min(1) @Max(MeleeSettings.MAX_PRIZES) Integer prizeCount) {
+            @Min(1) @Max(MeleeSettings.MAX_PRIZES) Integer prizeCount,
+            @Min(0) @Max(MeleeSettings.MAX_ENTRY_FEE_CENTS) Integer entryFeeCents) {
     }
 
     record ChangeSettings(
             @NotNull @Min(1) @Max(MeleeSettings.MAX_COURTS) Integer courtCount,
             @NotNull @Min(1) @Max(MeleeSettings.MAX_ROUNDS) Integer roundsCount,
-            @NotNull @Min(1) @Max(MeleeSettings.MAX_PRIZES) Integer prizeCount) {
+            @NotNull @Min(1) @Max(MeleeSettings.MAX_PRIZES) Integer prizeCount,
+            @NotNull @Min(0) @Max(MeleeSettings.MAX_ENTRY_FEE_CENTS) Integer entryFeeCents) {
 
         MeleeSettings toSettings() {
-            return new MeleeSettings(courtCount, roundsCount, prizeCount);
+            return new MeleeSettings(courtCount, roundsCount, prizeCount, entryFeeCents);
         }
+    }
+
+    record RecordPayment(@NotNull PaymentStatus paymentStatus) {
     }
 
     record ParticipantData(Integer listNumber, @NotNull @Size(max = 200) String name) {
@@ -48,10 +54,15 @@ final class MeleeRequests {
     }
 
     /** Optional flags: missing means false (Jackson 3 would otherwise reject a missing primitive). */
-    record DrawTeams(Boolean acceptDifferentTeam, Boolean confirmLosses) {
+    /** @param unmarkedDidNotPay the admin confirmed that whoever is still unmarked did not pay */
+    record DrawTeams(Boolean acceptDifferentTeam, Boolean confirmLosses, Boolean unmarkedDidNotPay) {
 
         boolean acceptsDifferentTeam() {
             return Boolean.TRUE.equals(acceptDifferentTeam);
+        }
+
+        boolean confirmsUnmarkedDidNotPay() {
+            return Boolean.TRUE.equals(unmarkedDidNotPay);
         }
 
         boolean confirmsLosses() {

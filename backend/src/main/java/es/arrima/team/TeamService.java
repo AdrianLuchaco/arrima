@@ -47,7 +47,8 @@ public class TeamService {
     }
 
     /**
-     * "Generar equipos": draws the active players into new teams, replacing any previous ones.
+     * "Generar equipos": draws the players (see Participant#plays) into new teams, replacing any
+     * previous ones.
      * When the players do not fit, the "different team" (e.g. one triplette among doublettes) is only
      * used if the admin chose it; otherwise the screen offers the other solutions first.
      * The caller (MeleeWorkflow) has already dealt with what depended on the old teams.
@@ -56,13 +57,14 @@ public class TeamService {
     public void draw(Melee melee, boolean acceptDifferentTeam) {
         melee.requireStatus(MeleeStatus.REGISTRATION, MeleeStatus.TEAMS);
         List<Long> players = participantService.listForMelee(melee.getId()).stream()
-                .filter(Participant::isActive).map(Participant::getId).toList();
+                .filter(participant -> participant.plays(melee.requiresPayment()))
+                .map(Participant::getId).toList();
         TeamPlan plan = TeamSizePlanner.plan(players.size(), melee.getTeamSize());
         if (!plan.isPlayable()) {
-            throw new ApiException(ErrorCode.NOT_ENOUGH_PLAYERS, Map.of("activePlayers", players.size()));
+            throw new ApiException(ErrorCode.NOT_ENOUGH_PLAYERS, Map.of("players", players.size()));
         }
         if (!plan.fits() && !acceptDifferentTeam) {
-            throw new ApiException(ErrorCode.TEAMS_DO_NOT_FIT, Map.of("activePlayers", players.size()));
+            throw new ApiException(ErrorCode.TEAMS_DO_NOT_FIT, Map.of("players", players.size()));
         }
 
         deleteAll(melee);
@@ -103,8 +105,8 @@ public class TeamService {
     }
 
     /**
-     * Someone leaves after the draw (or is withdrawn): another active player who is in no team
-     * takes their place. Allowed during the matches too: the team, its number and results stay.
+     * Someone leaves after the draw (withdrawn, or recorded as not paid): another player who is in
+     * no team takes their place. Allowed during the matches too: the team, its number and results stay.
      */
     @Transactional
     public void substitute(long meleeId, long clubId, long leavingPlayerId, long joiningPlayerId) {
@@ -114,7 +116,7 @@ public class TeamService {
         Team team = teamOf(teams, leavingPlayerId);
         Participant joining = participantService.findInMelee(melee, joiningPlayerId);
         boolean alreadyInATeam = teams.stream().anyMatch(candidate -> candidate.hasMember(joiningPlayerId));
-        if (!joining.isActive() || alreadyInATeam) {
+        if (!joining.plays(melee.requiresPayment()) || alreadyInATeam) {
             throw ApiException.validation("joiningPlayerId", "NotAvailable");
         }
         team.replaceMember(leavingPlayerId, joiningPlayerId);
@@ -132,23 +134,24 @@ public class TeamService {
     }
 
     /** What no longer adds up between the sign-up list and the teams (see TeamIssues). */
-    public TeamIssues issues(List<Team> teams, List<Participant> participants) {
+    public TeamIssues issues(Melee melee, List<Team> teams, List<Participant> participants) {
         if (teams.isEmpty()) {
             return TeamIssues.NONE;
         }
+        boolean paymentRequired = melee.requiresPayment();
         Set<Long> inTeams = teams.stream().flatMap(team -> team.getMemberIds().stream()).collect(Collectors.toSet());
-        Set<Long> active = participants.stream().filter(Participant::isActive).map(Participant::getId)
-                .collect(Collectors.toSet());
+        Set<Long> players = participants.stream().filter(participant -> participant.plays(paymentRequired))
+                .map(Participant::getId).collect(Collectors.toSet());
         List<Long> unassigned = participants.stream()
-                .filter(participant -> participant.isActive() && !inTeams.contains(participant.getId()))
+                .filter(participant -> players.contains(participant.getId()) && !inTeams.contains(participant.getId()))
                 .map(Participant::getId).toList();
-        List<Long> withdrawnMembers = participants.stream()
-                .filter(participant -> !participant.isActive() && inTeams.contains(participant.getId()))
+        List<Long> membersNotPlaying = participants.stream()
+                .filter(participant -> !players.contains(participant.getId()) && inTeams.contains(participant.getId()))
                 .map(Participant::getId).toList();
         List<Integer> empty = teams.stream()
-                .filter(team -> team.getMemberIds().stream().noneMatch(active::contains))
+                .filter(team -> team.getMemberIds().stream().noneMatch(players::contains))
                 .map(Team::getNumber).toList();
-        return new TeamIssues(unassigned, withdrawnMembers, empty);
+        return new TeamIssues(unassigned, membersNotPlaying, empty);
     }
 
     private static Team teamOf(List<Team> teams, long playerId) {

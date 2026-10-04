@@ -9,6 +9,8 @@ import { useOutbox } from '../offline/useOutbox'
 import { Button } from '../ui/Button'
 import { withPending } from '../offline/withPending'
 import { CounterBar } from './Counter'
+import { canRecordPayments } from './payments/payments'
+import { PaymentSummary } from './payments/PaymentSummary'
 import { CourtsTab } from './courts/CourtsTab'
 import { IntlBoard } from '../international/IntlBoard'
 import { PrizesTab } from '../prizes/PrizesTab'
@@ -58,9 +60,11 @@ export function MeleePage() {
 
   // Only while the matches are being played: afterwards the figures no longer change.
   const showCounter = melee.counter.length > 0 && melee.status === 'MATCHES'
+  // While collecting at the table, the payment summary takes the place of the counter.
+  const showPayments = melee.payments !== null && canRecordPayments(melee)
 
   return (
-    <div className={showCounter ? 'pb-28' : ''}>
+    <div className={showCounter || showPayments ? 'pb-28' : ''}>
       <MeleeHeader melee={melee} />
       <Button variant="secondary" className="mb-4 w-full" onClick={() => setSharing(true)}>
         {t('share.button')}
@@ -83,6 +87,7 @@ export function MeleePage() {
       />
       <MeleeOptions melee={melee} />
       {showCounter && <CounterBar melee={melee} />}
+      {showPayments && melee.payments && <PaymentSummary payments={melee.payments} fixed />}
     </div>
   )
 }

@@ -15,6 +15,7 @@ import es.arrima.melee.MeleeStatus;
 import es.arrima.participant.Participant;
 import es.arrima.participant.ParticipantRepository;
 import es.arrima.participant.ParticipantService;
+import es.arrima.participant.PaymentSummary;
 import es.arrima.schedule.Bye;
 import es.arrima.schedule.Matchup;
 import es.arrima.schedule.Schedule;
@@ -75,7 +76,15 @@ public class MeleeViewAssembler {
     public MeleeView assemble(Melee melee, Audience audience) {
         Club club = clubService.getClub(melee.getClubId());
         List<Participant> participants = participantService.listForMelee(melee.getId());
-        int activePlayers = (int) participants.stream().filter(Participant::isActive).count();
+        boolean paymentRequired = melee.requiresPayment();
+        boolean showsPayments = audience == Audience.ADMIN && paymentRequired;
+        boolean afterDraw = melee.getStatus() != MeleeStatus.REGISTRATION;
+        // The team plan counts who will play. While payments are being collected, spectators get it
+        // counted without payments: otherwise the number would tell them how many have paid.
+        boolean planCountsPayments = paymentRequired && (audience == Audience.ADMIN || afterDraw);
+        int players = (int) participants.stream()
+                .filter(participant -> participant.plays(planCountsPayments))
+                .count();
         List<Team> teams = shows(audience, melee, MeleeStatus.TEAMS) ? teamService.teamsOf(melee.getId()) : List.of();
         List<Long> teamIds = teams.stream().map(Team::getId).toList();
         Schedule schedule = shows(audience, melee, MeleeStatus.MATCHES)
@@ -92,13 +101,16 @@ public class MeleeViewAssembler {
                 melee.getStatus(),
                 meleeRepository.findRevision(melee.getId()),
                 new MeleeView.Settings(melee.getSettings().courtCount(), melee.getSettings().roundsCount(),
-                        melee.getSettings().prizeCount()),
+                        melee.getSettings().prizeCount(), melee.getSettings().entryFeeCents()),
                 ScoringTableDto.from(melee.getScoring()),
                 new MeleeView.Club(club.getName(), fileLinkSigner.link(club.getLogoPath())),
-                participants.stream().map(MeleeViewAssembler::toView).toList(),
-                toView(TeamSizePlanner.plan(activePlayers, melee.getTeamSize())),
+                participants.stream()
+                        .map(participant -> toView(participant, showsPayments,
+                                afterDraw && participant.isActive() && !participant.plays(paymentRequired)))
+                        .toList(),
+                toView(TeamSizePlanner.plan(players, melee.getTeamSize())),
                 teamViews(teams, schedule.records(teamIds)),
-                toView(teamService.issues(teams, participants)),
+                toView(teamService.issues(melee, teams, participants)),
                 ScheduleLimits.maxRounds(teams.size()),
                 roundViews(schedule, rounds),
                 schedule.exists()
@@ -107,7 +119,8 @@ public class MeleeViewAssembler {
                                 .toList()
                         : List.of(),
                 internationalView(melee, audience, teams),
-                prizeViews(melee, audience));
+                prizeViews(melee, audience),
+                showsPayments ? toView(PaymentSummary.of(participants, melee.getSettings().entryFeeCents())) : null);
     }
 
     /**
@@ -180,8 +193,8 @@ public class MeleeViewAssembler {
     }
 
     private static MeleeView.TeamIssues toView(TeamIssues issues) {
-        return new MeleeView.TeamIssues(issues.unassignedPlayers(), issues.withdrawnMembers(),
-                issues.teamsWithoutActivePlayers());
+        return new MeleeView.TeamIssues(issues.unassignedPlayers(), issues.membersNotPlaying(),
+                issues.teamsWithoutPlayers());
     }
 
     @Transactional(readOnly = true)
@@ -196,9 +209,15 @@ public class MeleeViewAssembler {
                 .toList();
     }
 
-    private static MeleeView.Participant toView(Participant participant) {
+    private static MeleeView.Participant toView(Participant participant, boolean showsPayment, boolean notPlaying) {
         return new MeleeView.Participant(participant.getId(), participant.getListNumber(),
-                participant.getDisplayName(), participant.getStatus());
+                participant.getDisplayName(), participant.getStatus(),
+                showsPayment ? participant.getPaymentStatus() : null, notPlaying);
+    }
+
+    private static MeleeView.Payments toView(PaymentSummary summary) {
+        return new MeleeView.Payments(summary.expected(), summary.paid(), summary.unpaid(), summary.unmarked(),
+                summary.entryFeeCents(), summary.collectedCents());
     }
 
     private static MeleeView.TeamPlan toView(TeamPlan plan) {

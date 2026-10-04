@@ -234,7 +234,7 @@ class TeamsAndScheduleIntegrationTest {
         assertThat(result).hasStatusOk().bodyJson().extractingPath("$.teams[0].id").isEqualTo((int) teamId);
         List<Integer> members = json(result, "$.teams[0].memberIds");
         assertThat(members).contains((int) joining).doesNotContain((int) leaving);
-        assertThat(result).bodyJson().extractingPath("$.teamIssues.withdrawnMembers").asArray().isEmpty();
+        assertThat(result).bodyJson().extractingPath("$.teamIssues.membersNotPlaying").asArray().isEmpty();
     }
 
     @Test

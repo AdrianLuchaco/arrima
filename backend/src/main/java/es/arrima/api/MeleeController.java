@@ -40,7 +40,8 @@ class MeleeController {
     @ResponseStatus(HttpStatus.CREATED)
     MeleeView create(@AuthenticationPrincipal AdminPrincipal admin, @Valid @RequestBody CreateMelee request) {
         Melee melee = meleeService.create(admin.clubId(),
-                new NewMelee(request.teamSize(), request.courtCount(), request.roundsCount(), request.prizeCount()));
+                new NewMelee(request.teamSize(), request.courtCount(), request.roundsCount(), request.prizeCount(),
+                        request.entryFeeCents()));
         return views.forAdmin(melee.getId(), admin.clubId());
     }
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatMeleeDate } from '../lib/dates'
 import { meleeRequests, useDeleteMelee, useMeleeAction } from './meleeApi'
+import { settingsSummary } from './settingsSummary'
 import { STATUS_ORDER, type MeleeView } from './types'
 import { Button } from '../ui/Button'
 import { ConfirmDialog } from '../ui/ConfirmDialog'
@@ -18,7 +19,7 @@ export function MeleeHeader({ melee }: { melee: MeleeView }) {
         <h1 className="text-3xl font-extrabold first-letter:uppercase">{formatMeleeDate(melee.playedOn)}</h1>
         <p className="text-lg text-steel-600">
           {t('melee.classic')} · {t(`melee.teamSize.${melee.teamSize}`)} ·{' '}
-          {t('melee.summary', melee.settings)}
+          {settingsSummary(t, melee.settings)}
         </p>
       </div>
 

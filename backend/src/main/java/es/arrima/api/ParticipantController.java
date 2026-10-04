@@ -3,6 +3,7 @@ package es.arrima.api;
 import es.arrima.api.MeleeRequests.ImportParticipants;
 import es.arrima.api.MeleeRequests.ParticipantData;
 import es.arrima.api.MeleeRequests.PreviewImport;
+import es.arrima.api.MeleeRequests.RecordPayment;
 import es.arrima.api.view.MeleeView;
 import es.arrima.api.view.MeleeViewAssembler;
 import es.arrima.participant.ImportPreviewEntry;
@@ -61,6 +62,14 @@ class ParticipantController {
     MeleeView edit(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId,
             @PathVariable long participantId, @Valid @RequestBody ParticipantData request) {
         participantService.edit(meleeId, admin.clubId(), participantId, request.toNewParticipant());
+        return views.forAdmin(meleeId, admin.clubId());
+    }
+
+    /** Idempotent (the offline queue may send it twice), like the match results. */
+    @PutMapping("/{participantId}/payment")
+    MeleeView recordPayment(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId,
+            @PathVariable long participantId, @Valid @RequestBody RecordPayment request) {
+        participantService.recordPayment(meleeId, admin.clubId(), participantId, request.paymentStatus());
         return views.forAdmin(meleeId, admin.clubId());
     }
 

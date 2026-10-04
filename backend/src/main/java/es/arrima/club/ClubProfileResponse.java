@@ -9,5 +9,6 @@ public record ClubProfileResponse(
         int courtCount,
         int roundsCount,
         int prizeCount,
+        int entryFeeCents,
         ScoringTableDto scoring) {
 }
