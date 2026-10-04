@@ -45,7 +45,8 @@ public class MeleeService {
                 Objects.requireNonNullElse(request.courtCount(), defaults.courtCount()),
                 Objects.requireNonNullElse(request.roundsCount(), defaults.roundsCount()),
                 Objects.requireNonNullElse(request.prizeCount(), defaults.prizeCount()),
-                Objects.requireNonNullElse(request.entryFeeCents(), defaults.entryFeeCents()));
+                Objects.requireNonNullElse(request.entryFeeCents(), defaults.entryFeeCents()),
+                Objects.requireNonNullElse(request.matchMinutes(), defaults.matchMinutes()));
         Melee melee = new Melee(clubId, ArrimaTime.today(clock), request.teamSize(), settings, club.getScoring(),
                 publicCodes.newCode(), clock.instant());
         return meleeRepository.save(melee);
@@ -79,6 +80,7 @@ public class MeleeService {
     public void close(long meleeId, long clubId) {
         Melee melee = meleeAccess.forClub(meleeId, clubId);
         melee.close(clock.instant());
+        events.publishEvent(new MeleeClosedEvent(melee.getId()));
         meleeAccess.recordChange(melee);
     }
 
@@ -106,6 +108,7 @@ public class MeleeService {
         boolean idle = !melee.getLastActivityAt().plus(IDLE_CLOSE_AFTER).isAfter(now);
         if (melee.getStatus() == MeleeStatus.PRIZES && idle) {
             melee.close(now);
+            events.publishEvent(new MeleeClosedEvent(melee.getId()));
             meleeAccess.recordChange(melee);
         }
     }

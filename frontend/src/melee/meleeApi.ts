@@ -84,6 +84,13 @@ export const meleeRequests = {
       body: { acceptDifferentTeam, unmarkedDidNotPay, confirmLosses },
     }),
   resumeTeams: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/teams/resume`, { method: 'POST' }),
+  startTimer: (meleeId: number, round: number, stopRunningCountdown: boolean) =>
+    api<MeleeView>(`${base(meleeId)}/timer/rounds/${round}/start`, { method: 'POST', body: { stopRunningCountdown } }),
+  pauseTimer: (meleeId: number, round: number) => api<MeleeView>(`${base(meleeId)}/timer/rounds/${round}/pause`, { method: 'POST' }),
+  resumeTimer: (meleeId: number, round: number) => api<MeleeView>(`${base(meleeId)}/timer/rounds/${round}/resume`, { method: 'POST' }),
+  cancelTimer: (meleeId: number, round: number) => api<MeleeView>(`${base(meleeId)}/timer/rounds/${round}`, { method: 'DELETE' }),
+  /** The admin's phone reached 0: one more trigger for the server to record the end (it checks its own clock). */
+  checkTimer: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/timer/check`, { method: 'POST' }),
   swapPlayers: (meleeId: number, firstPlayerId: number, secondPlayerId: number) =>
     api<MeleeView>(`${base(meleeId)}/teams/swap`, { method: 'POST', body: { firstPlayerId, secondPlayerId } }),
   substitute: (meleeId: number, leavingPlayerId: number, joiningPlayerId: number) =>

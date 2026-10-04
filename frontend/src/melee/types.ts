@@ -67,6 +67,7 @@ export type MeleeSettings = {
   prizeCount: number
   /** 0: no entry fee, so no payment control. */
   entryFeeCents: number
+  matchMinutes: number
 }
 
 export interface Prize {
@@ -176,6 +177,23 @@ export interface Round {
   number: number
   matches: Match[]
   byeTeamId: number | null
+  /** The round's countdown; null until the admin starts it. */
+  timer: RoundTimer | null
+}
+
+/**
+ * A countdown as the server stores it. What is left is worked out on each phone with the server's
+ * clock (see timer/countdown.ts): it is never sent, so the view does not change every second.
+ */
+export interface RoundTimer {
+  state: 'RUNNING' | 'PAUSED' | 'ENDED'
+  startedAt: string
+  durationMillis: number
+  pausedAt: string | null
+  /** When the time runs out if not paused again. */
+  endsAt: string
+  endedAt: string | null
+  endReason: 'TIME_UP' | 'NEXT_ROUND' | null
 }
 
 export interface WinTarget {

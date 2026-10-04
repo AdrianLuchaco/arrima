@@ -13,5 +13,6 @@ public record UpdateClubProfileRequest(
         @NotNull @Min(1) @Max(MeleeSettings.MAX_ROUNDS) Integer roundsCount,
         @NotNull @Min(1) @Max(MeleeSettings.MAX_PRIZES) Integer prizeCount,
         @NotNull @Min(0) @Max(MeleeSettings.MAX_ENTRY_FEE_CENTS) Integer entryFeeCents,
+        @NotNull @Min(MeleeSettings.MIN_MATCH_MINUTES) @Max(MeleeSettings.MAX_MATCH_MINUTES) Integer matchMinutes,
         @NotNull @Valid ScoringTableDto scoring) {
 }

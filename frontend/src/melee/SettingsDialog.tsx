@@ -28,6 +28,7 @@ export function SettingsDialog({ melee, onClose }: { melee: MeleeView; onClose: 
         )}
         <NumberStepper label={t('club.profile.prizes')} value={settings.prizeCount} min={1} max={100} onChange={set('prizeCount')} />
         <NumberStepper label={t('club.profile.courts')} value={settings.courtCount} min={1} max={200} onChange={set('courtCount')} />
+        <NumberStepper label={t('club.profile.matchMinutes')} value={settings.matchMinutes} min={5} max={180} onChange={set('matchMinutes')} />
         <MoneyStepper
           label={t('club.profile.fee')}
           value={settings.entryFeeCents}

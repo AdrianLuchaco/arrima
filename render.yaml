@@ -40,3 +40,11 @@ services:
       # The frontend's address (https://...vercel.app), for the links in the e-mails.
       - key: APP_URL
         sync: false
+      # Web Push for the match timer: generate the pair with scripts/generate-vapid-keys.sh.
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      # Contact for the push services (Google, Apple...), e.g. mailto:you@example.com
+      - key: VAPID_SUBJECT
+        sync: false

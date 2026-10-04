@@ -10,5 +10,6 @@ public record ClubProfileResponse(
         int roundsCount,
         int prizeCount,
         int entryFeeCents,
+        int matchMinutes,
         ScoringTableDto scoring) {
 }

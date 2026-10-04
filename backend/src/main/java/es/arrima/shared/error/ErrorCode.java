@@ -28,6 +28,8 @@ public enum ErrorCode {
     CONFIRMATION_REQUIRED(HttpStatus.CONFLICT),
     /** Someone's payment is still unmarked: the draw asks before recording them as not paid. */
     UNMARKED_PAYMENTS(HttpStatus.CONFLICT),
+    /** Another round's countdown has not ended: starting this one stops it, once confirmed. */
+    TIMER_RUNNING(HttpStatus.CONFLICT),
     PARTICIPANT_LIMIT(HttpStatus.BAD_REQUEST),
     NOT_ENOUGH_PLAYERS(HttpStatus.CONFLICT),
     TEAMS_DO_NOT_FIT(HttpStatus.CONFLICT),
@@ -40,6 +42,7 @@ public enum ErrorCode {
     TOO_MANY_VIEWERS(HttpStatus.SERVICE_UNAVAILABLE),
     INTERNATIONAL_INCOMPLETE(HttpStatus.CONFLICT),
     PHOTO_LIMIT(HttpStatus.CONFLICT),
+    PUSH_LIMIT(HttpStatus.CONFLICT),
 
     // Files
     INVALID_IMAGE(HttpStatus.BAD_REQUEST),

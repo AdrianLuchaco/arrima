@@ -9,6 +9,7 @@ import es.arrima.melee.Melee;
 import es.arrima.melee.MeleeService;
 import es.arrima.melee.NewMelee;
 import es.arrima.shared.security.AdminPrincipal;
+import es.arrima.timer.TimerService;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -30,10 +31,12 @@ class MeleeController {
 
     private final MeleeService meleeService;
     private final MeleeViewAssembler views;
+    private final TimerService timerService;
 
-    MeleeController(MeleeService meleeService, MeleeViewAssembler views) {
+    MeleeController(MeleeService meleeService, MeleeViewAssembler views, TimerService timerService) {
         this.meleeService = meleeService;
         this.views = views;
+        this.timerService = timerService;
     }
 
     @PostMapping
@@ -41,7 +44,7 @@ class MeleeController {
     MeleeView create(@AuthenticationPrincipal AdminPrincipal admin, @Valid @RequestBody CreateMelee request) {
         Melee melee = meleeService.create(admin.clubId(),
                 new NewMelee(request.teamSize(), request.courtCount(), request.roundsCount(), request.prizeCount(),
-                        request.entryFeeCents()));
+                        request.entryFeeCents(), request.matchMinutes()));
         return views.forAdmin(melee.getId(), admin.clubId());
     }
 
@@ -51,9 +54,11 @@ class MeleeController {
         return views.summaries(meleeService.listForClub(admin.clubId()));
     }
 
+    /** Looking at the melee is also when the time-based changes are checked: auto-close and countdowns. */
     @GetMapping("/{meleeId}")
     MeleeView get(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId) {
         meleeService.closeIfIdle(meleeId, admin.clubId());
+        timerService.expireIfDue(meleeId);
         return views.forAdmin(meleeId, admin.clubId());
     }
 

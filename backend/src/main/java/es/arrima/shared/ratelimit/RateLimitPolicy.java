@@ -18,7 +18,9 @@ public enum RateLimitPolicy {
     /** Also limits how many recovery e-mails anyone can make us send to one address. */
     PASSWORD_RESET_PER_EMAIL(3, Duration.ofHours(1)),
     PASSWORD_RESET_PER_IP(10, Duration.ofHours(1)),
-    PASSWORD_RESET_CONFIRM_PER_IP(20, Duration.ofHours(1));
+    PASSWORD_RESET_CONFIRM_PER_IP(20, Duration.ofHours(1)),
+    /** "Avísame": the only public write. A phone subscribes once per melee; this is generous. */
+    PUSH_SUBSCRIBE_PER_IP(20, Duration.ofHours(1));
 
     private final int limit;
     private final Duration window;

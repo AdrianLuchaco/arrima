@@ -54,6 +54,21 @@ public class TestClubs {
         return new RegisteredClub(email, accessToken, refreshCookie);
     }
 
+    /**
+     * A fresh session for the same admin. Tests that move the clock forward need it: the access
+     * token lasts 15 minutes (in the app, the refresh cookie renews it without anyone noticing).
+     */
+    public RegisteredClub login(RegisteredClub club) {
+        MvcTestResult result = mvc.post().uri("/api/auth/login")
+                .header("X-Forwarded-For", randomIp())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"email":"%s","password":"%s"}""".formatted(club.email(), PASSWORD))
+                .exchange();
+        assertThat(result).hasStatusOk();
+        return new RegisteredClub(club.email(), json(result, "$.accessToken"), result.getResponse().getCookie("arrima_refresh"));
+    }
+
     /** Reads a value from a JSON response body. */
     public static <T> T json(MvcTestResult result, String path) {
         try {

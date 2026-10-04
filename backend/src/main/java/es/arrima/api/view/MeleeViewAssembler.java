@@ -27,6 +27,9 @@ import es.arrima.team.TeamIssues;
 import es.arrima.team.TeamService;
 import es.arrima.team.domain.TeamPlan;
 import es.arrima.team.domain.TeamSizePlanner;
+import es.arrima.timer.RoundTimer;
+import es.arrima.timer.TimerService;
+import es.arrima.timer.domain.Countdown;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,11 +53,12 @@ public class MeleeViewAssembler {
     private final InternationalService internationalService;
     private final PrizeService prizeService;
     private final FileLinkSigner fileLinkSigner;
+    private final TimerService timerService;
 
     public MeleeViewAssembler(MeleeAccess meleeAccess, MeleeRepository meleeRepository, ClubService clubService,
             ParticipantService participantService, ParticipantRepository participantRepository,
             TeamService teamService, ScheduleService scheduleService, InternationalService internationalService,
-            PrizeService prizeService, FileLinkSigner fileLinkSigner) {
+            PrizeService prizeService, FileLinkSigner fileLinkSigner, TimerService timerService) {
         this.meleeAccess = meleeAccess;
         this.meleeRepository = meleeRepository;
         this.clubService = clubService;
@@ -65,6 +69,7 @@ public class MeleeViewAssembler {
         this.internationalService = internationalService;
         this.prizeService = prizeService;
         this.fileLinkSigner = fileLinkSigner;
+        this.timerService = timerService;
     }
 
     @Transactional(readOnly = true)
@@ -101,7 +106,8 @@ public class MeleeViewAssembler {
                 melee.getStatus(),
                 meleeRepository.findRevision(melee.getId()),
                 new MeleeView.Settings(melee.getSettings().courtCount(), melee.getSettings().roundsCount(),
-                        melee.getSettings().prizeCount(), melee.getSettings().entryFeeCents()),
+                        melee.getSettings().prizeCount(), melee.getSettings().entryFeeCents(),
+                        melee.getSettings().matchMinutes()),
                 ScoringTableDto.from(melee.getScoring()),
                 new MeleeView.Club(club.getName(), fileLinkSigner.link(club.getLogoPath())),
                 participants.stream()
@@ -112,7 +118,7 @@ public class MeleeViewAssembler {
                 teamViews(teams, schedule.records(teamIds)),
                 toView(teamService.issues(melee, teams, participants)),
                 ScheduleLimits.maxRounds(teams.size()),
-                roundViews(schedule, rounds),
+                roundViews(melee, schedule, rounds),
                 schedule.exists()
                         ? schedule.counter(teamIds, rounds).stream()
                                 .map(target -> new MeleeView.WinTarget(target.wins(), target.reached(), target.canReach()))
@@ -169,10 +175,12 @@ public class MeleeViewAssembler {
         }).toList();
     }
 
-    private static List<MeleeView.Round> roundViews(Schedule schedule, int rounds) {
+    private List<MeleeView.Round> roundViews(Melee melee, Schedule schedule, int rounds) {
         if (!schedule.exists()) {
             return List.of();
         }
+        Map<Integer, RoundTimer> timers = timerService.timersOf(melee.getId()).stream()
+                .collect(Collectors.toMap(RoundTimer::getRoundNumber, Function.identity()));
         List<MeleeView.Round> views = new ArrayList<>();
         for (int round = 1; round <= rounds; round++) {
             int number = round;
@@ -182,9 +190,16 @@ public class MeleeViewAssembler {
                     .toList();
             Long byeTeam = schedule.byes().stream().filter(bye -> bye.getRoundNumber() == number)
                     .map(Bye::getTeamId).findFirst().orElse(null);
-            views.add(new MeleeView.Round(number, matches, byeTeam));
+            RoundTimer timer = timers.get(number);
+            views.add(new MeleeView.Round(number, matches, byeTeam, timer == null ? null : toView(timer)));
         }
         return views;
+    }
+
+    private static MeleeView.Timer toView(RoundTimer timer) {
+        Countdown countdown = timer.countdown();
+        return new MeleeView.Timer(countdown.state(), countdown.startedAt(), countdown.duration().toMillis(),
+                countdown.pausedAt(), countdown.endsAt(), countdown.endedAt(), timer.getEndReason());
     }
 
     private static MeleeView.Match toView(Matchup matchup) {

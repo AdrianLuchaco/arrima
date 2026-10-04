@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { TimerPanel } from '../../timer/TimerPanel'
 import { teamNumber } from '../names'
 import { ResultDialog } from '../ResultDialog'
 import type { Match, MeleeView } from '../types'
@@ -23,6 +24,7 @@ export function CourtsTab({ melee, readOnly = false }: { melee: MeleeView; readO
 
   return (
     <div className="flex flex-col gap-4">
+      {!readOnly && <TimerPanel melee={melee} />}
       <p className="text-lg font-semibold">{pending === 0 ? t('courts.allDone') : t('courts.pending', { count: pending })}</p>
       <div className="-mx-4 overflow-x-auto px-4 pb-2">
         <table className="border-separate border-spacing-1 text-center">

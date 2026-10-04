@@ -44,6 +44,9 @@ SUPABASE_SECRET_KEY =
 BREVO_API_KEY       =
 MAIL_SENDER_EMAIL   =
 APP_URL             =   (la dirección de Vercel)
+VAPID_PUBLIC_KEY    =
+VAPID_PRIVATE_KEY   =
+VAPID_SUBJECT       =   mailto:tu@correo.com
 URL del backend     =   (la de Render)
 ```
 
@@ -62,7 +65,12 @@ URL del backend     =   (la de Render)
    ```sh
    git config core.hooksPath .githooks
    ```
-3. Comprueba que no hay nada sin guardar:
+3. Genera las claves de los avisos del temporizador («¡Tiempo!»):
+   ```sh
+   ./scripts/generate-vapid-keys.sh
+   ```
+   Copia las dos líneas que salen a tu libreta, como `VAPID_PUBLIC_KEY` y `VAPID_PRIVATE_KEY`. En `VAPID_SUBJECT` pon `mailto:` seguido de tu correo: es el contacto que verán Google y Apple si algo va mal. Sin estas tres variables la app funciona igual, pero sin notificaciones con el móvil bloqueado.
+4. Comprueba que no hay nada sin guardar:
    ```sh
    git status
    ```
@@ -203,6 +211,9 @@ Va antes que Render porque el backend necesita saber la dirección del frontend 
    | `BREVO_API_KEY` | de la libreta (paso 4) |
    | `MAIL_SENDER_EMAIL` | de la libreta |
    | `APP_URL` | de la libreta (paso 5), sin barra final |
+   | `VAPID_PUBLIC_KEY` | de la libreta (paso 1) |
+   | `VAPID_PRIVATE_KEY` | de la libreta (paso 1) |
+   | `VAPID_SUBJECT` | de la libreta (paso 1) |
 
    Las que no aparecen ya vienen resueltas en `render.yaml`: `JWT_SECRET` la genera Render solo, y `SUPABASE_BUCKET=arrima` y `MAIL_SENDER_NAME=Arrima` van fijas.
 5. **Deploy Blueprint**.
@@ -212,7 +223,7 @@ Va antes que Render porque el backend necesita saber la dirección del frontend 
 1. Entra en el servicio `arrima-api` → **Logs**.
 2. La primera vez tarda entre 5 y 10 minutos, porque compila con Maven dentro de Docker.
 3. Busca estas líneas, en este orden:
-   - `Successfully applied 2 migrations to schema "arrima"`: ha creado las tablas.
+   - `Successfully applied 4 migrations to schema "arrima"`: ha creado las tablas.
    - `Started ArrimaApplication in … seconds`: está en marcha. Con 0,1 CPU tarda en torno a minuto y medio.
    - Al principio salen unos avisos `[warning][aot…]`: son normales (la caché de arranque de Java ajustándose a la máquina).
 4. Si en vez de eso sale un error, mira la tabla [Si algo falla](#si-algo-falla).
@@ -308,6 +319,10 @@ Hazlo con dos móviles si puedes (o un móvil y un ordenador).
 | **Instalar en Android** (Chrome) | En la pantalla de melés, «Instala Arrima en el móvil» → **Instalar**. Aparece el icono |
 | **Instalar en iPhone** (Safari) | Compartir → «Añadir a pantalla de inicio» → «Añadir». Se abre a pantalla completa |
 | Abrir la app instalada sin cobertura | Abre al momento y dice «Sin conexión»; al volver la cobertura, sigue sola |
+| **Pagos**: melé con cuota, tocar nombres y marcar Sí/No, dejar a alguien sin marcar y pulsar «Generar equipos» | Avisa con los nombres sin marcar; solo sortea a los que han pagado; en la vista pública salen como «NO JUEGA» |
+| **Temporizador**: crea una melé de prueba con **5 minutos** por partida, genera el cuadro y pulsa «Empezar partida 1» | La cuenta atrás se ve en los dos móviles y en la vista pública |
+| En el móvil del jugador, «Avísame cuando se acabe el tiempo» y bloquea el móvil | A los 5 minutos llega la notificación «¡Tiempo! Partida 1 terminada». En iPhone solo con la app añadida a la pantalla de inicio |
+| Con la app abierta al llegar a 0 | Suena la alarma, vibra (en Android) y sale «¡Tiempo!» a pantalla completa |
 
 Al terminar, borra la melé de prueba (**Más opciones → Borrar esta melé**).
 
@@ -332,6 +347,8 @@ Al terminar, borra la melé de prueba (**Más opciones → Borrar esta melé**).
 | Render no arranca: `APP_URL is required` o `APP_URL must start with https://` | Falta `APP_URL` o le falta `https://` | Corrígela en **Environment** |
 | Render no arranca: `BREVO_API_KEY is required` / `MAIL_SENDER_EMAIL is required` | Falta esa variable | Paso 4 y añádela en **Environment** |
 | Render no arranca: `SUPABASE_URL is required…` | Falta la variable de Supabase | Paso 3.5 |
+| Render no arranca: `VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT go together` | Has puesto solo alguna de las tres | Pon las tres (paso 1.3) o ninguna |
+| No llega la notificación «¡Tiempo!» | Permiso denegado, iPhone sin la app instalada, o el ahorro de batería de Android | En el móvil: permitir notificaciones de la web (o de Arrima instalada). En iPhone, añadirla a la pantalla de inicio y pulsar «Avísame» desde ahí. En los logs de Render busca `Push service refused` |
 | `Connection refused`, `Network is unreachable` o `UnknownHost` hacia la base de datos | Has usado la conexión directa (IPv6) o un puerto equivocado | Repite el paso 3.2 con **Session pooler**, puerto `5432` |
 | `password authentication failed` | Usuario o contraseña mal | El usuario es `postgres.<project-id>`, no `postgres` a secas. Si dudas de la contraseña, en Supabase: **Project Settings → Database → Reset database password**, y actualízala en Render |
 | La web se queda en «Despertando el servidor…» más de 3 minutos | El backend no está en marcha, o Vercel apunta a otra dirección | Mira los **Logs** de Render y repite los pasos 6.3 y 6.4 |

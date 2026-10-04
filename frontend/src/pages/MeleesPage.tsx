@@ -94,6 +94,7 @@ function CreateMeleeForm() {
     roundsCount: club.roundsCount,
     prizeCount: club.prizeCount,
     entryFeeCents: club.entryFeeCents,
+    matchMinutes: club.matchMinutes,
   }
   const set = (field: keyof typeof values) => (value: number) => setSettings({ ...values, [field]: value })
 
@@ -123,6 +124,7 @@ function CreateMeleeForm() {
       <NumberStepper label={t('club.profile.rounds')} value={values.roundsCount} min={1} max={20} onChange={set('roundsCount')} />
       <NumberStepper label={t('club.profile.prizes')} value={values.prizeCount} min={1} max={100} onChange={set('prizeCount')} />
       <NumberStepper label={t('club.profile.courts')} value={values.courtCount} min={1} max={200} onChange={set('courtCount')} />
+      <NumberStepper label={t('club.profile.matchMinutes')} value={values.matchMinutes} min={5} max={180} onChange={set('matchMinutes')} />
       <MoneyStepper label={t('club.profile.fee')} value={values.entryFeeCents} max={MAX_ENTRY_FEE_CENTS} onChange={set('entryFeeCents')} help={t('club.profile.feeHelp')} />
       <ErrorMessage error={create.error} />
       <Button variant="accent" busy={create.isPending} onClick={submit}>

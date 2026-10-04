@@ -1,6 +1,8 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { LoadingScreen } from '../components/LoadingScreen'
+import { lastPublicMelee } from '../public/lastPublicMelee'
+import { isInstalled } from '../pwa/install'
 import { AuthProvider } from './AuthProvider'
 import { useAuth } from './AuthContext'
 
@@ -18,7 +20,12 @@ export function SignedInOnly() {
   const { t } = useTranslation()
   const location = useLocation()
   if (status === 'checking') return <LoadingScreen title={t('loading.checking')} quiet />
-  if (status === 'signedOut') return <Navigate to="/entrar" replace state={{ from: location.pathname }} />
+  if (status === 'signedOut') {
+    // A player's installed app: open the melee they follow rather than the admin's sign-in.
+    const playerMelee = isInstalled() && location.pathname === '/' ? lastPublicMelee() : null
+    if (playerMelee) return <Navigate to={`/m/${playerMelee}`} replace />
+    return <Navigate to="/entrar" replace state={{ from: location.pathname }} />
+  }
   return <Outlet />
 }
 

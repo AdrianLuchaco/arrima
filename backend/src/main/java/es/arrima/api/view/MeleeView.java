@@ -8,6 +8,9 @@ import es.arrima.melee.MeleeFormat;
 import es.arrima.melee.MeleeStatus;
 import es.arrima.participant.ParticipantStatus;
 import es.arrima.participant.PaymentStatus;
+import es.arrima.timer.EndReason;
+import es.arrima.timer.domain.Countdown;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +45,7 @@ public record MeleeView(
         List<PrizeView> prizes,
         Payments payments) {
 
-    public record Settings(int courtCount, int roundsCount, int prizeCount, int entryFeeCents) {
+    public record Settings(int courtCount, int roundsCount, int prizeCount, int entryFeeCents, int matchMinutes) {
     }
 
     public record Club(String name, String logoUrl) {
@@ -76,8 +79,22 @@ public record MeleeView(
     public record TeamIssues(List<Long> unassignedPlayers, List<Long> membersNotPlaying, List<Integer> teamsWithoutPlayers) {
     }
 
-    /** @param byeTeamId the team that rests this round, or null */
-    public record Round(int number, List<Match> matches, Long byeTeamId) {
+    /**
+     * @param byeTeamId the team that rests this round, or null
+     * @param timer     the round's countdown, or null if it has not been started
+     */
+    public record Round(int number, List<Match> matches, Long byeTeamId, Timer timer) {
+    }
+
+    /**
+     * A countdown as stored, never "what is left now": that changes every second and would make the
+     * view (and its ETag) change too. Each phone works it out with the server's clock (/api/time):
+     * running, endsAt minus now; paused, endsAt minus pausedAt; ended, nothing.
+     *
+     * @param endsAt when the time runs out if it is not paused again
+     */
+    public record Timer(Countdown.State state, Instant startedAt, long durationMillis, Instant pausedAt,
+            Instant endsAt, Instant endedAt, EndReason endReason) {
     }
 
     /** @param courtNumber null while waiting for a court; @param winnerTeamId null until decided */

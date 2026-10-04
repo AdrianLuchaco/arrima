@@ -83,6 +83,7 @@
       "courts": "Pistas",
       "rounds": "Partidas por equipo",
       "prizes": "Premios",
+      "matchMinutes": "Minutos por partida",
       "fee": "Cuota de inscripción",
       "feeHelp": "Lo que paga cada jugador. Con 0 € no se controla quién ha pagado.",
       "scoring": "Puntos de la Internacional",
@@ -175,7 +176,7 @@
       "2": "Dupletas",
       "3": "Tripletas"
     },
-    "summary": "{{roundsCount}} partidas · {{prizeCount}} premios · {{courtCount}} pistas",
+    "summary": "{{roundsCount}} partidas de {{matchMinutes}} min · {{prizeCount}} premios · {{courtCount}} pistas",
     "phases": "Fases de la melé",
     "phaseOf": "Fase {{number}} de {{total}}: {{name}}",
     "status": {
@@ -395,7 +396,7 @@
     }
   },
   "settings": {
-    "title": "Partidas, premios, pistas y cuota",
+    "title": "Ajustes de esta melé",
     "button": "Ajustar: {{summary}}",
     "tooManyRounds": "Con {{teams}} equipos caben como mucho {{max}} partidas sin repetir rival. Baja el número de partidas.",
     "feeLocked": "La cuota ya no se puede cambiar: los equipos están hechos."
@@ -454,7 +455,8 @@
       "live": "En directo",
       "connecting": "Conectando…",
       "polling": "Reconectando…"
-    }
+    },
+    "organizer": "¿Organizas tú la melé? Entrar"
   },
   "intl": {
     "notStarted": "La Internacional aún no ha empezado.",
@@ -555,6 +557,55 @@
     "android": {
       "menu": "Abre el menú del navegador (los tres puntos ⋮).",
       "add": "Elige «Instalar aplicación» o «Añadir a pantalla de inicio»."
+    }
+  },
+  "timer": {
+    "start": "Empezar partida {{round}}",
+    "pause": "Pausar",
+    "resume": "Reanudar",
+    "cancel": "Anular",
+    "panel": {
+      "running": "Partida {{round}} en juego",
+      "paused": "Partida {{round}} en pausa"
+    },
+    "ask": {
+      "startTitle": "¿Empezar la partida {{round}}?",
+      "start": "Empezará la cuenta atrás de {{minutes}} minutos para todos.",
+      "pendingResults_one": "Falta {{count}} resultado de la partida {{round}}. Puedes apuntarlo después.",
+      "pendingResults_other": "Faltan {{count}} resultados de la partida {{round}}. Puedes apuntarlos después.",
+      "stopsRunning": "La partida {{round}} aún tiene tiempo: se dará por terminada, sin alarma.",
+      "pauseTitle": "¿Pausar la partida {{round}}?",
+      "pause": "La cuenta atrás se detiene para todos hasta que la reanudes.",
+      "resumeTitle": "¿Reanudar la partida {{round}}?",
+      "resume": "La cuenta atrás sigue para todos desde donde se quedó.",
+      "cancelTitle": "¿Anular la cuenta atrás de la partida {{round}}?",
+      "cancel": "Se borra como si no se hubiera empezado. Podrás empezarla otra vez."
+    },
+    "strip": {
+      "running": "Partida {{round}}",
+      "paused": "Partida {{round}} · en pausa",
+      "timeUp": "Partida {{round}} · Tiempo cumplido"
+    },
+    "timeUp": {
+      "title": "¡Tiempo!",
+      "round": "Partida {{round}} terminada.",
+      "tie": "Quien vaya empatado juega una mano más.",
+      "ok": "Entendido"
+    },
+    "notify": {
+      "button": "Avísame cuando se acabe el tiempo",
+      "subscribed": "Te avisaremos cuando se acabe el tiempo de cada partida, aunque tengas el móvil bloqueado.",
+      "denied": "No has dado permiso para avisos. Puedes activarlo en los ajustes del navegador. Mientras, sonará aquí si tienes la app abierta.",
+      "unavailable": "Ahora mismo no se pueden activar los avisos. Sonará aquí si tienes la app abierta.",
+      "title": "Aviso al acabar el tiempo",
+      "ios": {
+        "share": "En Safari, pulsa Compartir y elige «Añadir a pantalla de inicio».",
+        "add": "Abre Arrima desde su icono en la pantalla de inicio.",
+        "open": "Vuelve a esta melé y pulsa «Avísame cuando se acabe el tiempo»."
+      },
+      "unsupported": "Este navegador no puede avisar con el móvil bloqueado.",
+      "soundButton": "Que suene aquí con la app abierta",
+      "soundOnly": "Sonará aquí cuando se acabe el tiempo, si tienes la app abierta y el móvil desbloqueado."
     }
   }
 }

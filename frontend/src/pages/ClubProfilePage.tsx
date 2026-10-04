@@ -71,7 +71,8 @@ function ProfileForm({ initial }: { initial: ClubProfileUpdate }) {
           <NumberStepper label={t('club.profile.rounds')} value={form.roundsCount} min={1} max={20} onChange={(value) => set('roundsCount', value)} />
           <NumberStepper label={t('club.profile.prizes')} value={form.prizeCount} min={1} max={100} onChange={(value) => set('prizeCount', value)} />
         </div>
-        <div className="mt-4">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <NumberStepper label={t('club.profile.matchMinutes')} value={form.matchMinutes} min={5} max={180} onChange={(value) => set('matchMinutes', value)} />
           <MoneyStepper
             label={t('club.profile.fee')}
             value={form.entryFeeCents}

@@ -30,11 +30,11 @@ Respuesta 404 (no 403) a lo ajeno: no revela si existe.
 
 Tests: `RegistrationIntegrationTest.aClubCannotSeeOrTouchAnotherClubsMelee`, `aParticipantOfAnotherMeleeOfTheSameClubIsNotFound`, `TeamsAndScheduleIntegrationTest.anotherClubCannotDrawOrRecordResults` y, nuevo en esta fase, `PrizesIntegrationTest.anotherClubCannotTouchLaInternacionalNorThePrizes`.
 
-**Denegar por defecto.** En `SecurityConfig` cada ruta está listada y el resto es `denyAll()`. Las rutas públicas son solo `GET` (`/api/public/**`, `/api/files/**`, `/api/health`). Comprobado: un `POST` a una ruta pública responde 401.
+**Denegar por defecto.** En `SecurityConfig` cada ruta está listada y el resto es `denyAll()`. Las rutas públicas son `GET` (`/api/public/**`, `/api/files/**`, `/api/health`, `/api/time`), con una sola excepción: la suscripción «Avísame cuando se acabe el tiempo» (`POST /api/public/melees/{código}/push-subscriptions`). Esa escritura está atada al código de la melé, limitada por IP (20 por hora) y por melé (500), valida que la clave del navegador sea un punto real de la curva P-256 y desaparece al cerrar la melé. Comprobado: cualquier otro `POST` a una ruta pública responde 401.
 
 **Imágenes.** El bucket de Supabase es privado. El navegador solo ve enlaces del backend firmados con HMAC y con caducidad (`FileLinkSigner`). La firma se compara en tiempo constante (`MessageDigest.isEqual`) y la ruta se valida contra una lista blanca (`StoredFilePaths`).
 
-**SSRF.** El backend solo llama a dos destinos fijos de la configuración (Supabase y `api.brevo.com`). Ninguna URL sale de la entrada del usuario, y ahora no se siguen redirecciones.
+**SSRF.** El backend llama a destinos fijos de la configuración (Supabase y `api.brevo.com`) y, para los avisos del temporizador, a la dirección de push que manda cada navegador. Esa dirección viene de fuera, así que solo se aceptan los servicios de push de los navegadores: Google, Apple, Mozilla y Microsoft, en HTTPS, sin usuario y en el puerto estándar (`PushEndpoints`). Se comprueba al suscribirse y otra vez antes de cada envío. No se siguen redirecciones.
 
 **Supabase.** Las tablas están en el esquema propio `arrima`, que la Data API no expone, y tienen RLS activado sin políticas, así que los roles `anon` y `authenticated` no ven nada. Además, la guía de despliegue indica desactivar la Data API.
 
@@ -64,6 +64,7 @@ Tests: `RegistrationIntegrationTest.aClubCannotSeeOrTouchAnotherClubsMelee`, `aP
 - **Tokens aleatorios** de 256 bits con `SecureRandom`: *refresh*, recuperación e invitaciones (estas, de 48 bits). En la base de datos solo se guarda su SHA-256. Un volcado de la base de datos no permite usarlos.
 - **JWT HS256** con una clave derivada de `JWT_SECRET` por HMAC. Los enlaces de imágenes usan otra clave derivada (separación de dominios). El decodificador solo acepta HMAC, así que no hay confusión de algoritmos, y valida el emisor y la caducidad.
 - **TLS en todo el camino:** navegador → Vercel → Render (HTTPS), y backend → Supabase (`sslmode=require`) y Brevo (HTTPS).
+- **Web Push:** cada notificación va cifrada solo para el navegador que la pidió (RFC 8291, implementación propia con la criptografía del JDK, comprobada byte a byte con el ejemplo del RFC) y firmada con nuestra clave VAPID (RFC 8292, ES256). La clave privada VAPID va en una variable de entorno, como el resto de secretos.
 
 ## A05:2025 · Inyección
 

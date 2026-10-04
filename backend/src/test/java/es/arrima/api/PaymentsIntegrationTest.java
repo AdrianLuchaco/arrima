@@ -247,7 +247,7 @@ class PaymentsIntegrationTest {
 
     private MvcTestResult changeFee(int cents) {
         return melees.send(club, "PUT", "/api/melees/%d/settings".formatted(meleeId),
-                "{\"courtCount\":8,\"roundsCount\":3,\"prizeCount\":5,\"entryFeeCents\":%d}".formatted(cents));
+                "{\"courtCount\":8,\"roundsCount\":3,\"prizeCount\":5,\"entryFeeCents\":%d,\"matchMinutes\":45}".formatted(cents));
     }
 
     private MvcTestResult view() {

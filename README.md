@@ -119,6 +119,9 @@ Se definen en `backend/.env` en local y en el panel de Render en producción. **
 | `MAIL_SENDER_EMAIL` | Remitente de los correos, verificado en Brevo (solo producción) | `tuclub@gmail.com` |
 | `MAIL_SENDER_NAME` | Nombre del remitente (opcional) | `Arrima` (por defecto) |
 | `APP_URL` | Dirección pública del frontend, para los enlaces de los correos (solo producción) | `https://arrima.vercel.app` |
+| `VAPID_PUBLIC_KEY` | Clave pública de Web Push, para el aviso «¡Tiempo!» (opcional) | salida de `scripts/generate-vapid-keys.sh` |
+| `VAPID_PRIVATE_KEY` | Clave privada de Web Push (opcional, va con la pública) | salida de `scripts/generate-vapid-keys.sh` |
+| `VAPID_SUBJECT` | Contacto para los servicios de push (opcional, va con las claves) | `mailto:tu@correo.com` |
 | `PORT` | Puerto HTTP. Lo pone Render solo | — |
 
 ## Despliegue

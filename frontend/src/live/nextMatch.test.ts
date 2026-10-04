@@ -13,8 +13,8 @@ function view(rounds: MeleeView['rounds']): MeleeView {
 describe('nextMatchOf', () => {
   it('is the first undecided match of the team', () => {
     const next = nextMatchOf(view([
-      { number: 1, matches: [match(1, 1, 2, 1)], byeTeamId: null },
-      { number: 2, matches: [match(2, 1, 3, null, 4)], byeTeamId: null },
+      { number: 1, matches: [match(1, 1, 2, 1)], byeTeamId: null, timer: null },
+      { number: 2, matches: [match(2, 1, 3, null, 4)], byeTeamId: null, timer: null },
     ]), 1)
 
     expect(next).toEqual({ kind: 'match', round: 2, match: match(2, 1, 3, null, 4), rivalId: 3 })
@@ -22,8 +22,8 @@ describe('nextMatchOf', () => {
 
   it('says the team rests while its bye round is being played', () => {
     const next = nextMatchOf(view([
-      { number: 1, matches: [match(1, 2, 3, null)], byeTeamId: 1 },
-      { number: 2, matches: [match(2, 1, 3, null)], byeTeamId: 2 },
+      { number: 1, matches: [match(1, 2, 3, null)], byeTeamId: 1, timer: null },
+      { number: 2, matches: [match(2, 1, 3, null)], byeTeamId: 2, timer: null },
     ]), 1)
 
     expect(next).toEqual({ kind: 'bye', round: 1 })
@@ -31,15 +31,15 @@ describe('nextMatchOf', () => {
 
   it('moves on once the bye round is over', () => {
     const next = nextMatchOf(view([
-      { number: 1, matches: [match(1, 2, 3, 2)], byeTeamId: 1 },
-      { number: 2, matches: [match(2, 1, 3, null)], byeTeamId: 2 },
+      { number: 1, matches: [match(1, 2, 3, 2)], byeTeamId: 1, timer: null },
+      { number: 2, matches: [match(2, 1, 3, null)], byeTeamId: 2, timer: null },
     ]), 1)
 
     expect(next).toMatchObject({ kind: 'match', round: 2, rivalId: 3 })
   })
 
   it('knows when the team has finished', () => {
-    expect(nextMatchOf(view([{ number: 1, matches: [match(1, 1, 2, 1)], byeTeamId: null }]), 1))
+    expect(nextMatchOf(view([{ number: 1, matches: [match(1, 1, 2, 1)], byeTeamId: null, timer: null }]), 1))
       .toEqual({ kind: 'finished', wins: 2 })
   })
 

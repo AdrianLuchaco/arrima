@@ -28,14 +28,16 @@ class SecurityConfig {
                 .addFilterBefore(new RequestBodyLimitFilter(), BearerTokenAuthenticationFilter.class)
                 .addFilterBefore(new CrossSiteRequestFilter(), BearerTokenAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(GET, "/api/health", "/api/health/db").permitAll()
+                        .requestMatchers(GET, "/api/health", "/api/health/db", "/api/time").permitAll()
                         .requestMatchers(POST, "/api/auth/register", "/api/auth/login",
                                 "/api/auth/refresh", "/api/auth/logout",
                                 "/api/auth/password-reset/request", "/api/auth/password-reset/confirm").permitAll()
                         // Images: access is granted by the signature in the link (see FileLinkSigner).
                         .requestMatchers(GET, "/api/files/**").permitAll()
-                        // Public melee view: read-only by construction (only GET is allowed).
+                        // Public melee view: read-only by construction (only GET is allowed)...
                         .requestMatchers(GET, "/api/public/**").permitAll()
+                        // ...except "Avísame": a push subscription, checked and rate-limited.
+                        .requestMatchers(POST, "/api/public/melees/*/push-subscriptions").permitAll()
                         .requestMatchers("/api/club", "/api/club/**").authenticated()
                         .requestMatchers("/api/melees", "/api/melees/**").authenticated()
                         // Deny by default: every endpoint must be listed above.

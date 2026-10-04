@@ -1,5 +1,6 @@
 package es.arrima.api;
 
+import es.arrima.api.MeleeRequests.SubscribeToPush;
 import es.arrima.api.view.Audience;
 import es.arrima.api.view.MeleeView;
 import es.arrima.api.view.MeleeViewAssembler;
@@ -8,11 +9,15 @@ import es.arrima.melee.Melee;
 import es.arrima.melee.MeleeAccess;
 import es.arrima.melee.MeleeRepository;
 import es.arrima.melee.MeleeService;
+import es.arrima.push.PushAudience;
+import es.arrima.push.PushSubscriptionService;
 import es.arrima.shared.error.ApiException;
 import es.arrima.shared.ratelimit.RateLimitPolicy;
 import es.arrima.shared.ratelimit.RateLimiter;
 import es.arrima.shared.web.ClientIp;
+import es.arrima.timer.TimerService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -20,6 +25,8 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
@@ -41,15 +48,20 @@ class PublicMeleeController {
     private final MeleeEventBroadcaster broadcaster;
     private final RateLimiter rateLimiter;
     private final MeleeService meleeService;
+    private final TimerService timerService;
+    private final PushSubscriptionService pushSubscriptions;
 
     PublicMeleeController(MeleeAccess meleeAccess, MeleeRepository meleeRepository, MeleeViewAssembler views,
-            MeleeEventBroadcaster broadcaster, RateLimiter rateLimiter, MeleeService meleeService) {
+            MeleeEventBroadcaster broadcaster, RateLimiter rateLimiter, MeleeService meleeService,
+            TimerService timerService, PushSubscriptionService pushSubscriptions) {
         this.meleeAccess = meleeAccess;
         this.meleeRepository = meleeRepository;
         this.views = views;
         this.broadcaster = broadcaster;
         this.rateLimiter = rateLimiter;
         this.meleeService = meleeService;
+        this.timerService = timerService;
+        this.pushSubscriptions = pushSubscriptions;
     }
 
     /**
@@ -58,7 +70,11 @@ class PublicMeleeController {
      */
     @GetMapping
     ResponseEntity<MeleeView> view(@PathVariable String code, HttpServletRequest http, WebRequest request) {
-        meleeService.closeIfIdle(lookUp(code, http).getId());
+        long meleeId = lookUp(code, http).getId();
+        // Looking at the melee is also when the time-based changes are checked: auto-close and countdowns.
+        meleeService.closeIfIdle(meleeId);
+        timerService.expireIfDue(meleeId);
+        // Read again: the checks above may have changed it.
         Melee melee = lookUp(code, http);
         String etag = "\"r" + meleeRepository.findRevision(melee.getId()) + "\"";
         if (request.checkNotModified(etag)) {
@@ -78,6 +94,18 @@ class PublicMeleeController {
                 // Ask proxies not to buffer the stream (nginx and others honour it).
                 .header("X-Accel-Buffering", "no")
                 .body(broadcaster.subscribe(melee.getId()));
+    }
+
+    /**
+     * "Avísame cuando se acabe el tiempo": the only thing that can be written without an account.
+     * Checked in PushSubscriptionService; limited per address here.
+     */
+    @PostMapping("/push-subscriptions")
+    ResponseEntity<Void> subscribe(@PathVariable String code, @Valid @RequestBody SubscribeToPush request,
+            HttpServletRequest http) {
+        rateLimiter.consume(RateLimitPolicy.PUSH_SUBSCRIBE_PER_IP, ClientIp.of(http));
+        pushSubscriptions.subscribe(lookUp(code, http), request.toNewSubscription(), PushAudience.PUBLIC);
+        return ResponseEntity.noContent().build();
     }
 
     /**

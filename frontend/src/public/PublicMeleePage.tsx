@@ -1,19 +1,25 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { ApiError } from '../api/ApiError'
 import { api } from '../api/client'
 import { formatMeleeDate } from '../lib/dates'
 import { useMeleeLive, type LiveState } from '../live/useMeleeLive'
-import { CounterBar } from '../melee/Counter'
+import { CounterFigures } from '../melee/Counter'
 import { CourtsTab } from '../melee/courts/CourtsTab'
 import { PlayersTab } from '../melee/players/PlayersTab'
 import { TeamsTab } from '../melee/teams/TeamsTab'
 import type { MeleeView } from '../melee/types'
 import { ErrorMessage } from '../ui/ErrorMessage'
 import { SwipeTabs } from '../ui/SwipeTabs'
+import { BottomBar } from '../ui/BottomBar'
+import { showsTimer } from '../timer/countdown'
+import { TimerStrip } from '../timer/TimerStrip'
+import { useMatchTimer } from '../timer/useMatchTimer'
+import { rememberPublicMelee } from './lastPublicMelee'
 import { MyTeamCard } from './MyTeamCard'
+import { NotifyMeCard } from './NotifyMeCard'
 import { PublicInternational } from './PublicInternational'
 import { PrizesTab } from '../prizes/PrizesTab'
 
@@ -28,7 +34,6 @@ export function PublicMeleePage() {
     queryFn: () => api<MeleeView>(`/api/public/melees/${encodeURIComponent(code)}`, { authenticated: false }),
   })
   const live = useMeleeLive(melee?.publicCode, () => void queryClient.invalidateQueries({ queryKey }))
-  const [tab, setTab] = useState<string | null>(null)
 
   if (error) {
     return (
@@ -45,15 +50,27 @@ export function PublicMeleePage() {
     )
   }
   if (!melee) return null
+  return <PublicMeleeScreen melee={melee} live={live} />
+}
+
+function PublicMeleeScreen({ melee, live }: { melee: MeleeView; live: LiveState }) {
+  const { t } = useTranslation()
+  const [tab, setTab] = useState<string | null>(null)
+  const { countdown, overlay } = useMatchTimer(melee)
+
+  // A player who installs the app from here gets it opening on this melee (see routeGuards).
+  useEffect(() => rememberPublicMelee(melee.publicCode), [melee.publicCode])
 
   const active = tab ?? (melee.status === 'REGISTRATION' ? 'jugadores' : melee.status === 'TEAMS' ? 'equipos'
     : melee.prizes.length > 0 ? 'premios'
     : melee.status === 'MATCHES' || !melee.international ? 'pistas' : 'internacional')
   // Only while the matches are being played: afterwards the figures no longer change.
   const showCounter = melee.counter.length > 0 && melee.status === 'MATCHES'
+  const showCountdown = melee.status === 'MATCHES' && showsTimer(countdown)
+  const bottomSpace = showCounter && showCountdown ? 'pb-48' : showCounter || showCountdown ? 'pb-28' : ''
 
   return (
-    <div className={`min-h-dvh ${showCounter ? 'pb-28' : ''}`}>
+    <div className={`min-h-dvh ${bottomSpace}`}>
       <header className="bg-steel-800 text-gravel-50">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3">
           {melee.club.logoUrl ? (
@@ -70,6 +87,7 @@ export function PublicMeleePage() {
       </header>
       <main className="mx-auto max-w-4xl px-4 py-5">
         <p className="mb-4 text-xl font-bold">{t(`public.status.${melee.status}`)}</p>
+        <NotifyMeCard melee={melee} />
         <MyTeamCard melee={melee} />
         <SwipeTabs
           label={t('melee.tabs.label')}
@@ -85,8 +103,19 @@ export function PublicMeleePage() {
             ...(melee.prizes.length > 0 ? [{ id: 'premios', label: t('melee.tabs.prizes'), content: <PrizesTab melee={melee} /> }] : []),
           ]}
         />
+        <p className="mt-8 text-center text-base">
+          <Link to="/entrar" className="text-steel-600 underline underline-offset-4">
+            {t('public.organizer')}
+          </Link>
+        </p>
       </main>
-      {showCounter && <CounterBar melee={melee} />}
+      {(showCounter || showCountdown) && (
+        <BottomBar>
+          {showCountdown && <TimerStrip countdown={countdown} />}
+          {showCounter && <CounterFigures melee={melee} />}
+        </BottomBar>
+      )}
+      {overlay}
     </div>
   )
 }

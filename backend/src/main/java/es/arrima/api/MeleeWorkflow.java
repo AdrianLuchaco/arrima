@@ -11,6 +11,7 @@ import es.arrima.schedule.ScheduleService;
 import es.arrima.shared.error.ApiException;
 import es.arrima.shared.error.ErrorCode;
 import es.arrima.team.TeamService;
+import es.arrima.timer.TimerService;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,15 +30,18 @@ public class MeleeWorkflow {
     private final ScheduleService scheduleService;
     private final InternationalService internationalService;
     private final PrizeService prizeService;
+    private final TimerService timerService;
 
     public MeleeWorkflow(MeleeAccess meleeAccess, ParticipantService participantService, TeamService teamService,
-            ScheduleService scheduleService, InternationalService internationalService, PrizeService prizeService) {
+            ScheduleService scheduleService, InternationalService internationalService, PrizeService prizeService,
+            TimerService timerService) {
         this.meleeAccess = meleeAccess;
         this.participantService = participantService;
         this.teamService = teamService;
         this.scheduleService = scheduleService;
         this.internationalService = internationalService;
         this.prizeService = prizeService;
+        this.timerService = timerService;
     }
 
     /**
@@ -55,6 +59,7 @@ public class MeleeWorkflow {
         requireConfirmationIfLosing(lossesFromScheduleOn(melee), confirmLosses);
         prizeService.deleteAll(melee);
         internationalService.deleteAll(melee);
+        timerService.deleteAll(melee);
         scheduleService.deleteAll(melee);
         teamService.draw(melee, acceptDifferentTeam);
     }
@@ -83,6 +88,7 @@ public class MeleeWorkflow {
         requireConfirmationIfLosing(lossesFromScheduleOn(melee), confirmLosses);
         prizeService.deleteAll(melee);
         internationalService.deleteAll(melee);
+        timerService.deleteAll(melee);
         scheduleService.generate(melee);
     }
 

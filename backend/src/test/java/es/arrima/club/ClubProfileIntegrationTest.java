@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.assertj.MvcTestResult;
 class ClubProfileIntegrationTest {
 
     private static final String VALID_PROFILE = """
-            {"name":"%s","courtCount":12,"roundsCount":4,"prizeCount":6,"entryFeeCents":350,
+            {"name":"%s","courtCount":12,"roundsCount":4,"prizeCount":6,"entryFeeCents":350,"matchMinutes":40,
              "scoring":{"pointingOut":0,"pointingBigCircle":1,"pointingSmallCircle":2,"pointingNearJack":4,
                         "pointingOnJack":6,"shootingMiss":0,"shootingHit":1,"shootingHitOut":3,"shootingCarreau":6}}""";
 

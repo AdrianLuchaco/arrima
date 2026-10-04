@@ -8,19 +8,24 @@ import { useMeleeLive } from '../live/useMeleeLive'
 import { useOutbox } from '../offline/useOutbox'
 import { Button } from '../ui/Button'
 import { withPending } from '../offline/withPending'
-import { CounterBar } from './Counter'
+import { CounterFigures } from './Counter'
 import { collectingPayments } from './payments/payments'
 import { PaymentSummary } from './payments/PaymentSummary'
 import { CourtsTab } from './courts/CourtsTab'
 import { IntlBoard } from '../international/IntlBoard'
 import { PrizesTab } from '../prizes/PrizesTab'
 import { MeleeHeader, MeleeOptions } from './MeleeHeader'
-import { meleeKey, useMelee } from './meleeApi'
+import { meleeKey, meleeRequests, useMelee } from './meleeApi'
 import { NextStepCard } from './NextStepCard'
 import { PlayersTab } from './players/PlayersTab'
 import { ShareDialog } from './ShareDialog'
 import { TeamsTab } from './teams/TeamsTab'
-import type { MeleeStatus } from './types'
+import type { MeleeStatus, MeleeView } from './types'
+import { BottomBar } from '../ui/BottomBar'
+import { showsTimer } from '../timer/countdown'
+import { TimerStrip } from '../timer/TimerStrip'
+import { useMatchTimer } from '../timer/useMatchTimer'
+import { useWakeLock } from '../timer/useWakeLock'
 
 const TABS = ['jugadores', 'equipos', 'pistas', 'internacional', 'premios'] as const
 type TabId = (typeof TABS)[number]
@@ -35,21 +40,31 @@ function defaultTab(status: MeleeStatus): TabId {
 }
 
 export function MeleePage() {
-  const { t } = useTranslation()
   const meleeId = Number(useParams().meleeId)
   const { data, error } = useMelee(meleeId)
   const { pending } = useOutbox()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [sharing, setSharing] = useState(false)
   const queryClient = useQueryClient()
   // Another phone of the club may change the melee too: refresh when the server says so.
   useMeleeLive(data?.publicCode, () => void queryClient.invalidateQueries({ queryKey: meleeKey(meleeId) }))
 
   if (error) return <ErrorMessage error={error} />
   if (!data) return null
-
   // Results tapped without signal are shown at once, before the server confirms them.
-  const melee = withPending(data, pending)
+  return <MeleeScreen melee={withPending(data, pending)} />
+}
+
+function MeleeScreen({ melee }: { melee: MeleeView }) {
+  const { t } = useTranslation()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [sharing, setSharing] = useState(false)
+  const queryClient = useQueryClient()
+  // When this phone's countdown reaches 0 it also tells the server: one more trigger for the
+  // notifications (the server decides with its own clock).
+  const { countdown, overlay } = useMatchTimer(melee, () => {
+    meleeRequests.checkTimer(melee.id).then((view) => queryClient.setQueryData(meleeKey(melee.id), view)).catch(() => undefined)
+  })
+  // The admin's phone is the official alarm: its screen stays on while a countdown runs.
+  useWakeLock(countdown?.timer.state === 'RUNNING')
 
   const requested = searchParams.get('tab') as TabId | null
   const hasInternational = melee.international !== null
@@ -60,11 +75,13 @@ export function MeleePage() {
 
   // Only while the matches are being played: afterwards the figures no longer change.
   const showCounter = melee.counter.length > 0 && melee.status === 'MATCHES'
+  const showCountdown = melee.status === 'MATCHES' && showsTimer(countdown)
   // While collecting at the table, the payment summary takes the place of the counter.
   const showPayments = collectingPayments(melee)
+  const bottomSpace = showCounter && showCountdown ? 'pb-48' : showCounter || showCountdown || showPayments ? 'pb-28' : ''
 
   return (
-    <div className={showCounter || showPayments ? 'pb-28' : ''}>
+    <div className={bottomSpace}>
       <MeleeHeader melee={melee} />
       <Button variant="secondary" className="mb-4 w-full" onClick={() => setSharing(true)}>
         {t('share.button')}
@@ -86,8 +103,14 @@ export function MeleePage() {
         ]}
       />
       <MeleeOptions melee={melee} />
-      {showCounter && <CounterBar melee={melee} />}
+      {(showCounter || showCountdown) && (
+        <BottomBar>
+          {showCountdown && <TimerStrip countdown={countdown} />}
+          {showCounter && <CounterFigures melee={melee} />}
+        </BottomBar>
+      )}
       {showPayments && melee.payments && <PaymentSummary payments={melee.payments} fixed />}
+      {overlay}
     </div>
   )
 }

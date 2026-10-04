@@ -149,11 +149,11 @@ class SchemaConstraintsIntegrationTest {
     private long insertMelee(long clubId) {
         return jdbc.sql("""
                         insert into melee (club_id, played_on, format, team_size, status, public_code,
-                            rounds_count, prize_count, court_count, entry_fee_cents,
+                            rounds_count, prize_count, court_count, entry_fee_cents, match_minutes,
                             points_pointing_out, points_pointing_big_circle, points_pointing_small_circle,
                             points_pointing_near_jack, points_pointing_on_jack, points_shooting_miss,
                             points_shooting_hit, points_shooting_hit_out, points_shooting_carreau)
-                        values (?, current_date, 'CLASSIC', 2, 'MATCHES', ?, 3, 5, 10, 0, 0, 1, 2, 3, 5, 0, 1, 2, 5)
+                        values (?, current_date, 'CLASSIC', 2, 'MATCHES', ?, 3, 5, 10, 0, 45, 0, 1, 2, 3, 5, 0, 1, 2, 5)
                         returning id""")
                 .params(clubId, "TEST" + clubId)
                 .query(Long.class)

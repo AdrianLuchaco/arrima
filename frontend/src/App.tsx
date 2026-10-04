@@ -1,21 +1,26 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { ApiError } from './api/ApiError'
 import { startOutbox } from './offline/outbox'
 import { AuthLayout, SignedInOnly, SignedOutOnly } from './auth/routeGuards'
-import { ClubProfilePage } from './pages/ClubProfilePage'
-import { InternationalPage } from './international/InternationalPage'
-import { MeleePage } from './melee/MeleePage'
 import { LoginPage } from './pages/LoginPage'
-import { MeleesPage } from './pages/MeleesPage'
 import { NotFoundPage } from './pages/NotFoundPage'
-import { PrizesPage } from './prizes/PrizesPage'
-import { PublicMeleePage } from './public/PublicMeleePage'
 import { RegisterPage } from './pages/RegisterPage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { ServerGate } from './server/ServerGate'
 import { AppShell } from './ui/AppShell'
+import { LoadingScreen } from './components/LoadingScreen'
+
+// Each area downloads its own code: a player opening the QR does not wait for the admin's screens.
+// The service worker keeps every piece, so the app still opens without signal.
+const PublicMeleePage = lazy(() => import('./public/PublicMeleePage').then((module) => ({ default: module.PublicMeleePage })))
+const MeleesPage = lazy(() => import('./pages/MeleesPage').then((module) => ({ default: module.MeleesPage })))
+const ClubProfilePage = lazy(() => import('./pages/ClubProfilePage').then((module) => ({ default: module.ClubProfilePage })))
+const MeleePage = lazy(() => import('./melee/MeleePage').then((module) => ({ default: module.MeleePage })))
+const InternationalPage = lazy(() => import('./international/InternationalPage').then((module) => ({ default: module.InternationalPage })))
+const PrizesPage = lazy(() => import('./prizes/PrizesPage').then((module) => ({ default: module.PrizesPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +40,7 @@ export default function App() {
     <ServerGate>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
+          <Suspense fallback={<LoadingScreen title="" quiet />}>
           <Routes>
             <Route path="/m/:code" element={<PublicMeleePage />} />
             {/* Outside the session guards: the link from the e-mail works even with a session open. */}
@@ -57,6 +63,7 @@ export default function App() {
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </QueryClientProvider>
     </ServerGate>

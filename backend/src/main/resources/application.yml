@@ -65,3 +65,8 @@ arrima:
     sender-name: ${MAIL_SENDER_NAME:Arrima}
     # Public address of the frontend (https://...), for the links inside the e-mails.
     app-url: ${APP_URL:}
+  # Web Push (match timer notifications). Without keys the app works, just without notifications.
+  push:
+    vapid-public-key: ${VAPID_PUBLIC_KEY:}
+    vapid-private-key: ${VAPID_PRIVATE_KEY:}
+    subject: ${VAPID_SUBJECT:}

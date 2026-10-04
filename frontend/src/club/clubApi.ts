@@ -20,6 +20,7 @@ export interface ClubProfile {
   roundsCount: number
   prizeCount: number
   entryFeeCents: number
+  matchMinutes: number
   scoring: ScoringTable
 }
 
