@@ -88,4 +88,11 @@ final class MeleeRequests {
 
     record RecordThrow(@NotNull ThrowOutcome outcome) {
     }
+
+    record StartPrizes(Boolean confirmLosses) {
+
+        boolean confirmsLosses() {
+            return Boolean.TRUE.equals(confirmLosses);
+        }
+    }
 }

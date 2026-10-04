@@ -34,7 +34,8 @@ public record MeleeView(
         int maxRounds,
         List<Round> rounds,
         List<WinTarget> counter,
-        International international) {
+        International international,
+        List<PrizeView> prizes) {
 
     public record Settings(int courtCount, int roundsCount, int prizeCount) {
     }
@@ -110,5 +111,15 @@ public record MeleeView(
      * @param tieBreak the team's place was decided in a tie-break round
      */
     public record Ranked(int position, long teamId, Integer points, boolean tieBreak) {
+    }
+
+    /**
+     * @param points  la Internacional's points (first round), null if the team did not need to play
+     * @param awarded already handed out in the ceremony
+     */
+    public record PrizeView(long id, int position, long teamId, Integer points, boolean awarded, List<Photo> photos) {
+    }
+
+    public record Photo(long id, String url) {
     }
 }

@@ -15,6 +15,7 @@ import { ErrorMessage } from '../ui/ErrorMessage'
 import { SwipeTabs } from '../ui/SwipeTabs'
 import { MyTeamCard } from './MyTeamCard'
 import { PublicInternational } from './PublicInternational'
+import { PrizesTab } from '../prizes/PrizesTab'
 
 /** What players see with the code or the QR: everything, live, read-only, no account. */
 export function PublicMeleePage() {
@@ -46,8 +47,10 @@ export function PublicMeleePage() {
   if (!melee) return null
 
   const active = tab ?? (melee.status === 'REGISTRATION' ? 'jugadores' : melee.status === 'TEAMS' ? 'equipos'
+    : melee.prizes.length > 0 ? 'premios'
     : melee.status === 'MATCHES' || !melee.international ? 'pistas' : 'internacional')
-  const showCounter = melee.counter.length > 0 && melee.status !== 'CLOSED'
+  // Only while the matches are being played: afterwards the figures no longer change.
+  const showCounter = melee.counter.length > 0 && melee.status === 'MATCHES'
 
   return (
     <div className={`min-h-dvh ${showCounter ? 'pb-28' : ''}`}>
@@ -79,6 +82,7 @@ export function PublicMeleePage() {
             ...(melee.international
               ? [{ id: 'internacional', label: t('melee.tabs.international'), content: <PublicInternational melee={melee} /> }]
               : []),
+            ...(melee.prizes.length > 0 ? [{ id: 'premios', label: t('melee.tabs.prizes'), content: <PrizesTab melee={melee} /> }] : []),
           ]}
         />
       </main>

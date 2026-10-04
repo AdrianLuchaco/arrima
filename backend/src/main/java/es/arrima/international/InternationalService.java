@@ -87,14 +87,21 @@ public class InternationalService {
         return new InternationalState(plan, groups, turn, finalRanking, complete);
     }
 
-    /** Prize positions for the prize ceremony; only once every group is decided. */
+    /** The winners for the prize ceremony, with the points shown next to each name. */
     @Transactional(readOnly = true)
-    public List<RankedTeam> finalRanking(Melee melee) {
+    public List<PrizeWinner> prizeWinners(Melee melee) {
         InternationalState state = stateOf(melee);
         if (!state.complete()) {
             throw new ApiException(ErrorCode.INTERNATIONAL_INCOMPLETE);
         }
-        return state.finalRanking();
+        Map<Long, Integer> mainRoundPoints = new HashMap<>();
+        state.groups().forEach(group -> group.rounds().stream()
+                .filter(round -> round.round().getRoundNumber() == 1)
+                .forEach(round -> round.round().getTeams()
+                        .forEach(team -> mainRoundPoints.put(team.teamId(), round.pointsOf(team.teamId())))));
+        return state.finalRanking().stream()
+                .map(ranked -> new PrizeWinner(ranked.position(), ranked.teamId(), mainRoundPoints.get(ranked.teamId())))
+                .toList();
     }
 
     @Transactional(readOnly = true)

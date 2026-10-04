@@ -26,6 +26,7 @@ export function NextStepCard({ melee, onShowTab }: NextStepCardProps) {
       {melee.status === 'TEAMS' && <ScheduleStep melee={melee} onGenerated={() => onShowTab('pistas')} />}
       {melee.status === 'MATCHES' && <MatchesStep melee={melee} />}
       {melee.status === 'INTERNATIONAL' && <InternationalStep melee={melee} />}
+      {melee.status === 'PRIZES' && <PrizesStep melee={melee} />}
       {showDrum && <BomboOverlay melee={melee} onDone={() => { setShowDrum(false); onShowTab('equipos') }} />}
     </>
   )
@@ -172,12 +173,33 @@ function MatchesStep({ melee }: { melee: MeleeView }) {
 function InternationalStep({ melee }: { melee: MeleeView }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const startPrizes = useConfirmableAction(melee.id, (_: void, confirm) => meleeRequests.startPrizes(melee.id, confirm),
+    () => navigate(`/melees/${melee.id}/premios`))
   const complete = melee.international?.complete ?? false
   return (
     <StepCard>
       <p className="text-xl font-bold">{complete ? t('intl.done') : t('steps.international.inProgress')}</p>
+      {complete && (
+        <Button variant="accent" className="min-h-20 text-2xl" busy={startPrizes.isPending} onClick={() => startPrizes.run(undefined)}>
+          {t('steps.prizes.start')}
+        </Button>
+      )}
       <Button variant={complete ? 'secondary' : 'accent'} className="min-h-16 text-xl" onClick={() => navigate(`/melees/${melee.id}/internacional`)}>
         {t('steps.international.open')}
+      </Button>
+      <ErrorMessage error={startPrizes.error} />
+      {startPrizes.dialog}
+    </StepCard>
+  )
+}
+
+function PrizesStep({ melee }: { melee: MeleeView }) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  return (
+    <StepCard>
+      <Button variant="accent" className="min-h-20 text-2xl" onClick={() => navigate(`/melees/${melee.id}/premios`)}>
+        {t('steps.prizes.open')}
       </Button>
     </StepCard>
   )

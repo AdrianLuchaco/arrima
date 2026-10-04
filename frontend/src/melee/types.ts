@@ -40,6 +40,17 @@ export interface MeleeView {
   counter: WinTarget[]
   /** null until la Internacional starts. */
   international: International | null
+  prizes: Prize[]
+}
+
+export interface Prize {
+  id: number
+  position: number
+  teamId: number
+  /** La Internacional's points; null if the team did not need to play. */
+  points: number | null
+  awarded: boolean
+  photos: { id: number; url: string }[]
 }
 
 export type ThrowKind = 'POINTING' | 'SHOOTING'

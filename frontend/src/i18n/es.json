@@ -130,7 +130,8 @@
     "COURT_OCCUPIED": "Esa pista está ocupada en esta partida.",
     "RESULTS_MISSING": "Faltan resultados.",
     "TOO_MANY_VIEWERS": "Hay demasiada gente conectada. Lo volveremos a intentar.",
-    "INTERNATIONAL_INCOMPLETE": "La Internacional aún no ha terminado."
+    "INTERNATIONAL_INCOMPLETE": "La Internacional aún no ha terminado.",
+    "PHOTO_LIMIT": "Se ha llegado al máximo de fotos."
   },
   "fieldErrors": {
     "NotBlank": "Este campo es obligatorio.",
@@ -182,7 +183,8 @@
       "players": "Jugadores",
       "teams": "Equipos",
       "courts": "Pistas",
-      "international": "Internacional"
+      "international": "Internacional",
+      "prizes": "Premios"
     },
     "moreOptions": "Más opciones"
   },
@@ -327,6 +329,10 @@
       "start": "Iniciar la Internacional",
       "inProgress": "La Internacional está en juego.",
       "open": "Abrir la pantalla de la Internacional"
+    },
+    "prizes": {
+      "start": "Entrega de premios",
+      "open": "Ir a la entrega de premios"
     }
   },
   "settings": {
@@ -452,5 +458,28 @@
     "corrected": "corregida",
     "correctTo": "Corregir esta bola:",
     "nowPlaying": "Ahora juega"
+  },
+  "prizes": {
+    "title": "Entrega de premios",
+    "none": "No hay premios.",
+    "noneYet": "Aún no se ha entregado ningún premio.",
+    "position": "{{position}}.º premio",
+    "ordinal": "{{position}}.º",
+    "prize": "premio",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "takePhoto": "Hacer foto",
+    "takeAnother": "Hacer otra foto",
+    "photoAlt": "Foto del {{position}}.º premio",
+    "share": "Compartir en WhatsApp",
+    "shareFallback": "Este móvil no puede enviar la foto directamente: se ha descargado y se ha abierto WhatsApp con el texto. Adjunta la foto desde la galería.",
+    "deletePhoto": "Borrar foto",
+    "copyClassification": "Copiar la clasificación para WhatsApp",
+    "copied": "¡Clasificación copiada! Pégala en el grupo.",
+    "close": "Cerrar la melé",
+    "autoCloseHelp": "Si nadie toca nada en 20 minutos, la melé se cierra sola.",
+    "closeTitle": "¿Cerrar la melé?",
+    "closeConfirm": "Cerrar",
+    "closeExplanation": "Pasará al histórico y ya no se podrá cambiar nada (sí borrarla entera)."
   }
 }

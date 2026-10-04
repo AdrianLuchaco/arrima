@@ -4,6 +4,7 @@ import es.arrima.international.InternationalService;
 import es.arrima.melee.Melee;
 import es.arrima.melee.MeleeAccess;
 import es.arrima.melee.MeleeStatus;
+import es.arrima.prize.PrizeService;
 import es.arrima.schedule.ScheduleService;
 import es.arrima.shared.error.ApiException;
 import es.arrima.shared.error.ErrorCode;
@@ -23,13 +24,15 @@ public class MeleeWorkflow {
     private final TeamService teamService;
     private final ScheduleService scheduleService;
     private final InternationalService internationalService;
+    private final PrizeService prizeService;
 
     public MeleeWorkflow(MeleeAccess meleeAccess, TeamService teamService, ScheduleService scheduleService,
-            InternationalService internationalService) {
+            InternationalService internationalService, PrizeService prizeService) {
         this.meleeAccess = meleeAccess;
         this.teamService = teamService;
         this.scheduleService = scheduleService;
         this.internationalService = internationalService;
+        this.prizeService = prizeService;
     }
 
     /** New teams invalidate the schedule built on the old ones and everything after it. */
@@ -38,6 +41,7 @@ public class MeleeWorkflow {
         Melee melee = meleeAccess.forClub(meleeId, clubId);
         melee.requireStatus(MeleeStatus.REGISTRATION, MeleeStatus.TEAMS);
         requireConfirmationIfLosing(lossesFromScheduleOn(melee), confirmLosses);
+        prizeService.deleteAll(melee);
         internationalService.deleteAll(melee);
         scheduleService.deleteAll(melee);
         teamService.draw(melee, acceptDifferentTeam);
@@ -49,6 +53,7 @@ public class MeleeWorkflow {
         Melee melee = meleeAccess.forClub(meleeId, clubId);
         melee.requireStatus(MeleeStatus.TEAMS);
         requireConfirmationIfLosing(lossesFromScheduleOn(melee), confirmLosses);
+        prizeService.deleteAll(melee);
         internationalService.deleteAll(melee);
         scheduleService.generate(melee);
     }
@@ -65,8 +70,21 @@ public class MeleeWorkflow {
         internationalService.start(melee);
     }
 
+    /**
+     * "Entrega de premios". Started before and back to correct la Internacional? Teams that keep a
+     * prize keep their photos; the photos of teams that no longer have one are what would be lost.
+     */
+    @Transactional
+    public void startPrizes(long meleeId, long clubId, boolean confirmLosses) {
+        Melee melee = meleeAccess.forClub(meleeId, clubId);
+        melee.requireStatus(MeleeStatus.INTERNATIONAL);
+        requireConfirmationIfLosing(new Losses(0, 0, prizeService.photosLostIfStarted(melee)), confirmLosses);
+        prizeService.start(melee);
+    }
+
     private Losses lossesFromScheduleOn(Melee melee) {
-        return new Losses(scheduleService.decidedResults(melee.getId()), internationalService.ballThrowCount(melee.getId()), 0);
+        return new Losses(scheduleService.decidedResults(melee.getId()), internationalService.ballThrowCount(melee.getId()),
+                prizeService.photoCount(melee.getId()));
     }
 
     private static void requireConfirmationIfLosing(Losses losses, boolean confirmed) {

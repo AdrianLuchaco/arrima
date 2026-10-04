@@ -46,11 +46,13 @@ class MeleeController {
 
     @GetMapping
     List<MeleeSummary> list(@AuthenticationPrincipal AdminPrincipal admin) {
+        meleeService.closeIdleMelees(admin.clubId());
         return views.summaries(meleeService.listForClub(admin.clubId()));
     }
 
     @GetMapping("/{meleeId}")
     MeleeView get(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId) {
+        meleeService.closeIfIdle(meleeId, admin.clubId());
         return views.forAdmin(meleeId, admin.clubId());
     }
 

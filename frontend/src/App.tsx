@@ -9,6 +9,7 @@ import { MeleePage } from './melee/MeleePage'
 import { LoginPage } from './pages/LoginPage'
 import { MeleesPage } from './pages/MeleesPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { PrizesPage } from './prizes/PrizesPage'
 import { PublicMeleePage } from './public/PublicMeleePage'
 import { RegisterPage } from './pages/RegisterPage'
 import { ServerGate } from './server/ServerGate'
@@ -45,6 +46,7 @@ export default function App() {
                   <Route path="/club" element={<ClubProfilePage />} />
                   <Route path="/melees/:meleeId" element={<MeleePage />} />
                   <Route path="/melees/:meleeId/internacional" element={<InternationalPage />} />
+                  <Route path="/melees/:meleeId/premios" element={<PrizesPage />} />
                 </Route>
               </Route>
             </Route>

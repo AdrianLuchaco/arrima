@@ -34,6 +34,7 @@ public enum ErrorCode {
     RESULTS_MISSING(HttpStatus.CONFLICT),
     TOO_MANY_VIEWERS(HttpStatus.SERVICE_UNAVAILABLE),
     INTERNATIONAL_INCOMPLETE(HttpStatus.CONFLICT),
+    PHOTO_LIMIT(HttpStatus.CONFLICT),
 
     // Files
     INVALID_IMAGE(HttpStatus.BAD_REQUEST),

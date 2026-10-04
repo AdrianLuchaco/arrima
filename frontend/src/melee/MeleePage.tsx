@@ -11,6 +11,7 @@ import { withPending } from '../offline/withPending'
 import { CounterBar } from './Counter'
 import { CourtsTab } from './courts/CourtsTab'
 import { IntlBoard } from '../international/IntlBoard'
+import { PrizesTab } from '../prizes/PrizesTab'
 import { MeleeHeader, MeleeOptions } from './MeleeHeader'
 import { meleeKey, useMelee } from './meleeApi'
 import { NextStepCard } from './NextStepCard'
@@ -19,7 +20,7 @@ import { ShareDialog } from './ShareDialog'
 import { TeamsTab } from './teams/TeamsTab'
 import type { MeleeStatus } from './types'
 
-const TABS = ['jugadores', 'equipos', 'pistas', 'internacional'] as const
+const TABS = ['jugadores', 'equipos', 'pistas', 'internacional', 'premios'] as const
 type TabId = (typeof TABS)[number]
 
 /** The most useful tab for each phase, shown when nothing else was chosen. */
@@ -27,7 +28,8 @@ function defaultTab(status: MeleeStatus): TabId {
   if (status === 'REGISTRATION') return 'jugadores'
   if (status === 'TEAMS') return 'equipos'
   if (status === 'MATCHES') return 'pistas'
-  return 'internacional'
+  if (status === 'INTERNATIONAL') return 'internacional'
+  return 'premios'
 }
 
 export function MeleePage() {
@@ -49,10 +51,13 @@ export function MeleePage() {
 
   const requested = searchParams.get('tab') as TabId | null
   const hasInternational = melee.international !== null
+  const hasPrizes = melee.prizes.length > 0
   const fallback = defaultTab(melee.status)
-  const active = requested && TABS.includes(requested) ? requested : fallback === 'internacional' && !hasInternational ? 'pistas' : fallback
+  const available = (tab: TabId) => (tab === 'internacional' ? hasInternational : tab === 'premios' ? hasPrizes : true)
+  const active = requested && TABS.includes(requested) && available(requested) ? requested : available(fallback) ? fallback : 'pistas'
 
-  const showCounter = melee.counter.length > 0 && melee.status !== 'CLOSED'
+  // Only while the matches are being played: afterwards the figures no longer change.
+  const showCounter = melee.counter.length > 0 && melee.status === 'MATCHES'
 
   return (
     <div className={showCounter ? 'pb-28' : ''}>
@@ -73,6 +78,7 @@ export function MeleePage() {
           ...(hasInternational
             ? [{ id: 'internacional', label: t('melee.tabs.international'), content: <IntlBoard melee={melee} /> }]
             : []),
+          ...(hasPrizes ? [{ id: 'premios', label: t('melee.tabs.prizes'), content: <PrizesTab melee={melee} /> }] : []),
         ]}
       />
       <MeleeOptions melee={melee} />

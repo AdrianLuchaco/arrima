@@ -94,6 +94,17 @@ export const meleeRequests = {
     api<MeleeView>(`${base(meleeId)}/schedule/matchups/${matchId}/court`, { method: 'PUT', body: { courtNumber } }),
   startInternational: (meleeId: number, confirmLosses: boolean) =>
     api<MeleeView>(`${base(meleeId)}/international/start`, { method: 'POST', body: { confirmLosses } }),
+  startPrizes: (meleeId: number, confirmLosses: boolean) =>
+    api<MeleeView>(`${base(meleeId)}/prizes/start`, { method: 'POST', body: { confirmLosses } }),
+  markAwarded: (meleeId: number, prizeId: number) =>
+    api<MeleeView>(`${base(meleeId)}/prizes/${prizeId}/awarded`, { method: 'POST' }),
+  uploadPhoto: (meleeId: number, prizeId: number, photo: Blob) => {
+    const form = new FormData()
+    form.append('file', photo, 'foto.jpg')
+    return api<MeleeView>(`${base(meleeId)}/prizes/${prizeId}/photos`, { method: 'POST', body: form })
+  },
+  deletePhoto: (meleeId: number, prizeId: number, photoId: number) =>
+    api<MeleeView>(`${base(meleeId)}/prizes/${prizeId}/photos/${photoId}`, { method: 'DELETE' }),
   goBack: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/back`, { method: 'POST' }),
   close: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/close`, { method: 'POST' }),
 }

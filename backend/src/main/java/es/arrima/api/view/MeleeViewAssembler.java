@@ -5,6 +5,9 @@ import es.arrima.club.ClubService;
 import es.arrima.club.ScoringTableDto;
 import es.arrima.files.FileLinkSigner;
 import es.arrima.international.InternationalService;
+import es.arrima.prize.Prize;
+import es.arrima.prize.PrizePhoto;
+import es.arrima.prize.PrizeService;
 import es.arrima.melee.Melee;
 import es.arrima.melee.MeleeAccess;
 import es.arrima.melee.MeleeRepository;
@@ -44,12 +47,13 @@ public class MeleeViewAssembler {
     private final TeamService teamService;
     private final ScheduleService scheduleService;
     private final InternationalService internationalService;
+    private final PrizeService prizeService;
     private final FileLinkSigner fileLinkSigner;
 
     public MeleeViewAssembler(MeleeAccess meleeAccess, MeleeRepository meleeRepository, ClubService clubService,
             ParticipantService participantService, ParticipantRepository participantRepository,
             TeamService teamService, ScheduleService scheduleService, InternationalService internationalService,
-            FileLinkSigner fileLinkSigner) {
+            PrizeService prizeService, FileLinkSigner fileLinkSigner) {
         this.meleeAccess = meleeAccess;
         this.meleeRepository = meleeRepository;
         this.clubService = clubService;
@@ -58,6 +62,7 @@ public class MeleeViewAssembler {
         this.teamService = teamService;
         this.scheduleService = scheduleService;
         this.internationalService = internationalService;
+        this.prizeService = prizeService;
         this.fileLinkSigner = fileLinkSigner;
     }
 
@@ -101,7 +106,30 @@ public class MeleeViewAssembler {
                                 .map(target -> new MeleeView.WinTarget(target.wins(), target.reached(), target.canReach()))
                                 .toList()
                         : List.of(),
-                internationalView(melee, audience, teams));
+                internationalView(melee, audience, teams),
+                prizeViews(melee, audience));
+    }
+
+    /**
+     * The admin sees every prize. Spectators see them from the ceremony on, one by one as they are
+     * handed out, and all of them once the melee is closed.
+     */
+    private List<MeleeView.PrizeView> prizeViews(Melee melee, Audience audience) {
+        if (!shows(audience, melee, MeleeStatus.PRIZES)) {
+            return List.of();
+        }
+        boolean onlyAwarded = audience == Audience.PUBLIC && melee.getStatus() == MeleeStatus.PRIZES;
+        List<Prize> prizes = prizeService.prizesOf(melee.getId()).stream()
+                .filter(prize -> !onlyAwarded || prize.isAwarded())
+                .toList();
+        Map<Long, List<PrizePhoto>> photos = prizeService.photosOf(prizes);
+        return prizes.stream()
+                .map(prize -> new MeleeView.PrizeView(prize.getId(), prize.getPosition(), prize.getTeamId(),
+                        prize.getInternationalPoints(), prize.isAwarded(),
+                        photos.getOrDefault(prize.getId(), List.of()).stream()
+                                .map(photo -> new MeleeView.Photo(photo.getId(), fileLinkSigner.link(photo.getStoragePath())))
+                                .toList()))
+                .toList();
     }
 
     /** Shown from the moment it starts; the admin also sees it while back in an earlier phase. */

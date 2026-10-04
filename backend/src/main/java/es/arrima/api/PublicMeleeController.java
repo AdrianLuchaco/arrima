@@ -7,6 +7,7 @@ import es.arrima.live.MeleeEventBroadcaster;
 import es.arrima.melee.Melee;
 import es.arrima.melee.MeleeAccess;
 import es.arrima.melee.MeleeRepository;
+import es.arrima.melee.MeleeService;
 import es.arrima.shared.error.ApiException;
 import es.arrima.shared.ratelimit.RateLimitPolicy;
 import es.arrima.shared.ratelimit.RateLimiter;
@@ -39,14 +40,16 @@ class PublicMeleeController {
     private final MeleeViewAssembler views;
     private final MeleeEventBroadcaster broadcaster;
     private final RateLimiter rateLimiter;
+    private final MeleeService meleeService;
 
     PublicMeleeController(MeleeAccess meleeAccess, MeleeRepository meleeRepository, MeleeViewAssembler views,
-            MeleeEventBroadcaster broadcaster, RateLimiter rateLimiter) {
+            MeleeEventBroadcaster broadcaster, RateLimiter rateLimiter, MeleeService meleeService) {
         this.meleeAccess = meleeAccess;
         this.meleeRepository = meleeRepository;
         this.views = views;
         this.broadcaster = broadcaster;
         this.rateLimiter = rateLimiter;
+        this.meleeService = meleeService;
     }
 
     /**
@@ -55,6 +58,7 @@ class PublicMeleeController {
      */
     @GetMapping
     ResponseEntity<MeleeView> view(@PathVariable String code, HttpServletRequest http, WebRequest request) {
+        meleeService.closeIfIdle(lookUp(code, http).getId());
         Melee melee = lookUp(code, http);
         String etag = "\"r" + meleeRepository.findRevision(melee.getId()) + "\"";
         if (request.checkNotModified(etag)) {

@@ -19,16 +19,11 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 /**
- * Phase 6 through the API. Four doublettes and three rounds: everyone meets everyone. Results are
- * chosen so that teams 1 and 2 end with 2 wins and teams 3 and 4 with 1; with 5 prizes both pairs
- * play: first the 1-win group (prizes 3rd-4th), then the 2-win group (1st-2nd).
+ * Phase 6 through the API, on TestMelees.fourTeamsWithTies: teams 1 and 2 have 2 wins, teams 3 and 4
+ * have 1; with 5 prizes both pairs play: first the 1-win group (3rd-4th), then the 2-win one (1st-2nd).
  */
 @IntegrationTest
 class InternationalIntegrationTest {
-
-    /** Winner of each pairing of team numbers ("1-2" means team 1 against team 2). */
-    private static final Map<String, Integer> WINNERS = Map.of(
-            "1-2", 1, "1-3", 3, "1-4", 1, "2-3", 2, "2-4", 2, "3-4", 4);
 
     @Autowired
     private MockMvcTester mvc;
@@ -45,27 +40,9 @@ class InternationalIntegrationTest {
     void playTheMatches() {
         melees = new TestMelees(mvc);
         club = new TestClubs(mvc, invitations).register("Club Internacional");
-        meleeId = melees.create(club, 2);
-        melees.signUp(club, meleeId, 8);
-        melees.send(club, "POST", "/api/melees/%d/teams/draw".formatted(meleeId), "{}");
-        MvcTestResult schedule = melees.send(club, "POST", "/api/melees/%d/schedule/generate".formatted(meleeId), "{}");
-
-        List<Map<String, Object>> teams = json(schedule, "$.teams");
-        Map<Long, Integer> numberOf = new HashMap<>();
-        teams.forEach(team -> {
-            long id = ((Number) team.get("id")).longValue();
-            int number = (Integer) team.get("number");
-            numberOf.put(id, number);
-            teamIdOf.put(number, id);
-        });
-        List<Map<String, Object>> matches = json(schedule, "$.rounds[*].matches[*]");
-        for (Map<String, Object> match : matches) {
-            int a = numberOf.get(((Number) match.get("teamAId")).longValue());
-            int b = numberOf.get(((Number) match.get("teamBId")).longValue());
-            int winner = WINNERS.get(Math.min(a, b) + "-" + Math.max(a, b));
-            melees.send(club, "PUT", "/api/melees/%d/schedule/matchups/%s/winner".formatted(meleeId, match.get("id")),
-                    "{\"winnerTeamId\":%d}".formatted(teamIdOf.get(winner)));
-        }
+        TestMelees.ScenarioMelee scenario = melees.fourTeamsWithTies(club, 5);
+        meleeId = scenario.meleeId();
+        teamIdOf.putAll(scenario.teamIdOf());
     }
 
     @Test
@@ -215,21 +192,12 @@ class InternationalIntegrationTest {
                 "{\"confirmLosses\":%s}".formatted(confirmLosses));
     }
 
-    /** Three pointing balls with one outcome and three shooting balls with another. */
     private MvcTestResult throwSix(long roundId, int teamNumber, String pointing, String shooting) {
-        MvcTestResult last = null;
-        for (int ball = 1; ball <= 3; ball++) {
-            last = throwBall(roundId, teamNumber, "POINTING", ball, pointing);
-        }
-        for (int ball = 1; ball <= 3; ball++) {
-            last = throwBall(roundId, teamNumber, "SHOOTING", ball, shooting);
-        }
-        return last;
+        return melees.throwSix(club, meleeId, roundId, teamIdOf.get(teamNumber), pointing, shooting);
     }
 
     private MvcTestResult throwBall(long roundId, int teamNumber, String kind, int ball, String outcome) {
-        return melees.send(club, "PUT", "/api/melees/%d/international/rounds/%d/teams/%d/throws/%s/%d"
-                .formatted(meleeId, roundId, teamIdOf.get(teamNumber), kind, ball), "{\"outcome\":\"%s\"}".formatted(outcome));
+        return melees.throwBall(club, meleeId, roundId, teamIdOf.get(teamNumber), kind, ball, outcome);
     }
 
     private static long roundId(MvcTestResult result, int group, int round) {

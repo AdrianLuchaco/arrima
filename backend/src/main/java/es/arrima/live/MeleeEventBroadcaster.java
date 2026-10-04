@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -62,6 +64,16 @@ public class MeleeEventBroadcaster {
     public void heartbeat() {
         emittersByMelee.forEach((meleeId, emitters) ->
                 emitters.forEach(emitter -> send(meleeId, emitter, SseEmitter.event().comment("ping"))));
+    }
+
+    /**
+     * On shutdown (a redeploy), the graceful shutdown waits up to 30 seconds for the requests in
+     * progress, and these connections never end by themselves. Closing them lets the old instance
+     * stop at once; the browsers reconnect to the new one.
+     */
+    @EventListener(ContextClosedEvent.class)
+    public void closeAllOnShutdown() {
+        emittersByMelee.values().forEach(emitters -> emitters.forEach(SseEmitter::complete));
     }
 
     int connectionCount() {
