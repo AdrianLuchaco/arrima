@@ -7,15 +7,10 @@ import { STATUS_ORDER, type MeleeView } from './types'
 import { Button } from '../ui/Button'
 import { ConfirmDialog } from '../ui/ConfirmDialog'
 
-/** Date, format, the six phases (current one highlighted) and the less frequent actions. */
+/** Date, format and the six phases, with the current one highlighted. */
 export function MeleeHeader({ melee }: { melee: MeleeView }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const goBack = useMeleeAction(melee.id, () => meleeRequests.goBack(melee.id))
-  const remove = useDeleteMelee()
-  const [confirming, setConfirming] = useState<'back' | 'delete' | null>(null)
   const current = STATUS_ORDER.indexOf(melee.status)
-  const canGoBack = melee.status !== 'REGISTRATION' && melee.status !== 'CLOSED'
 
   return (
     <header className="mb-4 flex flex-col gap-3">
@@ -41,8 +36,24 @@ export function MeleeHeader({ melee }: { melee: MeleeView }) {
       <p className="text-lg font-bold">
         {t('melee.phaseOf', { number: current + 1, total: STATUS_ORDER.length, name: t(`melee.status.${melee.status}`) })}
       </p>
+    </header>
+  )
+}
 
-      <div className="flex flex-wrap gap-2">
+/** Less frequent actions, at the bottom of the page, out of the way during the melee. */
+export function MeleeOptions({ melee }: { melee: MeleeView }) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const goBack = useMeleeAction(melee.id, () => meleeRequests.goBack(melee.id))
+  const remove = useDeleteMelee()
+  const [confirming, setConfirming] = useState<'back' | 'delete' | null>(null)
+  const current = STATUS_ORDER.indexOf(melee.status)
+  const canGoBack = melee.status !== 'REGISTRATION' && melee.status !== 'CLOSED'
+
+  return (
+    <details className="mt-8 rounded-2xl border-2 border-gravel-300 bg-white p-4">
+      <summary className="cursor-pointer text-lg font-bold">{t('melee.moreOptions')}</summary>
+      <div className="mt-4 flex flex-wrap gap-2">
         {canGoBack && (
           <Button variant="secondary" onClick={() => setConfirming('back')}>
             {t('melee.back.button', { phase: t(`melee.status.${STATUS_ORDER[current - 1]}`) })}
@@ -77,6 +88,6 @@ export function MeleeHeader({ melee }: { melee: MeleeView }) {
       >
         <p>{t('melee.delete.explanation')}</p>
       </ConfirmDialog>
-    </header>
+    </details>
   )
 }

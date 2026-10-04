@@ -120,7 +120,15 @@
     "IMAGE_TOO_LARGE": "La imagen es demasiado grande.",
     "INVALID_STATE": "Eso no se puede hacer en esta fase de la melé.",
     "CONFIRMATION_REQUIRED": "Hace falta confirmarlo.",
-    "PARTICIPANT_LIMIT": "Se ha llegado al máximo de jugadores de una melé."
+    "PARTICIPANT_LIMIT": "Se ha llegado al máximo de jugadores de una melé.",
+    "NOT_ENOUGH_PLAYERS": "Hacen falta más jugadores activos para formar al menos dos equipos.",
+    "TEAMS_DO_NOT_FIT": "Los jugadores no cuadran: elige qué hacer.",
+    "TEAMS_INCOMPLETE": "Hay equipos sin nadie para jugar.",
+    "TOO_MANY_ROUNDS": "Hay más partidas de las posibles para estos equipos.",
+    "NO_TEAMS": "Aún no hay equipos.",
+    "NO_SCHEDULE": "Aún no hay cuadro de pistas.",
+    "COURT_OCCUPIED": "Esa pista está ocupada en esta partida.",
+    "RESULTS_MISSING": "Faltan resultados."
   },
   "fieldErrors": {
     "NotBlank": "Este campo es obligatorio.",
@@ -132,7 +140,10 @@
     "TooShort": "Debe tener al menos 10 caracteres.",
     "TooLong": "Es demasiado larga.",
     "Invalid": "No es válido.",
-    "Range": "El número no es válido."
+    "Range": "El número no es válido.",
+    "NotInMatch": "Ese equipo no juega este enfrentamiento.",
+    "SameTeam": "Los dos jugadores son del mismo equipo.",
+    "NotAvailable": "Ese jugador no está libre."
   },
   "melee": {
     "classic": "Melé clásica",
@@ -168,7 +179,8 @@
       "players": "Jugadores",
       "teams": "Equipos",
       "courts": "Pistas"
-    }
+    },
+    "moreOptions": "Más opciones"
   },
   "players": {
     "empty": "Aún no hay nadie apuntado. Pega la lista de WhatsApp o añade jugadores a mano.",
@@ -221,9 +233,114 @@
     }
   },
   "teams": {
-    "none": "Aún no hay equipos."
+    "none": "Aún no hay equipos.",
+    "teamNumber": "Equipo {{number}}",
+    "short": "Eq.",
+    "players": "Jugadores",
+    "roundShort": "P{{number}}",
+    "total": "Total",
+    "bye": "descanso",
+    "courtShort": "P{{number}}",
+    "waitingShort": "Espera",
+    "versus": "vs {{number}}",
+    "swap": {
+      "start": "Intercambiar jugadores",
+      "stop": "Terminar de intercambiar",
+      "pickFirst": "Toca al primer jugador.",
+      "pickSecond": "Ahora toca al jugador de otro equipo con el que se cambia.",
+      "confirmTitle": "¿Intercambiar jugadores?",
+      "confirm": "Intercambiar",
+      "explanation": "{{first}} pasa del equipo {{firstTeam}} al {{secondTeam}}, y {{second}} del {{secondTeam}} al {{firstTeam}}."
+    },
+    "substitute": {
+      "button": "Sustituir",
+      "forPlayer": "Sustituir a {{name}}",
+      "title": "¿Quién sustituye a {{name}}?",
+      "nobody": "No hay ningún jugador libre. Añade al sustituto en la pestaña Jugadores y vuelve aquí."
+    },
+    "issues": {
+      "unassigned": "Sin equipo: {{names}}. Haz una sustitución o repite el sorteo.",
+      "withdrawn": "Dados de baja que siguen en un equipo: {{names}}.",
+      "empty": "Equipos sin nadie para jugar: {{teams}}. Sustituye a sus jugadores o repite el sorteo."
+    }
   },
   "courts": {
-    "none": "Aún no hay cuadro de pistas."
+    "none": "Aún no hay cuadro de pistas.",
+    "round": "Partida",
+    "roundNumber": "Partida {{number}}",
+    "court": "Pista {{number}}",
+    "bye": "Descansa",
+    "waiting": "En espera",
+    "matchLabel": "Equipo {{a}} contra equipo {{b}}",
+    "pending_one": "Falta {{count}} resultado.",
+    "pending_other": "Faltan {{count}} resultados.",
+    "allDone": "Están todos los resultados."
+  },
+  "counter": {
+    "label": "Contador de victorias",
+    "wins_one": "Con {{count}} victoria",
+    "wins_other": "Con {{count}} victorias",
+    "canReach_one": "+{{count}} puede llegar",
+    "canReach_other": "+{{count}} pueden llegar"
+  },
+  "result": {
+    "titleCourt": "Partida {{round}} · Pista {{court}}",
+    "titleWaiting": "Partida {{round}} · En espera",
+    "question": "¿Quién ha ganado?",
+    "readOnly": "Equipos de esta partida:",
+    "won": "Ganó",
+    "clear": "Borrar el resultado",
+    "assignCourt": "Asignar pista cuando quede una libre:"
+  },
+  "bombo": {
+    "label": "Sorteo de equipos",
+    "drawing": "Sorteando…",
+    "skip": "Saltar",
+    "close": "Ver los equipos"
+  },
+  "steps": {
+    "draw": {
+      "button": "Generar equipos",
+      "redraw": "Volver a sortear",
+      "previousTeams": "Hay equipos de antes. Puedes seguir con ellos o sortear de nuevo.",
+      "resume": "Seguir con los equipos de antes",
+      "notEnough": "Hacen falta más jugadores activos para formar al menos dos equipos.",
+      "doesNotFitTitle": "Los jugadores no cuadran",
+      "differentTeam": "Hacer un equipo distinto: {{teams}}",
+      "withdrawSomeone": "Dar de baja a un jugador",
+      "addSomeone": "Añadir jugadores"
+    },
+    "schedule": {
+      "button": "Generar cuadro de pistas",
+      "regenerate": "Generar un cuadro nuevo",
+      "previous": "Hay un cuadro de pistas de antes. Puedes seguir con él (con sus resultados) o generar otro.",
+      "resume": "Seguir con el cuadro de antes"
+    },
+    "matches": {
+      "allDone": "¡Están todos los resultados!"
+    }
+  },
+  "settings": {
+    "title": "Partidas, premios y pistas",
+    "button": "Ajustar: {{roundsCount}} partidas · {{prizeCount}} premios · {{courtCount}} pistas",
+    "tooManyRounds": "Con {{teams}} equipos caben como mucho {{max}} partidas sin repetir rival. Baja el número de partidas."
+  },
+  "losses": {
+    "title": "Se va a perder trabajo",
+    "intro": "Si sigues, se borrará:",
+    "results_one": "{{count}} resultado",
+    "results_other": "{{count}} resultados",
+    "ballThrows_one": "{{count}} lanzamiento de la Internacional",
+    "ballThrows_other": "{{count}} lanzamientos de la Internacional",
+    "photos_one": "{{count}} foto",
+    "photos_other": "{{count}} fotos",
+    "confirm": "Sí, borrar y seguir"
+  },
+  "connection": {
+    "offline": "Sin conexión",
+    "sending": "Enviando…",
+    "pending_one": "{{count}} cambio guardado en el móvil, se enviará solo",
+    "pending_other": "{{count}} cambios guardados en el móvil, se enviarán solos",
+    "rejected": "Un cambio no se ha podido guardar: {{reason}}"
   }
 }

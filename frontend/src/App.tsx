@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { ApiError } from './api/ApiError'
+import { startOutbox } from './offline/outbox'
 import { AuthLayout, SignedInOnly, SignedOutOnly } from './auth/routeGuards'
 import { ClubProfilePage } from './pages/ClubProfilePage'
 import { MeleePage } from './melee/MeleePage'
@@ -20,6 +21,9 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+// Sends whatever results were left unsent last time the app was open.
+startOutbox(queryClient)
 
 export default function App() {
   return (

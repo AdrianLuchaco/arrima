@@ -135,8 +135,10 @@ create table team (
 -- The team size is the number of members, so the odd-sized team needs no special column.
 create table team_member (
     team_id         bigint not null references team (id) on delete cascade,
-    participant_id  bigint not null unique references participant (id) on delete cascade,
-    primary key (team_id, participant_id)
+    participant_id  bigint not null references participant (id) on delete cascade,
+    primary key (team_id, participant_id),
+    -- A player is in one team at most. Checked at commit, so two players can swap teams.
+    constraint team_member_one_team unique (participant_id) deferrable initially deferred
 );
 
 -- ---------------------------------------------------------------------------

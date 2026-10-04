@@ -45,4 +45,36 @@ final class MeleeRequests {
 
     record ImportParticipants(@NotNull @Size(max = 300) List<@Valid @NotNull ParticipantData> participants) {
     }
+
+    /** Optional flags: missing means false (Jackson 3 would otherwise reject a missing primitive). */
+    record DrawTeams(Boolean acceptDifferentTeam, Boolean confirmLosses) {
+
+        boolean acceptsDifferentTeam() {
+            return Boolean.TRUE.equals(acceptDifferentTeam);
+        }
+
+        boolean confirmsLosses() {
+            return Boolean.TRUE.equals(confirmLosses);
+        }
+    }
+
+    record SwapPlayers(@NotNull Long firstPlayerId, @NotNull Long secondPlayerId) {
+    }
+
+    record Substitute(@NotNull Long leavingPlayerId, @NotNull Long joiningPlayerId) {
+    }
+
+    record GenerateSchedule(Boolean confirmLosses) {
+
+        boolean confirmsLosses() {
+            return Boolean.TRUE.equals(confirmLosses);
+        }
+    }
+
+    /** null winner clears the result. */
+    record SetWinner(Long winnerTeamId) {
+    }
+
+    record AssignCourt(@NotNull @Min(1) @Max(MeleeSettings.MAX_COURTS) Integer courtNumber) {
+    }
 }

@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../auth/AuthContext'
 import { useClubProfile } from '../club/clubApi'
+import { ConnectionBadge } from './ConnectionBadge'
 
 /** Admin area frame: the club's logo and name always at the top, as on the club's paper sheet. */
 export function AppShell() {
@@ -38,6 +39,7 @@ export function AppShell() {
           </nav>
         </div>
       </header>
+      <ConnectionBadge />
       <main className="mx-auto max-w-4xl px-4 py-6">
         <Outlet />
       </main>

@@ -10,8 +10,18 @@ import es.arrima.melee.MeleeRepository;
 import es.arrima.participant.Participant;
 import es.arrima.participant.ParticipantRepository;
 import es.arrima.participant.ParticipantService;
+import es.arrima.schedule.Bye;
+import es.arrima.schedule.Matchup;
+import es.arrima.schedule.Schedule;
+import es.arrima.schedule.ScheduleService;
+import es.arrima.schedule.domain.ScheduleLimits;
+import es.arrima.schedule.domain.TeamRecord;
+import es.arrima.team.Team;
+import es.arrima.team.TeamIssues;
+import es.arrima.team.TeamService;
 import es.arrima.team.domain.TeamPlan;
 import es.arrima.team.domain.TeamSizePlanner;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -29,16 +39,20 @@ public class MeleeViewAssembler {
     private final ClubService clubService;
     private final ParticipantService participantService;
     private final ParticipantRepository participantRepository;
+    private final TeamService teamService;
+    private final ScheduleService scheduleService;
     private final FileLinkSigner fileLinkSigner;
 
     public MeleeViewAssembler(MeleeAccess meleeAccess, MeleeRepository meleeRepository, ClubService clubService,
             ParticipantService participantService, ParticipantRepository participantRepository,
-            FileLinkSigner fileLinkSigner) {
+            TeamService teamService, ScheduleService scheduleService, FileLinkSigner fileLinkSigner) {
         this.meleeAccess = meleeAccess;
         this.meleeRepository = meleeRepository;
         this.clubService = clubService;
         this.participantService = participantService;
         this.participantRepository = participantRepository;
+        this.teamService = teamService;
+        this.scheduleService = scheduleService;
         this.fileLinkSigner = fileLinkSigner;
     }
 
@@ -52,6 +66,10 @@ public class MeleeViewAssembler {
         Club club = clubService.getClub(melee.getClubId());
         List<Participant> participants = participantService.listForMelee(melee.getId());
         int activePlayers = (int) participants.stream().filter(Participant::isActive).count();
+        List<Team> teams = teamService.teamsOf(melee.getId());
+        List<Long> teamIds = teams.stream().map(Team::getId).toList();
+        Schedule schedule = scheduleService.scheduleOf(melee.getId());
+        int rounds = melee.getSettings().roundsCount();
 
         return new MeleeView(
                 melee.getId(),
@@ -66,7 +84,53 @@ public class MeleeViewAssembler {
                 ScoringTableDto.from(melee.getScoring()),
                 new MeleeView.Club(club.getName(), fileLinkSigner.link(club.getLogoPath())),
                 participants.stream().map(MeleeViewAssembler::toView).toList(),
-                toView(TeamSizePlanner.plan(activePlayers, melee.getTeamSize())));
+                toView(TeamSizePlanner.plan(activePlayers, melee.getTeamSize())),
+                teamViews(teams, schedule.records(teamIds)),
+                toView(teamService.issues(teams, participants)),
+                ScheduleLimits.maxRounds(teams.size()),
+                roundViews(schedule, rounds),
+                schedule.exists()
+                        ? schedule.counter(teamIds, rounds).stream()
+                                .map(target -> new MeleeView.WinTarget(target.wins(), target.reached(), target.canReach()))
+                                .toList()
+                        : List.of());
+    }
+
+    private static List<MeleeView.Team> teamViews(List<Team> teams, List<TeamRecord> records) {
+        Map<Long, TeamRecord> recordOf = records.stream().collect(Collectors.toMap(TeamRecord::teamId, Function.identity()));
+        return teams.stream().map(team -> {
+            TeamRecord record = recordOf.get(team.getId());
+            return new MeleeView.Team(team.getId(), team.getNumber(), team.getMemberIds().stream().sorted().toList(),
+                    record.wins(), record.losses(), record.pending());
+        }).toList();
+    }
+
+    private static List<MeleeView.Round> roundViews(Schedule schedule, int rounds) {
+        if (!schedule.exists()) {
+            return List.of();
+        }
+        List<MeleeView.Round> views = new ArrayList<>();
+        for (int round = 1; round <= rounds; round++) {
+            int number = round;
+            List<MeleeView.Match> matches = schedule.matchups().stream()
+                    .filter(matchup -> matchup.getRoundNumber() == number)
+                    .map(MeleeViewAssembler::toView)
+                    .toList();
+            Long byeTeam = schedule.byes().stream().filter(bye -> bye.getRoundNumber() == number)
+                    .map(Bye::getTeamId).findFirst().orElse(null);
+            views.add(new MeleeView.Round(number, matches, byeTeam));
+        }
+        return views;
+    }
+
+    private static MeleeView.Match toView(Matchup matchup) {
+        return new MeleeView.Match(matchup.getId(), matchup.getTeamAId(), matchup.getTeamBId(),
+                matchup.getCourtNumber(), matchup.getWinnerTeamId());
+    }
+
+    private static MeleeView.TeamIssues toView(TeamIssues issues) {
+        return new MeleeView.TeamIssues(issues.unassignedPlayers(), issues.withdrawnMembers(),
+                issues.teamsWithoutActivePlayers());
     }
 
     @Transactional(readOnly = true)

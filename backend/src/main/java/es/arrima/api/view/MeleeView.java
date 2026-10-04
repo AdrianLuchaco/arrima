@@ -25,7 +25,12 @@ public record MeleeView(
         ScoringTableDto scoring,
         Club club,
         List<Participant> participants,
-        TeamPlan teamPlan) {
+        TeamPlan teamPlan,
+        List<Team> teams,
+        TeamIssues teamIssues,
+        int maxRounds,
+        List<Round> rounds,
+        List<WinTarget> counter) {
 
     public record Settings(int courtCount, int roundsCount, int prizeCount) {
     }
@@ -42,5 +47,24 @@ public record MeleeView(
      * @param teamsBySize e.g. {2: 11, 3: 1} for 25 players in doublettes
      */
     public record TeamPlan(int activePlayers, boolean fits, boolean playable, int teamCount, Map<Integer, Long> teamsBySize) {
+    }
+
+    /** @param wins includes the bye, which counts as a win */
+    public record Team(long id, int number, List<Long> memberIds, int wins, int losses, int pending) {
+    }
+
+    public record TeamIssues(List<Long> unassignedPlayers, List<Long> withdrawnMembers, List<Integer> teamsWithoutActivePlayers) {
+    }
+
+    /** @param byeTeamId the team that rests this round, or null */
+    public record Round(int number, List<Match> matches, Long byeTeamId) {
+    }
+
+    /** @param courtNumber null while waiting for a court; @param winnerTeamId null until decided */
+    public record Match(long id, long teamAId, long teamBId, Integer courtNumber, Long winnerTeamId) {
+    }
+
+    /** "4 wins: 2 teams, 5 more can reach it". */
+    public record WinTarget(int wins, long reached, long canReach) {
     }
 }

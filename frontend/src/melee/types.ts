@@ -33,6 +33,48 @@ export interface MeleeView {
   club: { name: string; logoUrl: string | null }
   participants: Participant[]
   teamPlan: TeamPlan
+  teams: Team[]
+  teamIssues: TeamIssues
+  maxRounds: number
+  rounds: Round[]
+  counter: WinTarget[]
+}
+
+export interface Team {
+  id: number
+  number: number
+  memberIds: number[]
+  /** Includes the bye, which counts as a win. */
+  wins: number
+  losses: number
+  pending: number
+}
+
+export interface TeamIssues {
+  unassignedPlayers: number[]
+  withdrawnMembers: number[]
+  teamsWithoutActivePlayers: number[]
+}
+
+export interface Match {
+  id: number
+  teamAId: number
+  teamBId: number
+  /** null while waiting for a free court. */
+  courtNumber: number | null
+  winnerTeamId: number | null
+}
+
+export interface Round {
+  number: number
+  matches: Match[]
+  byeTeamId: number | null
+}
+
+export interface WinTarget {
+  wins: number
+  reached: number
+  canReach: number
 }
 
 export interface MeleeSummary {
