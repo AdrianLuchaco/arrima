@@ -35,6 +35,17 @@
   body {
     @apply bg-gravel-50 font-sans text-steel-900 antialiased;
   }
+
+  /* Number fields come with their own − and + buttons: the browser's tiny arrows only get in the way. */
+  input[type='number'] {
+    appearance: textfield;
+  }
+
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }
 
 /* Loading screen: steel balls rolling up to the jack ("arrimar"). */

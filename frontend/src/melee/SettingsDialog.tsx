@@ -20,7 +20,19 @@ export function SettingsDialog({ melee, onClose }: { melee: MeleeView; onClose: 
   const set = (field: keyof typeof settings) => (value: number) => setSettings({ ...settings, [field]: value })
 
   return (
-    <Dialog open onClose={onClose} title={t('settings.title')}>
+    <Dialog
+      open
+      onClose={onClose}
+      title={t('settings.title')}
+      footer={
+        <div className="flex flex-col gap-3">
+          <ErrorMessage error={save.error} />
+          <Button className="w-full" busy={save.isPending} onClick={() => save.mutate(undefined, { onSuccess: onClose })}>
+            {t('common.save')}
+          </Button>
+        </div>
+      }
+    >
       <div className="flex flex-col gap-5">
         <NumberStepper label={t('club.profile.rounds')} value={settings.roundsCount} min={1} max={20} onChange={set('roundsCount')} />
         {melee.teams.length > 1 && settings.roundsCount > melee.maxRounds && (
@@ -37,10 +49,6 @@ export function SettingsDialog({ melee, onClose }: { melee: MeleeView; onClose: 
           disabled={melee.status !== 'REGISTRATION'}
           help={melee.status === 'REGISTRATION' ? t('club.profile.feeHelp') : t('settings.feeLocked')}
         />
-        <ErrorMessage error={save.error} />
-        <Button busy={save.isPending} onClick={() => save.mutate(undefined, { onSuccess: onClose })}>
-          {t('common.save')}
-        </Button>
       </div>
     </Dialog>
   )

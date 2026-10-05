@@ -8,13 +8,15 @@ interface DialogProps {
   children: ReactNode
   /** Wide dialogs (previews, tables) use the whole screen on phones. */
   wide?: boolean
+  /** The main action: fixed under the content, always in view however long the content is. */
+  footer?: ReactNode
 }
 
 /**
  * Native <dialog>: the browser handles focus trapping, the Escape key and screen readers.
  * On phones it takes the full width at the bottom, within thumb reach.
  */
-export function Dialog({ open, onClose, title, children, wide = false }: DialogProps) {
+export function Dialog({ open, onClose, title, children, wide = false, footer }: DialogProps) {
   const { t } = useTranslation()
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
@@ -60,8 +62,9 @@ export function Dialog({ open, onClose, title, children, wide = false }: DialogP
           ×
         </button>
       </div>
-      {/* Only the content scrolls: the title and the close button stay in view. */}
+      {/* Only the content scrolls: the title, the close button and the footer stay in view. */}
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{open && children}</div>
+      {footer && <div className="shrink-0 border-t-2 border-gravel-300 px-5 py-4">{open && footer}</div>}
     </dialog>
   )
 }

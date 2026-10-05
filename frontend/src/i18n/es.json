@@ -116,7 +116,9 @@
     "players_one": "{{count}} jugador",
     "players_other": "{{count}} jugadores",
     "teamSizeQuestion": "¿Dupletas o tripletas?",
-    "settingsForToday": "Solo para hoy (si no los tocas, valen los del perfil del club):"
+    "settingsForToday": "Solo para hoy (si no los tocas, valen los del perfil del club):",
+    "todaySettings": "Con los ajustes del club:",
+    "changeForToday": "Cambiar solo para hoy"
   },
   "notFound": {
     "title": "Esta página no existe",
