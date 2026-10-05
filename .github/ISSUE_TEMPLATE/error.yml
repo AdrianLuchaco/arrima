@@ -1,0 +1,37 @@
+name: Algo no funciona
+description: Cuéntanos un fallo de la app
+labels: ["fallo"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Este issue es público:** no pongas correos, contraseñas ni nombres de jugadores, y tapa los datos personales de las capturas.
+
+        Si es un fallo de seguridad, no lo cuentes aquí: sigue los pasos de [SECURITY.md](https://github.com/AdrianLuchaco/arrima/blob/main/SECURITY.md).
+  - type: textarea
+    id: que-paso
+    attributes:
+      label: ¿Qué ha pasado?
+      description: Y qué esperabas que pasara.
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: ¿Cómo se repite?
+      placeholder: |
+        1. En la melé, pestaña Pistas…
+        2. Toco…
+        3. Sale…
+  - type: input
+    id: movil
+    attributes:
+      label: Móvil y navegador
+      placeholder: Por ejemplo, iPhone 13 con Safari, o Samsung A54 con Chrome
+    validations:
+      required: true
+  - type: textarea
+    id: capturas
+    attributes:
+      label: Capturas (opcional)
+      description: Arrástralas aquí.

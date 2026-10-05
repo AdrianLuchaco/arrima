@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "Arrima",
-    "tagline": "Las melés de petanca de tu club, sin papel"
+    "tagline": "Las melés de petanca de tu club, sin papel",
+    "sourceCode": "Código abierto en GitHub"
   },
   "common": {
     "increase": "Subir {{label}}",

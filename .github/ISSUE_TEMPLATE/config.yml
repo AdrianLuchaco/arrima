@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Avisar de un fallo de seguridad
+    url: https://github.com/AdrianLuchaco/arrima/security/advisories/new
+    about: En privado, para que no se pueda aprovechar antes de corregirlo.
+  - name: Abrir Arrima
+    url: https://arrima-petanca.vercel.app
+    about: La app, para los clubes que ya están dados de alta.

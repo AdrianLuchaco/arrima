@@ -1,0 +1,36 @@
+name: Quiero usar Arrima en mi club
+description: Pide el alta de tu club de petanca
+title: "Alta: "
+labels: ["alta de club"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ¡Gracias por tu interés! El alta de clubes es por invitación.
+
+        **Este issue es público:** no pongas correos, teléfonos ni nombres de jugadores. El código de invitación nunca se publica aquí; en este mismo issue te diremos cómo seguir por privado.
+  - type: input
+    id: club
+    attributes:
+      label: Nombre del club
+    validations:
+      required: true
+  - type: input
+    id: lugar
+    attributes:
+      label: Población y provincia
+    validations:
+      required: true
+  - type: dropdown
+    id: jugadores
+    attributes:
+      label: ¿Cuántos jugadores suele tener una melé?
+      options:
+        - Menos de 20
+        - De 20 a 50
+        - Más de 50
+  - type: textarea
+    id: ahora
+    attributes:
+      label: ¿Cómo organizáis ahora las melés? (opcional)
+      description: Por ejemplo, lista de WhatsApp y libreta, una hoja de cálculo…

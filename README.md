@@ -26,6 +26,7 @@
   <img src="https://img.shields.io/badge/React-19-2c3439?logo=react&logoColor=white" alt="React 19">
   <img src="https://img.shields.io/badge/PostgreSQL-Supabase-2c3439?logo=postgresql&logoColor=white" alt="PostgreSQL en Supabase">
   <img src="https://img.shields.io/badge/PWA-Android_%C2%B7_iPhone-2c3439?logo=pwa&logoColor=white" alt="PWA para Android e iPhone">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licencia-AGPL--3.0-2c3439" alt="Licencia AGPL-3.0"></a>
 </p>
 
 <p align="center">
@@ -95,7 +96,7 @@ Arrima lo lleva todo desde el móvil de quien organiza, a pie de pista:
 
 Arrima funciona en **[arrima-petanca.vercel.app](https://arrima-petanca.vercel.app)**. Se abre en el navegador y, si quieres, se instala en el móvil desde el propio aviso de la app.
 
-El alta de clubes es por invitación. Si te interesa para tu club, [abre un *issue*](https://github.com/AdrianLuchaco/arrima/issues/new) y cuéntanos de qué club sois.
+El alta de clubes es por invitación. Si te interesa para tu club, [rellena este formulario](https://github.com/AdrianLuchaco/arrima/issues/new?template=alta-club.yml) con el nombre del club y la población. Es público, así que no pongas datos personales: el código de invitación nunca se publica, te diremos cómo seguir por privado.
 
 ## Cómo está hecho
 
@@ -122,3 +123,10 @@ El alta de clubes es por invitación. Si te interesa para tu club, [abre un *iss
 | [Seguridad del código](docs/seguridad-owasp.md) | Revisión según el OWASP Top 10:2025 |
 | [Seguridad en producción](docs/revision-seguridad-produccion.md) | Comprobaciones en vivo sobre la app desplegada |
 | [Pruebas en móviles](docs/comprobacion-en-moviles.md) | Lista para comprobar en Android e iPhone lo que depende del móvil |
+| [Avisar de un fallo de seguridad](SECURITY.md) | Cómo contarlo en privado |
+
+## Licencia
+
+Arrima es software libre con licencia [AGPL-3.0](LICENSE). Puedes usarlo, estudiarlo, modificarlo e instalarlo en tu propio servidor. Si ofreces a otros una versión modificada a través de internet, tienes que publicar su código con la misma licencia.
+
+© 2026 Adrian ([@AdrianLuchaco](https://github.com/AdrianLuchaco))

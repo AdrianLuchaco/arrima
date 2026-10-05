@@ -2,6 +2,9 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrimaMark } from '../ui/ArrimaMark'
 
+/** Arrima is AGPL-3.0: whoever runs it, modified or not, offers its source code to its users. */
+const SOURCE_CODE_URL = 'https://github.com/AdrianLuchaco/arrima'
+
 /** Frame for sign-in and registration: app name on top, one simple form below. */
 export function AuthPageFrame({ title, children }: { title: string; children: ReactNode }) {
   const { t } = useTranslation()
@@ -18,6 +21,11 @@ export function AuthPageFrame({ title, children }: { title: string; children: Re
         <h1 className="mb-5 text-2xl font-bold">{title}</h1>
         {children}
       </section>
+      <footer className="text-center">
+        <a href={SOURCE_CODE_URL} target="_blank" rel="noopener noreferrer" className="inline-block py-2 text-steel-600 underline underline-offset-4">
+          {t('app.sourceCode')}
+        </a>
+      </footer>
     </main>
   )
 }
