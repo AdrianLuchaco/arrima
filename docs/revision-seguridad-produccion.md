@@ -11,7 +11,7 @@ Complementa a [seguridad-owasp.md](seguridad-owasp.md), que revisa el código. A
 
 - **RLS de Supabase:** no afecta a Arrima. La explicación y una comprobación de un minuto están en el apartado 3.
 - **Melé de prueba en producción:** completa de principio a fin, con **55 comprobaciones correctas**. El único fallo era un error de la propia prueba, no de la app (apartado 5).
-- **Hallazgos:** el diálogo «Crear melé» en el móvil (corregido), R1 confirmado en producción (decisión tuya) y dos detalles menores (apartado 4).
+- **Hallazgos:** el diálogo «Crear melé» en el móvil (corregido), R1 confirmado en producción (aceptado) y dos detalles menores (apartado 4).
 
 ## 1. Desde fuera, sin cuenta
 
@@ -109,20 +109,22 @@ select has_schema_privilege('anon', 'arrima', 'usage') as anon_entra,
 | # | Hallazgo | Gravedad | Estado |
 |---|---|---|---|
 | 1 | **Diálogo «Crear melé» en el móvil.** El botón «Crear melé» quedaba al final de una lista más alta que la pantalla: en un iPhone 13, 995 px de contenido en 519 px visibles. Además, Safari mostraba flechas en los campos numéricos | Usabilidad | **Corregido** (sin subir todavía) |
-| 2 | **R1, confirmado en producción.** Llamando directamente a `arrima-api.onrender.com` con un `X-Forwarded-For` público inventado, los límites por IP vuelven a empezar. Con IPs privadas (`10.x`) no funciona | Baja | **Decisión tuya** (ver abajo) |
+| 2 | **R1, confirmado en producción.** Llamando directamente a `arrima-api.onrender.com` con un `X-Forwarded-For` público inventado, los límites por IP vuelven a empezar. Con IPs privadas (`10.x`) no funciona | Baja | **Aceptado** el 6 de octubre de 2026 (opción A, abajo) |
 | 3 | La contraseña de la cuenta del club ha pasado por el chat de esta revisión | Media para esa cuenta | **Cámbiala.** Al cambiarla se cierran todas las sesiones |
 | 4 | `/api/files` sin firma responde 400 con el texto genérico de Spring («Required parameter 'expires' is not present») en vez de 403 | Informativa | Se puede dejar: solo revela el nombre de un parámetro, que ya está en el código público |
 | 5 | Dos PR de Dependabot abiertos: dependencias del frontend y Maven 3.10.0 | Informativa | Aceptarlos si el CI pasa |
 
 **Cómo queda el diálogo.** Arriba, «¿Dupletas o tripletas?». Debajo, una tarjeta con el resumen de los ajustes del club (por ejemplo, «3 partidas de 45 min · 5 premios · 12 pistas · cuota de 5 €») y el botón «Cambiar solo para hoy». Al pulsarlo aparecen los ajustes, que se desplazan, mientras «Crear melé» queda **fijo abajo, siempre visible**. El diálogo de ajustes de una melé ya creada usa el mismo pie fijo. Comprobado en iPhone 13 (Safari), Pixel 7 (Chrome) y ordenador.
 
-### R1: opciones
+### R1: opciones y decisión
+
+**Decisión (6 de octubre de 2026): opción A.** Se acepta el riesgo y queda documentado. Si algún día hay muchos clubes o se ve abuso en los logs (avisos de límite agotado), se puede pasar a la B.
 
 **Por qué la gravedad es baja.** Las cuentas siguen protegidas por el límite por correo (10 intentos cada 15 minutos). Los códigos de invitación tienen 48 bits y los de las melés, unos 40: ni sin límite por IP se pueden adivinar en un tiempo razonable.
 
 | Opción | A favor | En contra |
 |---|---|---|
-| **A. Aceptarlo y dejarlo documentado** (recomendada por ahora) | Nada nuevo que mantener | Los límites por IP solo frenan a quien entra por Vercel |
+| **A. Aceptarlo y dejarlo documentado** (elegida) | Nada nuevo que mantener | Los límites por IP solo frenan a quien entra por Vercel |
 | **B. Cabecera secreta.** Vercel *Routing Middleware* (gratis) añade una cabecera con un secreto, y el backend rechaza lo que no la traiga | Cierra R1 y además impide usar Render directamente | Un fichero de *middleware* más y un secreto más en Vercel y Render. Hay que comprobar que el directo (SSE) sigue funcionando a través del *middleware* |
 
 ## 5. Melé completa en producción
