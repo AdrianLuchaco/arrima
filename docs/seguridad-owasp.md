@@ -1,6 +1,7 @@
 # Revisión de seguridad de Arrima (OWASP Top 10)
 
 Fecha: 4 de octubre de 2026 · Versión revisada: fase 9 (antes del primer despliegue)
+Comprobaciones en vivo tras el despliegue: [revision-seguridad-produccion.md](revision-seguridad-produccion.md).
 Referencia: [OWASP Top 10:2025](https://owasp.org/Top10/). En esta edición, el SSRF pasa a formar parte de A01, y aparecen A03 (cadena de suministro) y A10 (gestión de condiciones excepcionales).
 
 ## Resumen
