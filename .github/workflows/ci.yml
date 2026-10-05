@@ -23,6 +23,29 @@ jobs:
           cache: maven
       # Unit and integration tests; Testcontainers uses the runner's Docker.
       - run: ./mvnw -B verify
+      # When something fails, each failed test (or a crashed test JVM) becomes an annotation of
+      # the run, so it shows up on the commit without digging through the whole log.
+      - name: Report failed tests
+        if: failure()
+        run: |
+          python3 - <<'EOF'
+          import glob
+          import xml.etree.ElementTree as ET
+
+          def clean(text):
+              return ' '.join((text or '').split())[:400].replace('%', '%25')
+
+          def title(text):
+              return clean(text).replace(':', '%3A').replace(',', '%2C')
+
+          for path in sorted(glob.glob('target/surefire-reports/TEST-*.xml')):
+              for case in ET.parse(path).getroot().iter('testcase'):
+                  for problem in case.findall('failure') + case.findall('error'):
+                      name = title(f"{case.get('classname')}.{case.get('name')}")
+                      print(f"::error title={name}::{clean(problem.get('message') or problem.get('type'))}")
+          for path in sorted(glob.glob('target/surefire-reports/*.dump*')):
+              print(f"::error title={title(path)}::{clean(open(path, errors='replace').read())}")
+          EOF
 
   frontend:
     runs-on: ubuntu-latest
