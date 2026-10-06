@@ -5,11 +5,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 /** A clock that tests can move forward (token expiry, grace periods, auto-close...). */
 public class MutableClock extends Clock {
 
-    private volatile Instant now = Instant.now();
+    private volatile Instant now = serverLikeNow();
 
     public void advance(Duration duration) {
         now = now.plus(duration);
@@ -20,7 +21,17 @@ public class MutableClock extends Clock {
     }
 
     public void reset() {
-        now = Instant.now();
+        now = serverLikeNow();
+    }
+
+    /**
+     * Like the clock of a Linux server: nanoseconds, finer than the microseconds PostgreSQL stores.
+     * And always 700 ns past the microsecond, which PostgreSQL rounds up: whatever mixes the two
+     * precisions fails every time here, not only now and then on the CI (macOS clocks stop at
+     * microseconds).
+     */
+    private static Instant serverLikeNow() {
+        return Instant.now().truncatedTo(ChronoUnit.MICROS).plusNanos(700);
     }
 
     @Override

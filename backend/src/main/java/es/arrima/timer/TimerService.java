@@ -10,6 +10,7 @@ import es.arrima.timer.domain.Countdown;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class TimerService {
         if (repository.findByMeleeIdAndRoundNumber(melee.getId(), roundNumber).isPresent()) {
             throw new ApiException(ErrorCode.INVALID_STATE, Map.of("reason", "ALREADY_STARTED"));
         }
-        Instant now = clock.instant();
+        Instant now = now();
         Optional<RoundTimer> notEnded = timersOf(melee.getId()).stream()
                 .filter(timer -> timer.countdown().state() != Countdown.State.ENDED)
                 .findFirst();
@@ -82,7 +83,7 @@ public class TimerService {
     public void pause(long meleeId, long clubId, int roundNumber) {
         Melee melee = meleeAccess.forClub(meleeId, clubId);
         RoundTimer timer = timerOf(melee, roundNumber);
-        Instant now = clock.instant();
+        Instant now = now();
         // Out of time already: pausing makes no sense any more, the end is recorded instead.
         if (!recordTimeUpIfDue(timer, now)) {
             requireState(timer, Countdown.State.RUNNING);
@@ -96,7 +97,7 @@ public class TimerService {
         Melee melee = meleeAccess.forClub(meleeId, clubId);
         RoundTimer timer = timerOf(melee, roundNumber);
         requireState(timer, Countdown.State.PAUSED);
-        timer.resume(clock.instant());
+        timer.resume(now());
         events.publishEvent(new RunningCountdown(melee.getId(), timer.countdown().endsAt()));
         meleeAccess.recordChange(melee);
     }
@@ -122,14 +123,14 @@ public class TimerService {
     /** Records the end of this melee's countdown if its time ran out. Harmless to call any number of times. */
     @Transactional
     public void expireIfDue(long meleeId) {
-        Instant now = clock.instant();
+        Instant now = now();
         repository.findByMeleeIdOrderByRoundNumber(meleeId).forEach(timer -> recordTimeUpIfDue(timer, now));
     }
 
     /** The same for every melee: the safety net after a restart or a missed trigger. */
     @Transactional
     public void expireAllDue() {
-        Instant now = clock.instant();
+        Instant now = now();
         repository.findByEndedAtIsNull().forEach(timer -> recordTimeUpIfDue(timer, now));
     }
 
@@ -154,6 +155,15 @@ public class TimerService {
             meleeRepository.findById(timer.getMeleeId()).ifPresent(meleeAccess::recordChange);
         }
         return true;
+    }
+
+    /**
+     * "Now" in whole milliseconds, the unit the countdown keeps its pauses in (paused_millis). The
+     * server's clock has nanoseconds and PostgreSQL stores microseconds, rounded: a pause measured
+     * from the stored start to a finer "now" could otherwise lose a millisecond.
+     */
+    private Instant now() {
+        return clock.instant().truncatedTo(ChronoUnit.MILLIS);
     }
 
     private RoundTimer timerOf(Melee melee, int roundNumber) {
