@@ -17,7 +17,10 @@ export function CourtsTab({ melee, readOnly = false }: { melee: MeleeView; readO
     return <p className="text-lg text-steel-600">{t('courts.none')}</p>
   }
 
-  const courts = Array.from({ length: melee.settings.courtCount }, (_, index) => index + 1)
+  // Up to the last court in use: the matches take the first courts, so the club's spare ones
+  // would only be empty columns to scroll past.
+  const lastCourt = Math.max(1, ...melee.rounds.flatMap((round) => round.matches.map((match) => match.courtNumber ?? 0)))
+  const courts = Array.from({ length: lastCourt }, (_, index) => index + 1)
   const hasWaiting = melee.rounds.some((round) => round.matches.some((match) => match.courtNumber === null))
   const hasByes = melee.rounds.some((round) => round.byeTeamId !== null)
   const pending = melee.rounds.flatMap((round) => round.matches).filter((match) => match.winnerTeamId === null).length

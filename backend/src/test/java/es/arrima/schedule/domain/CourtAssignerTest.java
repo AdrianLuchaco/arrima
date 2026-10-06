@@ -25,6 +25,29 @@ class CourtAssignerTest {
     }
 
     @Test
+    void withMoreCourtsThanMatchesTheFirstCourtsArePlayed() {
+        // 10 teams, 10 courts: 5 matches a round, always on courts 1 to 5; 6 to 10 stay free.
+        for (int seed = 0; seed < 20; seed++) {
+            for (ScheduledRound round : generate(10, 3, 10, seed)) {
+                assertThat(round.matches()).extracting(ScheduledMatch::court)
+                        .as("seed %d, round %d", seed, round.number()).containsExactlyInAnyOrder(1, 2, 3, 4, 5);
+            }
+        }
+    }
+
+    @Test
+    void withATeamRestingTheFirstCourtsAreStillTheOnesPlayed() {
+        // 9 teams: one rests each round and the other 8 play 4 matches, on courts 1 to 4 of 12.
+        for (int seed = 0; seed < 20; seed++) {
+            for (ScheduledRound round : generate(9, 3, 12, seed)) {
+                assertThat(round.byeTeam()).isNotNull();
+                assertThat(round.matches()).extracting(ScheduledMatch::court)
+                        .as("seed %d, round %d", seed, round.number()).containsExactlyInAnyOrder(1, 2, 3, 4);
+            }
+        }
+    }
+
+    @Test
     void whoWaitedPlaysFirstInTheNextRound() {
         List<RoundPairings> rounds = List.of(
                 new RoundPairings(1, List.of(new Pairing(1, 2), new Pairing(3, 4)), null),

@@ -15,8 +15,11 @@ import java.util.random.RandomGenerator;
  * <ol>
  *   <li>if there are more matches than courts, the ones left over wait ("en espera"); teams that
  *       already waited in a previous round go first this time;</li>
- *   <li>"if possible, a team does not repeat a court": a maximum bipartite matching (Kuhn's
- *       augmenting paths) between matches and the courts none of their teams has played on;</li>
+ *   <li>the matches take the first courts: with 5 matches and 10 courts, courts 1 to 5 are played
+ *       and the last ones stay free, every round;</li>
+ *   <li>"if possible, a team does not repeat a court", among those courts: a maximum bipartite
+ *       matching (Kuhn's augmenting paths) between matches and the courts none of their teams has
+ *       played on;</li>
  *   <li>any match that could not avoid a repeat gets the free court with the fewest repeats.</li>
  * </ol>
  */
@@ -42,9 +45,11 @@ public final class CourtAssigner {
         pairings.sort(Comparator.comparingInt(this::waitsOf).reversed());
         List<Pairing> onCourt = pairings.subList(0, Math.min(courts, pairings.size()));
         List<Pairing> waiting = pairings.subList(onCourt.size(), pairings.size());
+        // As many courts as matches, from court 1 on: the free ones are always the last.
+        List<Integer> usedCourts = firstCourts(onCourt.size());
 
-        Map<Pairing, Integer> courtOf = assignWithoutRepeats(onCourt);
-        assignRemainingWithFewestRepeats(onCourt, courtOf);
+        Map<Pairing, Integer> courtOf = assignWithoutRepeats(onCourt, usedCourts);
+        assignRemainingWithFewestRepeats(onCourt, courtOf, usedCourts);
 
         List<ScheduledMatch> matches = new ArrayList<>();
         for (Pairing pairing : onCourt) {
@@ -62,23 +67,23 @@ public final class CourtAssigner {
     }
 
     /** Kuhn's algorithm: each match tries a "new" court, displacing another match that has alternatives. */
-    private Map<Pairing, Integer> assignWithoutRepeats(List<Pairing> pairings) {
+    private Map<Pairing, Integer> assignWithoutRepeats(List<Pairing> pairings, List<Integer> usedCourts) {
         Map<Integer, Pairing> matchOfCourt = new HashMap<>();
         for (Pairing pairing : pairings) {
-            tryAssign(pairing, matchOfCourt, new HashSet<>());
+            tryAssign(pairing, usedCourts, matchOfCourt, new HashSet<>());
         }
         Map<Pairing, Integer> courtOf = new HashMap<>();
         matchOfCourt.forEach((court, pairing) -> courtOf.put(pairing, court));
         return courtOf;
     }
 
-    private boolean tryAssign(Pairing pairing, Map<Integer, Pairing> matchOfCourt, Set<Integer> visited) {
-        for (int court : shuffled(courtNumbers())) {
+    private boolean tryAssign(Pairing pairing, List<Integer> usedCourts, Map<Integer, Pairing> matchOfCourt, Set<Integer> visited) {
+        for (int court : shuffled(usedCourts)) {
             if (repeats(pairing, court) > 0 || !visited.add(court)) {
                 continue;
             }
             Pairing current = matchOfCourt.get(court);
-            if (current == null || tryAssign(current, matchOfCourt, visited)) {
+            if (current == null || tryAssign(current, usedCourts, matchOfCourt, visited)) {
                 matchOfCourt.put(court, pairing);
                 return true;
             }
@@ -86,8 +91,8 @@ public final class CourtAssigner {
         return false;
     }
 
-    private void assignRemainingWithFewestRepeats(List<Pairing> pairings, Map<Pairing, Integer> courtOf) {
-        Set<Integer> freeCourts = new HashSet<>(courtNumbers());
+    private void assignRemainingWithFewestRepeats(List<Pairing> pairings, Map<Pairing, Integer> courtOf, List<Integer> usedCourts) {
+        Set<Integer> freeCourts = new HashSet<>(usedCourts);
         freeCourts.removeAll(courtOf.values());
         for (Pairing pairing : pairings) {
             if (courtOf.containsKey(pairing)) {
@@ -114,9 +119,9 @@ public final class CourtAssigner {
         return courtsPlayed.computeIfAbsent(team, key -> new HashSet<>());
     }
 
-    private List<Integer> courtNumbers() {
+    private static List<Integer> firstCourts(int count) {
         List<Integer> numbers = new ArrayList<>();
-        for (int court = 1; court <= courts; court++) {
+        for (int court = 1; court <= count; court++) {
             numbers.add(court);
         }
         return numbers;
