@@ -62,8 +62,10 @@ export function Dialog({ open, onClose, title, children, wide = false, footer }:
           ×
         </button>
       </div>
-      {/* Only the content scrolls: the title, the close button and the footer stay in view. */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{open && children}</div>
+      {/* Only the content scrolls: the title, the close button and the footer stay in view. The
+          content starts at its own height and only shrinks (and scrolls) when the dialog reaches its
+          maximum height: a zero flex-basis here let some browsers squash it to nothing. */}
+      <div className="min-h-0 flex-initial overflow-y-auto px-5 py-5">{open && children}</div>
       {footer && <div className="shrink-0 border-t-2 border-gravel-300 px-5 py-4">{open && footer}</div>}
     </dialog>
   )

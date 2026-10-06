@@ -274,7 +274,7 @@ Render gratuito se duerme tras 15 minutos sin visitas (y tarda casi un minuto en
 
 1. En cron-job.org, **Create cronjob**.
    - **Title**: `Arrima`.
-   - **URL**: tu URL del backend + `/api/health/db`, por ejemplo `https://arrima-api.onrender.com/api/health/db`. Va directo a Render; no hace falta pasar por Vercel.
+   - **URL**: tu URL del backend + `/api/health/db`, por ejemplo `https://arrima-api.onrender.com/api/health/db`. Va directo a Render; no hace falta pasar por Vercel. Escríbela entera, **con `https://`**. Con `http://`, Render responde `301 Moved Permanently` desde su proxy, cron-job.org lo cuenta como fallo y la llamada no llega al backend: Render se dormiría igual.
    - **Execution schedule**: **Every 10 minutes**.
    - **Notifications** (o *Advanced*): activa **Notify me when an execution fails** y **when it succeeds again**. Así te enterarás si el backend se cae.
    - **Create**.
@@ -356,8 +356,9 @@ Lo que depende de cada móvil (compartir en WhatsApp, avisos con el móvil bloqu
 | La web se queda en «Despertando el servidor…» más de 3 minutos | El backend no está en marcha, o Vercel apunta a otra dirección | Mira los **Logs** de Render y repite los pasos 6.3 y 6.4 |
 | No llega el correo de recuperación | Remitente sin confirmar, cuenta de Brevo sin activar, IPs bloqueadas o spam | En Brevo, **Transactional → Logs** muestra cada envío y su estado. Revisa el paso 4. En los logs de Render busca `Could not send the e-mail` |
 | No se sube el logo ni las fotos | El bucket no se llama `arrima`, o la clave secreta está mal | Repite los pasos 3.4 y 3.5. Los logs de Render muestran el error de Supabase |
-| El CI falla en el job `secrets` | gitleaks ha encontrado algo que parece un secreto, o el repositorio es de una organización sin licencia | Lee el log del job. **Si es un secreto real, cámbialo ya en su servicio**: borrarlo del código no basta |
+| El CI falla en el job `secrets` | gitleaks ha encontrado en el historial algo que parece un secreto | Lee el log del job. **Si es un secreto real, cámbialo ya en su servicio**: borrarlo del código no basta |
 | cron-job.org da *timeout* de vez en cuando | Render tardó en responder | No pasa nada si es aislado. Si es continuo, mira los logs de Render |
+| cron-job.org marca todas las ejecuciones como fallidas con `301 Moved Permanently` | La URL del cronjob empieza por `http://` | Edita el cronjob y pon la URL con `https://` (paso 7). Mientras tanto la llamada no llega al backend: Render se duerme y Supabase no ve actividad |
 
 ---
 
