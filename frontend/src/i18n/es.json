@@ -17,7 +17,8 @@
   "nav": {
     "label": "Menú principal",
     "melees": "Melés",
-    "club": "Club"
+    "club": "Club",
+    "allMelees": "Todas las melés"
   },
   "loading": {
     "checking": "Cargando…",
@@ -36,6 +37,11 @@
     "showPassword": "Mostrar",
     "hidePassword": "Ocultar",
     "logout": "Salir",
+    "logoutConfirm": {
+      "title": "¿Salir de Arrima?",
+      "text": "Para volver a entrar hará falta el correo y la contraseña del club.",
+      "confirm": "Sí, salir"
+    },
     "login": {
       "title": "Entra en tu club",
       "submit": "Entrar",

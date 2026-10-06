@@ -49,15 +49,19 @@ function MeleeList({ title, melees, empty }: { title: string; melees: MeleeSumma
         <ul className="flex flex-col gap-3">
           {melees.map((melee) => (
             <li key={melee.id}>
+              {/* The arrow says the whole card opens the melee. */}
               <Link
                 to={`/melees/${melee.id}`}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border-2 border-gravel-300 bg-white px-4 py-4 text-lg hover:border-steel-600"
+                className="flex items-center gap-3 rounded-2xl border-2 border-gravel-300 bg-white px-4 py-4 text-lg shadow-sm hover:border-steel-600"
               >
-                <span className="font-bold first-letter:uppercase">{formatMeleeDate(melee.playedOn)}</span>
-                <StatusPill status={melee.status} />
-                <span className="w-full text-steel-600">
-                  {t(`melee.teamSize.${melee.teamSize}`)} · {t('melees.players', { count: melee.activePlayers })}
+                <span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2">
+                  <span className="font-bold first-letter:uppercase">{formatMeleeDate(melee.playedOn)}</span>
+                  <StatusPill status={melee.status} />
+                  <span className="w-full text-steel-600">
+                    {t(`melee.teamSize.${melee.teamSize}`)} · {t('melees.players', { count: melee.activePlayers })}
+                  </span>
                 </span>
+                <span aria-hidden="true" className="text-4xl leading-none font-bold text-steel-600">›</span>
               </Link>
             </li>
           ))}

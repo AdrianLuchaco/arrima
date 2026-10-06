@@ -2,7 +2,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ordinalBeforeNoun } from '../lib/ordinal'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
+import { BackLink } from '../ui/BackLink'
 import { useMeleeLive } from '../live/useMeleeLive'
 import { meleeKey, meleeRequests, useMelee, useMeleeAction } from '../melee/meleeApi'
 import { teamNumber, teamPlayers } from '../melee/names'
@@ -55,10 +56,8 @@ export function PrizesPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col items-start gap-1">
-        <Link to={`/melees/${melee.id}`} className="text-base font-semibold underline underline-offset-4">
-          ◀ {t('intl.backToMelee')}
-        </Link>
+      <div className="flex flex-col items-start gap-3">
+        <BackLink to={`/melees/${melee.id}`}>{t('intl.backToMelee')}</BackLink>
         <h1 className="text-2xl font-extrabold">{t('prizes.title')}</h1>
       </div>
 

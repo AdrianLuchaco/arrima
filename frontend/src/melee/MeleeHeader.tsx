@@ -52,9 +52,15 @@ export function MeleeOptions({ melee }: { melee: MeleeView }) {
   const canGoBack = melee.status !== 'REGISTRATION' && melee.status !== 'CLOSED'
 
   return (
-    <details className="mt-8 rounded-2xl border-2 border-gravel-300 bg-white p-4">
-      <summary className="cursor-pointer text-lg font-bold">{t('melee.moreOptions')}</summary>
-      <div className="mt-4 flex flex-wrap gap-2">
+    <details className="group mt-8 rounded-2xl border-2 border-steel-400 bg-white">
+      {/* Looks like a button that unfolds, not like a title. */}
+      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 text-lg font-bold [&::-webkit-details-marker]:hidden">
+        {t('melee.moreOptions')}
+        <span aria-hidden="true" className="text-2xl transition-transform group-open:rotate-180">
+          ▾
+        </span>
+      </summary>
+      <div className="flex flex-wrap gap-2 px-4 pb-4">
         {canGoBack && (
           <Button variant="secondary" onClick={() => setConfirming('back')}>
             {t('melee.back.button', { phase: t(`melee.status.${STATUS_ORDER[current - 1]}`) })}

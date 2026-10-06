@@ -14,14 +14,10 @@ interface Row extends ImportPreviewEntry {
 /**
  * "Pegar lista de WhatsApp": paste → editable preview → confirm. Flagged rows (struck through in
  * WhatsApp, probably part of the header, or already on the list) start unticked.
+ * Every opening starts from scratch: the flow only exists while the dialog is open.
  */
 export function PasteListDialog({ melee, open, onClose }: { melee: MeleeView; open: boolean; onClose: () => void }) {
-  const { t } = useTranslation()
-  return (
-    <Dialog open={open} onClose={onClose} title={t('players.paste.title')} wide>
-      <PasteFlow melee={melee} onDone={onClose} />
-    </Dialog>
-  )
+  return open ? <PasteFlow melee={melee} onDone={onClose} /> : null
 }
 
 function PasteFlow({ melee, onDone }: { melee: MeleeView; onDone: () => void }) {
@@ -36,37 +32,63 @@ function PasteFlow({ melee, onDone }: { melee: MeleeView; onDone: () => void }) 
   })
   const confirm = useMeleeAction(melee.id, (people: ParticipantData[]) => meleeRequests.importParticipants(melee.id, people))
 
-  if (rows === null) {
-    return (
-      <div className="flex flex-col gap-4">
-        <label htmlFor="whatsapp-text" className="text-lg font-semibold">
-          {t('players.paste.instructions')}
-        </label>
-        <textarea
-          id="whatsapp-text"
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          rows={10}
-          className="rounded-xl border-2 border-steel-400 bg-white p-3 text-lg"
-          placeholder={t('players.paste.placeholder')}
-        />
+  const included = rows?.filter((row) => row.include) ?? []
+  const update = (index: number, change: Partial<Row>) => setRows(rows && rows.map((row, i) => (i === index ? { ...row, ...change } : row)))
+
+  // The buttons live in the dialog's footer: always in view, however long the list is.
+  const footer =
+    rows === null ? (
+      <div className="flex flex-col gap-3">
         <ErrorMessage error={preview.error} />
-        <Button busy={preview.isPending} disabled={text.trim() === ''} onClick={() => preview.mutate()}>
+        <Button className="w-full" busy={preview.isPending} disabled={text.trim() === ''} onClick={() => preview.mutate()}>
           {t('players.paste.read')}
         </Button>
       </div>
+    ) : (
+      <div className="flex flex-col gap-3">
+        <ErrorMessage error={confirm.error} />
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button variant="secondary" onClick={() => setRows(null)}>
+            {t('players.paste.again')}
+          </Button>
+          <Button
+            variant="accent"
+            className="flex-1"
+            busy={confirm.isPending}
+            disabled={included.length === 0}
+            onClick={() =>
+              confirm.mutate(
+                included.map((row) => ({ listNumber: row.listNumber, name: row.name })),
+                { onSuccess: onDone },
+              )
+            }
+          >
+            {t('players.paste.confirm', { count: included.length })}
+          </Button>
+        </div>
+      </div>
     )
-  }
-
-  const included = rows.filter((row) => row.include)
-  const update = (index: number, change: Partial<Row>) => setRows(rows.map((row, i) => (i === index ? { ...row, ...change } : row)))
 
   return (
-    <div className="flex flex-col gap-4">
-      {rows.length === 0 ? (
+    <Dialog open onClose={onDone} title={t('players.paste.title')} wide footer={footer}>
+      {rows === null ? (
+        <div className="flex flex-col gap-4">
+          <label htmlFor="whatsapp-text" className="text-lg font-semibold">
+            {t('players.paste.instructions')}
+          </label>
+          <textarea
+            id="whatsapp-text"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            rows={10}
+            className="rounded-xl border-2 border-steel-400 bg-white p-3 text-lg"
+            placeholder={t('players.paste.placeholder')}
+          />
+        </div>
+      ) : rows.length === 0 ? (
         <p className="text-lg">{t('players.paste.nothingFound')}</p>
       ) : (
-        <>
+        <div className="flex flex-col gap-4">
           <p className="text-lg">{t('players.paste.reviewHelp')}</p>
           <ul className="flex flex-col gap-2">
             {rows.map((row, index) => (
@@ -106,28 +128,8 @@ function PasteFlow({ melee, onDone }: { melee: MeleeView; onDone: () => void }) 
               </li>
             ))}
           </ul>
-        </>
+        </div>
       )}
-      <ErrorMessage error={confirm.error} />
-      <div className="sticky bottom-0 flex flex-col gap-3 bg-gravel-50 pt-2 sm:flex-row">
-        <Button variant="secondary" onClick={() => setRows(null)}>
-          {t('players.paste.again')}
-        </Button>
-        <Button
-          variant="accent"
-          className="flex-1"
-          busy={confirm.isPending}
-          disabled={included.length === 0}
-          onClick={() =>
-            confirm.mutate(
-              included.map((row) => ({ listNumber: row.listNumber, name: row.name })),
-              { onSuccess: onDone },
-            )
-          }
-        >
-          {t('players.paste.confirm', { count: included.length })}
-        </Button>
-      </div>
-    </div>
+    </Dialog>
   )
 }

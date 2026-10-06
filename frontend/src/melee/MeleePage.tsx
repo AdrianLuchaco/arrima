@@ -6,6 +6,7 @@ import { ErrorMessage } from '../ui/ErrorMessage'
 import { SwipeTabs } from '../ui/SwipeTabs'
 import { useMeleeLive } from '../live/useMeleeLive'
 import { useOutbox } from '../offline/useOutbox'
+import { BackLink } from '../ui/BackLink'
 import { Button } from '../ui/Button'
 import { withPending } from '../offline/withPending'
 import { CounterFigures } from './Counter'
@@ -82,6 +83,9 @@ function MeleeScreen({ melee }: { melee: MeleeView }) {
 
   return (
     <div className={bottomSpace}>
+      <div className="mb-4">
+        <BackLink to="/">{t('nav.allMelees')}</BackLink>
+      </div>
       <MeleeHeader melee={melee} />
       <Button variant="secondary" className="mb-4 w-full" onClick={() => setSharing(true)}>
         {t('share.button')}

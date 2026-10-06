@@ -1,7 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
+import { BackLink } from '../ui/BackLink'
 import { useMeleeLive } from '../live/useMeleeLive'
 import { meleeKey, useMelee } from '../melee/meleeApi'
 import { teamNumber, teamPlayers } from '../melee/names'
@@ -41,11 +42,9 @@ export function InternationalPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex flex-col items-start gap-3">
+        <BackLink to={`/melees/${melee.id}`}>{t('intl.backToMelee')}</BackLink>
         <h1 className="text-2xl font-extrabold">{t('melee.status.INTERNATIONAL')}</h1>
-        <Link to={`/melees/${melee.id}`} className="text-base font-semibold underline underline-offset-4">
-          {t('intl.backToMelee')}
-        </Link>
       </div>
 
       {editable && turn && 'awaitingServer' in turn && (
