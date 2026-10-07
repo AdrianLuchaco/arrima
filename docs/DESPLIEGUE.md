@@ -261,10 +261,10 @@ Si el nombre `arrima-api` estaba cogido, Render pone otro (por ejemplo `arrima-a
 
 No tienes que hacer nada:
 
-- **Backend:** cada `push` a `main` que cambie algo en `backend/` se despliega en Render, **solo si el CI de GitHub pasa** (`autoDeployTrigger: checksPass`).
+- **Backend:** cada `push` a `main` que cambie algo en `backend/` se despliega en Render, **solo si el CI de GitHub pasa** (`autoDeployTrigger: checksPass`). Para eso la app de Render en GitHub necesita acceso a este repositorio: en GitHub, **Settings → Applications → Installed GitHub Apps → Render → Configure → Repository access** tiene que incluir `arrima`. El repositorio es público, así que un despliegue manual funciona aunque falte este acceso, pero los automáticos no llegan nunca.
 - **Frontend:** cada `push` se despliega en Vercel.
 
-✅ **Comprobación:** `/api/health/db` en Render y `/api/health` a través de Vercel responden `{"status":"UP"}`.
+✅ **Comprobación:** `/api/health/db` en Render y `/api/health` a través de Vercel responden `{"status":"UP","version":"…"}`. `version` son los 7 primeros caracteres del commit que está en marcha (en local pone `local`): tras un `push`, cuando coincide con el último commit de `main` que toca `backend/`, el despliegue ha terminado.
 
 ---
 
@@ -357,6 +357,7 @@ Lo que depende de cada móvil (compartir en WhatsApp, avisos con el móvil bloqu
 | No llega el correo de recuperación | Remitente sin confirmar, cuenta de Brevo sin activar, IPs bloqueadas o spam | En Brevo, **Transactional → Logs** muestra cada envío y su estado. Revisa el paso 4. En los logs de Render busca `Could not send the e-mail` |
 | No se sube el logo ni las fotos | El bucket no se llama `arrima`, o la clave secreta está mal | Repite los pasos 3.4 y 3.5. Los logs de Render muestran el error de Supabase |
 | El CI falla en el job `secrets` | gitleaks ha encontrado en el historial algo que parece un secreto | Lee el log del job. **Si es un secreto real, cámbialo ya en su servicio**: borrarlo del código no basta |
+| Tras un `push` que toca `backend/`, el CI pasa pero Render no despliega (en **Events** no aparece nada) | La app de Render en GitHub no tiene acceso al repositorio `arrima`, o **Auto-Deploy** está en «Off» | Paso 6.6: da acceso al repositorio en GitHub y pon **Auto-Deploy** en «After CI Checks Pass». Los `push` hechos antes no se recuperan: despliega esa vez con **Manual Deploy → Deploy latest commit**. Con `/api/health` (campo `version`) ves qué commit está en marcha |
 | cron-job.org da *timeout* de vez en cuando | Render tardó en responder | No pasa nada si es aislado. Si es continuo, mira los logs de Render |
 | cron-job.org marca todas las ejecuciones como fallidas con `301 Moved Permanently` | La URL del cronjob empieza por `http://` | Edita el cronjob y pon la URL con `https://` (paso 7). Mientras tanto la llamada no llega al backend: Render se duerme y Supabase no ve actividad |
 

@@ -1,5 +1,6 @@
 package es.arrima.health;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,9 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 class HealthController {
 
     private final HealthService healthService;
+    private final String version;
 
-    HealthController(HealthService healthService) {
+    /** Render sets RENDER_GIT_COMMIT to the commit of the running deploy. */
+    HealthController(HealthService healthService, @Value("${RENDER_GIT_COMMIT:}") String commit) {
         this.healthService = healthService;
+        this.version = commit.isBlank() ? "local" : commit.substring(0, Math.min(7, commit.length()));
     }
 
     /**
@@ -20,7 +24,7 @@ class HealthController {
      */
     @GetMapping
     HealthResponse liveness() {
-        return HealthResponse.up();
+        return HealthResponse.up(version);
     }
 
     /**
@@ -30,6 +34,6 @@ class HealthController {
     @GetMapping("/db")
     HealthResponse database() {
         healthService.checkDatabase();
-        return HealthResponse.up();
+        return HealthResponse.up(version);
     }
 }

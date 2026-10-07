@@ -22,6 +22,19 @@ class HealthControllerIntegrationTest {
     }
 
     @Test
+    void outsideRenderTheVersionIsLocal() {
+        assertThat(mvc.get().uri("/api/health")).bodyJson().extractingPath("$.version").isEqualTo("local");
+        assertThat(mvc.get().uri("/api/health/db")).bodyJson().extractingPath("$.version").isEqualTo("local");
+    }
+
+    @Test
+    void onRenderTheVersionIsTheShortCommit() {
+        HealthController onRender = new HealthController(null, "c5b11d1f0e2a9b8c7d6e5f4a3b2c1d0e9f8a7b6c");
+
+        assertThat(onRender.liveness()).isEqualTo(new HealthResponse("UP", "c5b11d1"));
+    }
+
+    @Test
     void databaseCheckRunsARealQuery() {
         assertThat(mvc.get().uri("/api/health/db"))
                 .hasStatusOk()
