@@ -26,7 +26,7 @@ export function NextStepCard({ melee, onShowTab }: NextStepCardProps) {
   return (
     <>
       {melee.status === 'REGISTRATION' && <DrawStep melee={melee} onShowTab={onShowTab} onDrawn={() => setShowDrum(true)} />}
-      {melee.status === 'TEAMS' && <ScheduleStep melee={melee} onGenerated={() => onShowTab('pistas')} />}
+      {melee.status === 'TEAMS' && <ScheduleStep melee={melee} onShowTab={onShowTab} />}
       {melee.status === 'MATCHES' && <MatchesStep melee={melee} />}
       {melee.status === 'INTERNATIONAL' && <InternationalStep melee={melee} />}
       {melee.status === 'PRIZES' && <PrizesStep melee={melee} />}
@@ -150,11 +150,17 @@ function DrawStep({ melee, onShowTab, onDrawn }: NextStepCardProps & { onDrawn: 
   )
 }
 
-function ScheduleStep({ melee, onGenerated }: { melee: MeleeView; onGenerated: () => void }) {
+function ScheduleStep({ melee, onShowTab }: NextStepCardProps) {
   const { t } = useTranslation()
   const [editingSettings, setEditingSettings] = useState(false)
-  const generate = useConfirmableAction(melee.id, (_: void, confirm) => meleeRequests.generateSchedule(melee.id, confirm), onGenerated)
+  const [askingOffCourt, setAskingOffCourt] = useState(false)
+  const onGenerated = () => onShowTab('pistas')
+  const generate = useConfirmableAction(melee.id, (acceptOffCourt: boolean, confirm) => meleeRequests.generateSchedule(melee.id, acceptOffCourt, confirm), onGenerated)
   const resume = useMeleeAction(melee.id, () => meleeRequests.resumeSchedule(melee.id), onGenerated)
+  const goBack = useMeleeAction(melee.id, () => meleeRequests.goBack(melee.id), () => onShowTab('jugadores'))
+  // More matches per round than courts: the ones left over are played off court, if the admin agrees.
+  const matches = Math.floor(melee.teams.length / 2)
+  const offCourt = Math.max(0, matches - melee.settings.courtCount)
   const tooManyRounds = melee.settings.roundsCount > melee.maxRounds
   const hasPreviousSchedule = melee.rounds.length > 0
   const blocked = melee.teamIssues.teamsWithoutPlayers.length > 0
@@ -179,16 +185,32 @@ function ScheduleStep({ melee, onGenerated }: { melee: MeleeView; onGenerated: (
         className={hasPreviousSchedule ? '' : 'min-h-20 text-2xl'}
         disabled={tooManyRounds || blocked}
         busy={generate.isPending}
-        onClick={() => generate.run(undefined)}
+        onClick={() => (offCourt > 0 ? setAskingOffCourt(true) : generate.run(false))}
       >
         {hasPreviousSchedule ? t('steps.schedule.regenerate') : t('steps.schedule.button')}
       </Button>
       <Button variant="ghost" onClick={() => setEditingSettings(true)}>
         {t('settings.button', { summary: settingsSummary(t, melee.settings) })}
       </Button>
-      <ErrorMessage error={generate.error ?? resume.error} />
+      <ErrorMessage error={generate.error ?? resume.error ?? goBack.error} />
       {generate.dialog}
       {editingSettings && <SettingsDialog melee={melee} onClose={() => setEditingSettings(false)} />}
+
+      <Dialog open={askingOffCourt} onClose={() => setAskingOffCourt(false)} title={t('steps.schedule.offCourt.title')}>
+        <div className="flex flex-col gap-3">
+          <p className="text-lg">{t('steps.schedule.offCourt.text', { count: offCourt, matches, courts: melee.settings.courtCount })}</p>
+          <p className="text-lg">{t('steps.schedule.offCourt.fair')}</p>
+          <Button variant="accent" onClick={() => { setAskingOffCourt(false); generate.run(true) }}>
+            {t('steps.schedule.offCourt.accept', { count: offCourt })}
+          </Button>
+          <Button variant="secondary" onClick={() => { setAskingOffCourt(false); setEditingSettings(true) }}>
+            {t('steps.schedule.offCourt.changeCourts')}
+          </Button>
+          <Button variant="secondary" busy={goBack.isPending} onClick={() => { setAskingOffCourt(false); goBack.mutate(undefined) }}>
+            {t('steps.schedule.offCourt.backToPlayers')}
+          </Button>
+        </div>
+      </Dialog>
     </StepCard>
   )
 }

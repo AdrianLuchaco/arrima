@@ -99,10 +99,15 @@ final class MeleeRequests {
     record Substitute(@NotNull Long leavingPlayerId, @NotNull Long joiningPlayerId) {
     }
 
-    record GenerateSchedule(Boolean confirmLosses) {
+    /** acceptOffCourt: the admin agreed that the matches beyond the courts are played off court. */
+    record GenerateSchedule(Boolean confirmLosses, Boolean acceptOffCourt) {
 
         boolean confirmsLosses() {
             return Boolean.TRUE.equals(confirmLosses);
+        }
+
+        boolean acceptsOffCourt() {
+            return Boolean.TRUE.equals(acceptOffCourt);
         }
     }
 

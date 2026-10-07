@@ -33,7 +33,7 @@ class ScheduleController {
     @PostMapping("/generate")
     MeleeView generate(@AuthenticationPrincipal AdminPrincipal admin, @PathVariable long meleeId,
             @RequestBody GenerateSchedule request) {
-        workflow.generateSchedule(meleeId, admin.clubId(), request.confirmsLosses());
+        workflow.generateSchedule(meleeId, admin.clubId(), request.confirmsLosses(), request.acceptsOffCourt());
         return views.forAdmin(meleeId, admin.clubId());
     }
 

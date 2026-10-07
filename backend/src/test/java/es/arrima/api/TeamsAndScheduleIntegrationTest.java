@@ -196,10 +196,40 @@ class TeamsAndScheduleIntegrationTest {
     }
 
     @Test
-    void aWaitingMatchGetsACourtOnceItIsFree() {
-        long meleeId = meleeWithPlayers(40); // 20 teams, 10 matches per round, 8 courts: 2 wait
+    void moreMatchesThanCourtsAreOnlyPlayedOffCourtOnceAccepted() {
+        long meleeId = meleeWithPlayers(40); // 20 teams, 10 matches per round, 8 courts: 2 off court
+        draw(meleeId, false, false);
+
+        MvcTestResult refused = generate(meleeId, false);
+        assertThat(refused).hasStatus(HttpStatus.CONFLICT).bodyJson().extractingPath("$.code").isEqualTo("OFF_COURT_MATCHES");
+        assertThat(refused).bodyJson().extractingPath("$.offCourtMatches").isEqualTo(2);
+        assertThat(refused).bodyJson().extractingPath("$.courts").isEqualTo(8);
+
+        MvcTestResult schedule = generate(meleeId, false, true);
+        assertThat(schedule).hasStatusOk();
+        for (int round = 0; round < 3; round++) {
+            List<Integer> courts = json(schedule, "$.rounds[%d].matches[*].courtNumber".formatted(round));
+            assertThat(courts).containsExactlyInAnyOrder(1, 2, 3, 4, 5, 6, 7, 8, null, null);
+        }
+    }
+
+    @Test
+    void fewerMatchesThanCourtsNeedNoQuestionAndTakeTheFirstCourts() {
+        long meleeId = meleeWithPlayers(12); // 6 teams, 3 matches per round, 8 courts
+
         draw(meleeId, false, false);
         MvcTestResult schedule = generate(meleeId, false);
+
+        assertThat(schedule).hasStatusOk();
+        List<Integer> courts = json(schedule, "$.rounds[*].matches[*].courtNumber");
+        assertThat(courts).containsOnly(1, 2, 3);
+    }
+
+    @Test
+    void anOffCourtMatchGetsACourtOnceOneIsFree() {
+        long meleeId = meleeWithPlayers(40); // 20 teams, 10 matches per round, 8 courts: 2 off court
+        draw(meleeId, false, false);
+        MvcTestResult schedule = generate(meleeId, false, true);
         List<Map<String, Object>> firstRound = json(schedule, "$.rounds[0].matches");
         Map<String, Object> waiting = firstRound.stream().filter(match -> match.get("courtNumber") == null).findFirst().orElseThrow();
         Map<String, Object> onCourtOne = firstRound.stream().filter(match -> Integer.valueOf(1).equals(match.get("courtNumber")))
@@ -263,8 +293,12 @@ class TeamsAndScheduleIntegrationTest {
     }
 
     private MvcTestResult generate(long meleeId, boolean confirmLosses) {
+        return generate(meleeId, confirmLosses, false);
+    }
+
+    private MvcTestResult generate(long meleeId, boolean confirmLosses, boolean acceptOffCourt) {
         return melees.send(club, "POST", "/api/melees/%d/schedule/generate".formatted(meleeId),
-                "{\"confirmLosses\":%s}".formatted(confirmLosses));
+                "{\"confirmLosses\":%s,\"acceptOffCourt\":%s}".formatted(confirmLosses, acceptOffCourt));
     }
 
     private MvcTestResult setWinner(long meleeId, long matchId, long winnerTeamId) {

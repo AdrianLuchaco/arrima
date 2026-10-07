@@ -13,8 +13,8 @@ import java.util.random.RandomGenerator;
 /**
  * Puts the matches of each round on the courts, round after round:
  * <ol>
- *   <li>if there are more matches than courts, the ones left over wait ("en espera"); teams that
- *       already waited in a previous round go first this time;</li>
+ *   <li>if there are more matches than courts, the ones left over are played off court ("fuera de
+ *       pista", which the admin accepted); teams that already played off court go on a court first;</li>
  *   <li>the matches take the first courts: with 5 matches and 10 courts, courts 1 to 5 are played
  *       and the last ones stay free, every round;</li>
  *   <li>"if possible, a team does not repeat a court", among those courts: a maximum bipartite

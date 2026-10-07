@@ -82,10 +82,11 @@ public class MeleeWorkflow {
 
     /** A new schedule throws away the results of the previous one. */
     @Transactional
-    public void generateSchedule(long meleeId, long clubId, boolean confirmLosses) {
+    public void generateSchedule(long meleeId, long clubId, boolean confirmLosses, boolean acceptOffCourt) {
         Melee melee = meleeAccess.forClub(meleeId, clubId);
         melee.requireStatus(MeleeStatus.TEAMS);
         requireConfirmationIfLosing(lossesFromScheduleOn(melee), confirmLosses);
+        scheduleService.requireOffCourtAccepted(melee, acceptOffCourt);
         prizeService.deleteAll(melee);
         internationalService.deleteAll(melee);
         timerService.deleteAll(melee);

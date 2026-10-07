@@ -35,6 +35,8 @@ public enum ErrorCode {
     TEAMS_DO_NOT_FIT(HttpStatus.CONFLICT),
     TEAMS_INCOMPLETE(HttpStatus.CONFLICT),
     TOO_MANY_ROUNDS(HttpStatus.CONFLICT),
+    /** More matches per round than courts: some are played off court, once the admin accepts it. */
+    OFF_COURT_MATCHES(HttpStatus.CONFLICT),
     NO_TEAMS(HttpStatus.CONFLICT),
     NO_SCHEDULE(HttpStatus.CONFLICT),
     COURT_OCCUPIED(HttpStatus.CONFLICT),

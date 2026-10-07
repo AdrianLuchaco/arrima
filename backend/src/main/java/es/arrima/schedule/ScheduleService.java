@@ -88,6 +88,19 @@ public class ScheduleService {
         meleeAccess.recordChange(melee);
     }
 
+    /**
+     * With more matches per round than courts, the ones left over are played off court. That is
+     * possible, but the admin must know it first: the first attempt is refused with how many.
+     */
+    @Transactional(readOnly = true)
+    public void requireOffCourtAccepted(Melee melee, boolean accepted) {
+        int courts = melee.getSettings().courtCount();
+        int offCourt = ScheduleLimits.offCourtMatches(teamService.teamsOf(melee.getId()).size(), courts);
+        if (offCourt > 0 && !accepted) {
+            throw new ApiException(ErrorCode.OFF_COURT_MATCHES, Map.of("offCourtMatches", offCourt, "courts", courts));
+        }
+    }
+
     /** Back in the teams and forward again, keeping the schedule and its results. */
     @Transactional
     public void resume(long meleeId, long clubId) {
@@ -113,7 +126,7 @@ public class ScheduleService {
     }
 
     /**
-     * A waiting match gets a court once one is free. The court must not hold another unfinished match
+     * An off-court match can move to a court once one is free. The court must not hold another unfinished match
      * of the same round. Courts are also movable if one becomes unusable.
      */
     @Transactional

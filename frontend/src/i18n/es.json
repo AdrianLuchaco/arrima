@@ -155,6 +155,7 @@
     "TEAMS_DO_NOT_FIT": "Los jugadores no cuadran: elige qué hacer.",
     "TEAMS_INCOMPLETE": "Hay equipos sin nadie para jugar.",
     "TOO_MANY_ROUNDS": "Hay más partidas de las posibles para estos equipos.",
+    "OFF_COURT_MATCHES": "Hay más partidas que pistas: confirma que algunas se jugarán fuera de pista.",
     "NO_TEAMS": "Aún no hay equipos.",
     "NO_SCHEDULE": "Aún no hay cuadro de pistas.",
     "COURT_OCCUPIED": "Esa pista está ocupada en esta partida.",
@@ -308,7 +309,7 @@
     "total": "Total",
     "bye": "descanso",
     "courtShort": "P{{number}}",
-    "waitingShort": "Espera",
+    "waitingShort": "Fuera",
     "versus": "vs {{number}}",
     "swap": {
       "start": "Intercambiar jugadores",
@@ -337,7 +338,7 @@
     "roundNumber": "Partida {{number}}",
     "court": "Pista {{number}}",
     "bye": "Descansa",
-    "waiting": "En espera",
+    "waiting": "Fuera de pista",
     "matchLabel": "Equipo {{a}} contra equipo {{b}}",
     "pending_one": "Falta {{count}} resultado.",
     "pending_other": "Faltan {{count}} resultados.",
@@ -352,12 +353,12 @@
   },
   "result": {
     "titleCourt": "Partida {{round}} · Pista {{court}}",
-    "titleWaiting": "Partida {{round}} · En espera",
+    "titleWaiting": "Partida {{round}} · Fuera de pista",
     "question": "¿Quién ha ganado?",
     "readOnly": "Equipos de esta partida:",
     "won": "Ganó",
     "clear": "Borrar el resultado",
-    "assignCourt": "Asignar pista cuando quede una libre:"
+    "assignCourt": "Si queda una pista libre, pásala a:"
   },
   "bombo": {
     "label": "Sorteo de equipos",
@@ -389,7 +390,17 @@
       "button": "Generar cuadro de pistas",
       "regenerate": "Generar un cuadro nuevo",
       "previous": "Hay un cuadro de pistas de antes. Puedes seguir con él (con sus resultados) o generar otro.",
-      "resume": "Seguir con el cuadro de antes"
+      "resume": "Seguir con el cuadro de antes",
+      "offCourt": {
+        "title": "No hay pistas para todos",
+        "text_one": "Salen {{matches}} partidas en cada ronda y hay {{courts}} pistas: {{count}} partida se jugará fuera de pista en cada ronda.",
+        "text_other": "Salen {{matches}} partidas en cada ronda y hay {{courts}} pistas: {{count}} partidas se jugarán fuera de pista en cada ronda.",
+        "fair": "Arrima reparte para que un equipo no juegue fuera de pista dos veces, si se puede.",
+        "accept_one": "Sí, {{count}} partida fuera de pista",
+        "accept_other": "Sí, {{count}} partidas fuera de pista",
+        "changeCourts": "Cambiar las pistas de hoy",
+        "backToPlayers": "No, volver a los jugadores"
+      }
     },
     "matches": {
       "allDone": "¡Están todos los resultados!"
@@ -444,7 +455,7 @@
     "wins_one": "{{count}} victoria",
     "wins_other": "{{count}} victorias",
     "nextOnCourt": "Tu próxima partida ({{round}}.ª): Pista {{court}} contra el Equipo {{rival}}",
-    "nextWaiting": "Tu próxima partida ({{round}}.ª): en espera de pista, contra el Equipo {{rival}}",
+    "nextWaiting": "Tu próxima partida ({{round}}.ª): fuera de pista, contra el Equipo {{rival}}",
     "resting": "Descansas en la partida {{round}}",
     "finished": "Has terminado tus partidas.",
     "notScheduled": "Aún no hay cuadro de pistas.",

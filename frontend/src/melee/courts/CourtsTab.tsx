@@ -7,7 +7,7 @@ import type { Match, MeleeView } from '../types'
 
 /**
  * The court sheet: one column per court, one row per round, as on the club's paper.
- * "Descansa" and "En espera" columns at the end. Wide schedules scroll sideways.
+ * "Descansa" and "Fuera de pista" columns at the end. Wide schedules scroll sideways.
  */
 export function CourtsTab({ melee, readOnly = false }: { melee: MeleeView; readOnly?: boolean }) {
   const { t } = useTranslation()

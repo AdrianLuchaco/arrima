@@ -98,8 +98,8 @@ export const meleeRequests = {
     api<MeleeView>(`${base(meleeId)}/teams/swap`, { method: 'POST', body: { firstPlayerId, secondPlayerId } }),
   substitute: (meleeId: number, leavingPlayerId: number, joiningPlayerId: number) =>
     api<MeleeView>(`${base(meleeId)}/teams/substitute`, { method: 'POST', body: { leavingPlayerId, joiningPlayerId } }),
-  generateSchedule: (meleeId: number, confirmLosses: boolean) =>
-    api<MeleeView>(`${base(meleeId)}/schedule/generate`, { method: 'POST', body: { confirmLosses } }),
+  generateSchedule: (meleeId: number, acceptOffCourt: boolean, confirmLosses: boolean) =>
+    api<MeleeView>(`${base(meleeId)}/schedule/generate`, { method: 'POST', body: { acceptOffCourt, confirmLosses } }),
   resumeSchedule: (meleeId: number) => api<MeleeView>(`${base(meleeId)}/schedule/resume`, { method: 'POST' }),
   setWinner: (meleeId: number, matchId: number, winnerTeamId: number | null) =>
     api<MeleeView>(`${base(meleeId)}/schedule/matchups/${matchId}/winner`, { method: 'PUT', body: { winnerTeamId } }),
