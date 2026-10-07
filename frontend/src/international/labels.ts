@@ -17,3 +17,10 @@ export function groupTitle(t: TFunction, group: IntlGroup): string {
       : t('intl.prizeRange', { best: group.bestPosition, worst: group.worstPosition })
   return t('intl.groupTitle', { count: group.wins, prizes })
 }
+
+/** "desempate: 6 puntos", and "· 2.º desempate: 3 puntos" if the tie-break also ended tied. */
+export function tieBreakLabel(t: TFunction, points: number[]): string {
+  return points
+    .map((count, i) => (i === 0 ? t('intl.tieBreakResult', { count }) : t('intl.tieBreakResultNth', { count, number: i + 1 })))
+    .join(' · ')
+}

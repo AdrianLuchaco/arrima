@@ -1,5 +1,6 @@
 import { formatMeleeDate } from '../lib/dates'
 import { ordinalBeforeNoun } from '../lib/ordinal'
+import { tieBreakPoints } from '../international/intl'
 import { teamNumber, teamPlayers } from '../melee/names'
 import type { MeleeView, Prize } from '../melee/types'
 
@@ -12,8 +13,9 @@ export function prizeText(melee: MeleeView, prize: Prize): string {
 export function classificationText(melee: MeleeView): string {
   const lines = [`🏆 ${melee.club.name} · melé del ${formatMeleeDate(melee.playedOn)}`, '']
   for (const prize of melee.prizes) {
+    const tieBreaks = tieBreakPoints(melee, prize.teamId).map((points, i) => `${i === 0 ? '' : `${i + 1}.º `}desempate: ${points} puntos`)
     const points =
-      prize.points === null ? 'sin jugar la Internacional' : `${prize.points} puntos`
+      prize.points === null ? 'sin jugar la Internacional' : [`${prize.points} puntos`, ...tieBreaks].join('; ')
     lines.push(`${prize.position}.º Equipo ${teamNumber(melee, prize.teamId)}: ${teamPlayers(melee, prize.teamId)} (${points})`)
   }
   return lines.join('\n')

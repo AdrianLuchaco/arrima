@@ -12,6 +12,8 @@ import { ConfirmDialog } from '../ui/ConfirmDialog'
 import { ErrorMessage } from '../ui/ErrorMessage'
 import { PrizePhotos } from './PrizePhotos'
 import { SendPrizesPanel } from './whatsapp/SendPrizesPanel'
+import { tieBreakPoints } from '../international/intl'
+import { tieBreakLabel } from '../international/labels'
 import { classificationText } from './share'
 
 /**
@@ -69,6 +71,7 @@ export function PrizesPage() {
         <p className="mt-3 text-2xl font-bold">{t('teams.teamNumber', { number: teamNumber(melee, prize.teamId) })}</p>
         <p className="text-3xl font-extrabold">{teamPlayers(melee, prize.teamId)}</p>
         {prize.points !== null && <p className="mt-2 text-xl">{t('intl.points', { count: prize.points })}</p>}
+        {tieBreakPoints(melee, prize.teamId).length > 0 && <p className="text-lg">{tieBreakLabel(t, tieBreakPoints(melee, prize.teamId))}</p>}
       </section>
 
       <PrizePhotos melee={melee} prize={prize} editable={editable} />

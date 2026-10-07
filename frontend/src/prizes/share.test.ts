@@ -28,3 +28,26 @@ describe('texts for the WhatsApp group', () => {
     )
   })
 })
+
+describe('the classification after a tie-break', () => {
+  const tied = {
+    ...melee,
+    prizes: [
+      { id: 1, position: 1, teamId: 20, points: 12, awarded: true, photos: [] },
+      { id: 2, position: 2, teamId: 10, points: 12, awarded: true, photos: [] },
+    ],
+    international: {
+      groups: [{ rounds: [
+        { id: 100, number: 1, obsolete: false, complete: true, teams: [{ teamId: 10, points: 12 }, { teamId: 20, points: 12 }] },
+        { id: 101, number: 2, obsolete: false, complete: true, teams: [{ teamId: 10, points: 5 }, { teamId: 20, points: 8 }] },
+      ] }],
+    },
+  } as unknown as MeleeView
+
+  it('keeps the points they tied on and adds what each made in the tie-break', () => {
+    expect(classificationText(tied).split('\n').slice(2)).toEqual([
+      '1.º Equipo 2: Pepe y Lola (12 puntos; desempate: 8 puntos)',
+      '2.º Equipo 7: Manuel y Paqui (12 puntos; desempate: 5 puntos)',
+    ])
+  })
+})

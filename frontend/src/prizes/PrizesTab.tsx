@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { ordinalBeforeNoun } from '../lib/ordinal'
+import { tieBreakPoints } from '../international/intl'
+import { tieBreakLabel } from '../international/labels'
 import { teamNumber, teamPlayers } from '../melee/names'
 import type { MeleeView } from '../melee/types'
 import { PrizePhotos } from './PrizePhotos'
@@ -16,6 +18,7 @@ export function PrizesTab({ melee }: { melee: MeleeView }) {
           <p className="text-lg">
             <strong>{t('teams.teamNumber', { number: teamNumber(melee, prize.teamId) })}</strong> · {teamPlayers(melee, prize.teamId)}
             {prize.points !== null && ` · ${t('intl.points', { count: prize.points })}`}
+            {tieBreakPoints(melee, prize.teamId).length > 0 && ` (${tieBreakLabel(t, tieBreakPoints(melee, prize.teamId))})`}
           </p>
           {prize.photos.length > 0 && (
             <div className="mt-3">

@@ -69,3 +69,17 @@ export function recordThrow(melee: MeleeView, roundId: number, teamId: number, k
     overlay: { kind: 'throw', roundId, teamId, ballKind: kind, ballNumber, outcome },
   })
 }
+
+/**
+ * The points a team made in each tie-break, in order. A tie-break starts from zero and only orders
+ * the tied teams; the points they tied on stay those of the regular round. Tie-breaks that a
+ * correction made obsolete are left out.
+ */
+export function tieBreakPoints(melee: MeleeView, teamId: number): number[] {
+  return (melee.international?.groups ?? []).flatMap((group) =>
+    [...group.rounds]
+      .filter((round) => round.number > 1 && !round.obsolete)
+      .sort((a, b) => a.number - b.number)
+      .flatMap((round) => round.teams.filter((team) => team.teamId === teamId).map((team) => team.points)),
+  )
+}

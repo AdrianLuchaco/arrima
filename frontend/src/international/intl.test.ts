@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { MeleeView } from '../melee/types'
 import type { PendingAction } from '../offline/outbox'
 import { withPending } from '../offline/withPending'
-import { localTurn, positionOf } from './intl'
+import { localTurn, positionOf, tieBreakPoints } from './intl'
 
 const scoring = {
   pointingOut: 0, pointingBigCircle: 1, pointingSmallCircle: 2, pointingNearJack: 3, pointingOnJack: 5,
@@ -58,5 +58,38 @@ describe('localTurn with balls not yet sent', () => {
       (['POINTING', 'SHOOTING'] as const).flatMap((kind) => [1, 2, 3].map((ball) => throwAction(team, kind, ball, kind === 'POINTING' ? 'OUT' : 'MISS'))))
 
     expect(localTurn(withPending(melee(), pending))).toEqual({ awaitingServer: true, groupId: 7 })
+  })
+})
+
+describe('tieBreakPoints', () => {
+  /** Teams 10, 20 and 30 tied on 12 in the regular round; 10 and 20 tied again in the first tie-break. */
+  function tied(): MeleeView {
+    const team = (teamId: number, points: number) => ({ teamId, playOrder: 1, points, balls: [] })
+    return {
+      international: {
+        groups: [{
+          id: 7, playOrder: 1, wins: 2, bestPosition: 2, worstPosition: 4, status: 'FINISHED', order: [20, 10, 30], obsoletePlayed: false,
+          rounds: [
+            { id: 100, number: 1, obsolete: false, complete: true, teams: [team(10, 12), team(20, 12), team(30, 12)] },
+            { id: 102, number: 3, obsolete: false, complete: true, teams: [team(10, 4), team(20, 9)] },
+            { id: 101, number: 2, obsolete: false, complete: true, teams: [team(10, 7), team(20, 7), team(30, 3)] },
+            { id: 99, number: 2, obsolete: true, complete: true, teams: [team(10, 15), team(30, 1)] },
+          ],
+        }],
+        assured: [], turn: null, finalRanking: [], complete: true,
+      },
+    } as unknown as MeleeView
+  }
+
+  it('gives each tie-break on its own, from zero, in order', () => {
+    expect(tieBreakPoints(tied(), 20)).toEqual([7, 9])
+    expect(tieBreakPoints(tied(), 10)).toEqual([7, 4])
+    expect(tieBreakPoints(tied(), 30)).toEqual([3])
+  })
+
+  it('leaves out tie-breaks a correction made obsolete, and teams that did not tie', () => {
+    expect(tieBreakPoints(tied(), 30)).not.toContain(1)
+    expect(tieBreakPoints(tied(), 40)).toEqual([])
+    expect(tieBreakPoints({ international: null } as unknown as MeleeView, 10)).toEqual([])
   })
 })

@@ -483,7 +483,10 @@
       "FINISHED": "Terminado"
     },
     "obsoleteWarning": "Una corrección ha cambiado el empate de este grupo: un desempate que ya se jugó ya no cuenta. Revisa la clasificación.",
-    "tieBreakPoints": "desempate: {{points}}",
+    "tieBreakResult_one": "desempate: {{count}} punto",
+    "tieBreakResult_other": "desempate: {{count}} puntos",
+    "tieBreakResultNth_one": "{{number}}.º desempate: {{count}} punto",
+    "tieBreakResultNth_other": "{{number}}.º desempate: {{count}} puntos",
     "finalTitle": "Clasificación final",
     "direct": "sin jugar",
     "afterTieBreak": "tras desempate",

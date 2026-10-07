@@ -2,7 +2,8 @@ import { useTranslation } from 'react-i18next'
 import { ordinalBeforeNoun } from '../lib/ordinal'
 import { teamNumber, teamPlayers } from '../melee/names'
 import type { IntlGroup, MeleeView, Ranked } from '../melee/types'
-import { groupTitle } from './labels'
+import { tieBreakPoints } from './intl'
+import { groupTitle, tieBreakLabel } from './labels'
 
 /**
  * The scoreboard of la Internacional: each group with its teams and points, and the final list.
@@ -51,20 +52,16 @@ function GroupCard({ melee, group, onTeam }: { melee: MeleeView; group: IntlGrou
       <ol className="flex flex-col gap-2">
         {group.order.map((teamId, index) => {
           const main = applied[0]?.teams.find((team) => team.teamId === teamId)
-          const tieBreaks = applied.slice(1).flatMap((round) => round.teams.filter((team) => team.teamId === teamId))
+          const tieBreaks = applied.slice(1).flatMap((round) => round.teams.filter((team) => team.teamId === teamId)).map((team) => team.points)
           const content = (
             <>
               <span className="w-10 shrink-0 text-xl font-extrabold text-steel-600">{index + 1}.</span>
               <span className="min-w-0 flex-1 text-left">
                 <span className="block text-lg font-bold">{t('teams.teamNumber', { number: teamNumber(melee, teamId) })}</span>
                 <span className="block text-base">{teamPlayers(melee, teamId)}</span>
+                {tieBreaks.length > 0 && <span className="block text-base font-bold text-jack-700">{tieBreakLabel(t, tieBreaks)}</span>}
               </span>
-              <span className="text-right">
-                <span className="block text-2xl font-extrabold">{main?.points ?? 0}</span>
-                {tieBreaks.map((team, i) => (
-                  <span key={i} className="block text-sm text-steel-600">{t('intl.tieBreakPoints', { points: team.points })}</span>
-                ))}
-              </span>
+              <span className="text-right text-2xl font-extrabold">{main?.points ?? 0}</span>
             </>
           )
           return (
@@ -95,10 +92,14 @@ function FinalList({ melee, ranking }: { melee: MeleeView; ranking: Ranked[] }) 
             <span className="w-14 shrink-0 text-2xl font-extrabold">{t('intl.prizeShort', { position: ranked.position })}</span>
             <span className="min-w-0 flex-1">
               <strong>{t('teams.teamNumber', { number: teamNumber(melee, ranked.teamId) })}</strong> · {teamPlayers(melee, ranked.teamId)}
+              {ranked.tieBreak && (
+                <span className="block text-base font-bold text-jack-700">
+                  {tieBreakLabel(t, tieBreakPoints(melee, ranked.teamId)) || t('intl.afterTieBreak')}
+                </span>
+              )}
             </span>
-            <span className="text-right">
+            <span className="shrink-0 text-right">
               {ranked.points !== null ? t('intl.points', { count: ranked.points }) : t('intl.direct')}
-              {ranked.tieBreak && <span className="block text-sm text-steel-600">{t('intl.afterTieBreak')}</span>}
             </span>
           </li>
         ))}
